@@ -17,7 +17,7 @@ from backend.core.config import settings
 from passlib.context import CryptContext
 import uuid
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 # Prometheus Metrics
 REQUEST_COUNT = Counter("http_requests_total", "Total HTTP Requests", ["method", "endpoint"])

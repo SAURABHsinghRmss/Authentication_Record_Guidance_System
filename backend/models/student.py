@@ -35,6 +35,17 @@ class UserModel(Base):
     hashed_password = Column(String)
     role = Column(String, default="student") # student, faculty, admin
     full_name = Column(String)
+    institution_name = Column(String)
+    institution_verified = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+class InstitutionModel(Base):
+    __tablename__ = "institutions"
+
+    id = Column(String, primary_key=True, index=True)
+    name = Column(String, unique=True, index=True)
+    status = Column(String, default="PENDING") # PENDING, VERIFIED
+    requested_by = Column(String, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 # Pydantic Schemas
@@ -82,6 +93,7 @@ class UserRegister(BaseModel):
     password: str
     full_name: str
     role: str = "student"
+    institution_name: str
 
 class UserLogin(BaseModel):
     username: str
@@ -93,6 +105,7 @@ class Token(BaseModel):
     token_type: str
     role: str
     username: str
+    institution_verified: bool
 
 class OtpSendRequest(BaseModel):
     email: str

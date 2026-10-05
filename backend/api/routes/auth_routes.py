@@ -12,7 +12,7 @@ from backend.core.config import settings
 from ai_engine.pipelines.biometric_worker import biometric_pipeline
 
 router = APIRouter(prefix="/auth", tags=["Authentication & Biometrics"])
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 # Temporary in-memory OTP storage
 OTP_STORE = {}

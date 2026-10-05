@@ -50,5 +50,32 @@ class TestEduIdentityAPI(unittest.TestCase):
         data = response.json()
         self.assertTrue(data["verified"])
 
+    def test_user_registration_and_login(self):
+        # Test registering a new user
+        reg_payload = {
+            "username": "newtestuser",
+            "email": "newtest@uni.edu",
+            "password": "securepassword123",
+            "full_name": "New Test User",
+            "role": "student"
+        }
+        response = client.post("/api/auth/register", json=reg_payload)
+        # May be 200/201 or 400 if already registered from previous run
+        if response.status_code == 200:
+            data = response.json()
+            self.assertIn("access_token", data)
+            self.assertEqual(data["username"], "newtestuser")
+            self.assertEqual(data["role"], "student")
+
+        # Test logging in with the newly registered user
+        login_payload = {
+            "username": "newtestuser",
+            "password": "securepassword123"
+        }
+        response = client.post("/api/auth/login", json=login_payload)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("access_token", data)
+
 if __name__ == "__main__":
     unittest.main()
