@@ -1,17 +1,22 @@
-# Internet Deployment Phased Roadmap
+# Internet Deployment Phased Roadmap (Render.com)
 
-This roadmap defines the structured phases required to deploy **EduIdentityAI** live onto the internet as a fully fledged, production-grade system.
+This roadmap defines the structured phases required to deploy **EduIdentityAI** live onto the internet via [Render Dashboard](https://dashboard.render.com/).
 
 ---
 
-## **Phase 1: Cloud Infrastructure Provisioning & Vercel Setup** (IN PROGRESS)
-* **Objective**: Initialize Git version control and configure Vercel deployment manifests.
-* **Status**: 
-  - Git repository initialized (`git init`).
-  - Vercel configuration created (`vercel.json`) routing API requests to FastAPI and static assets to the frontend portal.
-* **Next Steps**:
-  - Connect repository to Vercel dashboard or CLI (`vercel --prod`).
-  - Configure environment variables (`DATABASE_URL`, `JWT_SECRET`) in Vercel project settings.
+## **Phase 1: Render Web Service Setup** (READY)
+* **Objective**: Deploy FastAPI backend and static frontend portal via Render.
+* **Deployment Steps**:
+  1. Push your repository to GitHub:
+     ```bash
+     git add .
+     git commit -m "Render deployment configuration v2.1"
+     git push origin main
+     ```
+  2. Log in to [Render Dashboard](https://dashboard.render.com/).
+  3. Click **New ➔ Blueprint** (or **New ➔ Web Service**).
+  4. Connect your GitHub repository. Render will automatically detect `render.yaml`.
+  5. Click **Apply Blueprint**. Render will build Python dependencies and launch your FastAPI application live on the internet!
 
 ## **Phase 2: Database Migration & Schema Versioning**
 * **Objective**: Transition from auto-creation to Alembic version-controlled migrations.
