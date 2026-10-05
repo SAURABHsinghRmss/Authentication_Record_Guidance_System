@@ -1,0 +1,39 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "backend/api/main.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "backend/api/main.py"
+    },
+    {
+      "src": "/rag_query",
+      "dest": "backend/api/main.py"
+    },
+    {
+      "src": "/ws/(.*)",
+      "dest": "backend/api/main.py"
+    },
+    {
+      "src": "/health",
+      "dest": "backend/api/main.py"
+    },
+    {
+      "src": "/metrics",
+      "dest": "backend/api/main.py"
+    },
+    {
+      "src": "/portal/(.*)",
+      "dest": "frontend/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "frontend/index.html"
+    }
+  ]
+}

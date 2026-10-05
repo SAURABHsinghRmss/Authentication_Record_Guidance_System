@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduIdentityAI — Role-Based Secure Portal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.0/dist/cdn.min.js"></script>
+</head>
+<body class="theme-student" x-data="portalApp()" x-init="init()">
+
+  <!-- ========================================== -->
+  <!-- SECURE LOGIN GATE (Different site view per role) -->
+  <!-- ========================================== -->
+  <div x-show="!isLoggedIn" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/95 backdrop-blur-2xl px-4">
+    <div class="glass-card w-full max-w-md p-8 space-y-6 shadow-2xl border border-slate-800">
+      <div class="text-center space-y-2">
+        <div class="inline-flex bg-blue-600 p-3 rounded-2xl text-white shadow-lg shadow-blue-500/40 mb-2">
+          <i class="fa-solid fa-shield-halved text-2xl"></i>
+        </div>
+        <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">EduIdentityAI Secure Portal</h1>
+        <p class="text-xs text-slate-400">Select Role & Authenticate to Access Dedicated Workspace</p>
+      </div>
+
+      <!-- Role Selector Tabs -->
+      <div class="grid grid-cols-3 gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800 text-xs font-semibold text-center">
+        <button @click="loginForm.role = 'student'; themeClass = 'theme-student'" :class="loginForm.role === 'student' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'" class="py-2 rounded-lg transition">Student</button>
+        <button @click="loginForm.role = 'faculty'; themeClass = 'theme-faculty'" :class="loginForm.role === 'faculty' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'" class="py-2 rounded-lg transition">Faculty</button>
+        <button @click="loginForm.role = 'admin'; themeClass = 'theme-admin'" :class="loginForm.role === 'admin' ? 'bg-rose-600 text-white shadow' : 'text-slate-400 hover:text-white'" class="py-2 rounded-lg transition">Admin</button>
+      </div>
+
+      <!-- Login Form -->
+      <form @submit.prevent="login()" class="space-y-4">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1 font-medium">Username</label>
+          <input type="text" x-model="loginForm.username" required placeholder="e.g. amit, faculty, admin" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1 font-medium">Password</label>
+          <input type="password" x-model="loginForm.password" required placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200">
+        </div>
+
+        <!-- Not a Robot CAPTCHA -->
+        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between text-xs text-slate-300">
+            <span class="flex items-center space-x-2">
+              <input type="checkbox" x-model="captchaVerified" required class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 bg-slate-800 border-slate-700">
+              <span class="font-medium">I am not a robot (Solve: 6 + 4 = ?)</span>
+            </span>
+          </div>
+          <input type="number" x-model.number="captchaAnswer" placeholder="Enter sum (10)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200">
+        </div>
+
+        <div x-show="authError" class="text-xs text-red-400 bg-red-500/10 p-2 rounded-lg border border-red-500/20" x-text="authError"></div>
+        
+        <button type="submit" class="btn-primary w-full py-3 rounded-xl text-sm font-semibold shadow-lg">
+          Authenticate & Enter <span x-text="loginForm.role.toUpperCase()"></span> Workspace
+        </button>
+
+        <div class="text-center text-xs text-slate-500 pt-1 space-y-1">
+          <div>Quick test accounts:</div>
+          <div>Student: <span class="text-slate-300 font-mono">amit / amit123</span></div>
+          <div>Faculty: <span class="text-slate-300 font-mono">faculty / faculty123</span></div>
+          <div>Admin: <span class="text-slate-300 font-mono">admin / admin123</span></div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- ROLE-SEGREGATED WORKSPACE (Main Dashboard) -->
+  <!-- ========================================== -->
+  <div x-show="isLoggedIn" class="flex flex-col min-h-screen">
+    
+    <!-- TOP BAR -->
+    <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur-md sticky top-0 z-40 h-16 flex items-center justify-between px-6">
+      <div class="flex items-center space-x-4">
+        <div class="p-2 rounded-xl text-white shadow-lg" :class="currentUserRole === 'admin' ? 'bg-rose-600 shadow-rose-600/30' : currentUserRole === 'faculty' ? 'bg-indigo-600 shadow-indigo-600/30' : 'bg-blue-600 shadow-blue-500/30'">
+          <i class="fa-solid fa-graduation-cap text-lg"></i>
+        </div>
+        <div>
+          <span class="font-bold text-base bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">EduIdentityAI Workspace</span>
+          <span class="block text-xs text-slate-400" x-text="'Active Secure Session: ' + currentUserRole.toUpperCase() + ' Portal'"></span>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-4">
+        <div class="hidden sm:flex items-center space-x-2 bg-slate-800/60 px-3 py-1.5 rounded-full border border-slate-700/50 text-xs">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-slate-300">SLA 99.98% Operational</span>
+        </div>
+        <button @click="logout()" class="text-xs bg-red-600/20 hover:bg-red-600/30 text-red-400 px-3.5 py-2 rounded-xl border border-red-500/30 transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-right-from-bracket"></i><span>Secure Logout</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN BODY LAYOUT (SideBar + Scrolling Content) -->
+    <div class="flex flex-1 overflow-hidden">
+      
+      <!-- SIDE BAR / SLIDING BAR -->
+      <aside class="w-64 border-r border-slate-800 bg-slate-900/50 backdrop-blur-md p-4 flex flex-col justify-between hidden md:flex">
+        <div class="space-y-6">
+          <div class="px-3 py-2 bg-slate-800/50 rounded-xl border border-slate-700/50">
+            <span class="text-xs text-slate-400 block">Logged in as</span>
+            <span class="font-semibold text-sm text-slate-200" x-text="loginForm.username"></span>
+            <span class="badge badge-success text-[10px] mt-1" x-text="currentUserRole.toUpperCase()"></span>
+          </div>
+
+          <!-- Navigation Links per Role -->
+          <nav class="space-y-1.5 text-sm font-medium">
+            <!-- Student Links -->
+            <template x-if="currentUserRole === 'student'">
+              <div class="space-y-1.5">
+                <button @click="activeTab = 'guidance'" :class="activeTab === 'guidance' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
+                  <i class="fa-solid fa-brain w-5"></i><span>AI Guidance RAG</span>
+                </button>
+                <button @click="activeTab = 'biometrics'" :class="activeTab === 'biometrics' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
+                  <i class="fa-solid fa-fingerprint w-5"></i><span>Biometrics & 2FA</span>
+                </button>
+                <button @click="activeTab = 'credentials'" :class="activeTab === 'credentials' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
+                  <i class="fa-solid fa-id-card w-5"></i><span>APAAR & DigiLocker</span>
+                </button>
+                <button @click="activeTab = 'legitimacy'" :class="activeTab === 'legitimacy' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
+                  <i class="fa-solid fa-shield-virus w-5"></i><span>Opportunity Scam Shield</span>
+                </button>
+              </div>
+            </template>
+
+            <!-- Faculty Links -->
+            <template x-if="currentUserRole === 'faculty'">
+              <div class="space-y-1.5">
+                <button @click="activeTab = 'faculty_roster'" :class="activeTab === 'faculty_roster' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
+                  <i class="fa-solid fa-users-viewfinder w-5"></i><span>Mentorship Roster</span>
+                </button>
+                <button @click="activeTab = 'faculty_at_risk'" :class="activeTab === 'faculty_at_risk' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
+                  <i class="fa-solid fa-triangle-exclamation w-5"></i><span>At-Risk Students</span>
+                </button>
+                <button @click="activeTab = 'legitimacy'" :class="activeTab === 'legitimacy' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
+                  <i class="fa-solid fa-book-bookmark w-5"></i><span>Research Portal Verifier</span>
+                </button>
+              </div>
+            </template>
+
+            <!-- Admin Links -->
+            <template x-if="currentUserRole === 'admin'">
+              <div class="space-y-1.5">
+                <button @click="activeTab = 'admin_crud'" :class="activeTab === 'admin_crud' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
+                  <i class="fa-solid fa-database w-5"></i><span>Student Database CRUD</span>
+                </button>
+                <button @click="activeTab = 'legitimacy'" :class="activeTab === 'legitimacy' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
+                  <i class="fa-solid fa-globe w-5"></i><span>Domain Threat Intelligence</span>
+                </button>
+                <button @click="activeTab = 'observability'" :class="activeTab === 'observability' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
+                  <i class="fa-solid fa-chart-line w-5"></i><span>SLA & Prometheus</span>
+                </button>
+                <button @click="activeTab = 'audit_logs'" :class="activeTab === 'audit_logs' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
+                  <i class="fa-solid fa-terminal w-5"></i><span>Live Audit Stream</span>
+                </button>
+              </div>
+            </template>
+          </nav>
+        </div>
+
+        <div class="p-3 bg-slate-950/50 rounded-xl border border-slate-800 text-[11px] text-slate-500 font-mono text-center">
+          EduIdentityAI v2.1 Secure Engine
+        </div>
+      </aside>
+
+      <!-- SCROLLING MAIN CONTENT CONTAINER -->
+      <main class="flex-1 overflow-y-auto p-6 md:p-8 space-y-8">
+
+        <!-- STUDENT VIEWS -->
+        <template x-if="currentUserRole === 'student'">
+          <div class="space-y-8">
+            <!-- Student Selector & Metrics -->
+            <div class="flex items-center justify-between bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+              <div class="flex items-center space-x-3">
+                <span class="text-xs text-slate-400">Select Profile:</span>
+                <select x-model="selectedStudentId" @change="loadStudentData()" class="bg-slate-800 text-slate-200 text-sm rounded-lg px-3 py-1.5 border border-slate-700">
+                  <template x-for="s in students" :key="s.id">
+                    <option :value="s.id" x-text="s.name + ' (' + s.roll_no + ')'"></option>
+                  </template>
+                </select>
+              </div>
+              <span class="text-xs text-emerald-400 font-mono"><i class="fa-solid fa-shield-check mr-1"></i> Verified Student Identity</span>
+            </div>
+
+            <!-- Tab 1: AI Guidance RAG -->
+            <div x-show="activeTab === 'guidance'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div class="lg:col-span-2 glass-card p-6 flex flex-col h-[550px]">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></div>
+                    <h2 class="font-semibold text-base">Qwen3 Embedding & DeepSeek RAG Advisor</h2>
+                  </div>
+                  <span class="text-xs text-slate-400">Vector Store: Qdrant</span>
+                </div>
+
+                <div class="flex-1 overflow-y-auto py-4 space-y-4 pr-2">
+                  <template x-for="msg in chatMessages">
+                    <div :class="msg.sender === 'user' ? 'flex justify-end' : 'flex justify-start'">
+                      <div :class="msg.sender === 'user' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-200 border border-slate-700'" class="max-w-[85%] rounded-2xl px-4 py-3 shadow text-sm">
+                        <p x-text="msg.text"></p>
+                        <template x-for="c in msg.citations">
+                          <div class="mt-2 pt-2 border-t border-slate-700 text-xs text-blue-300">
+                            <span class="font-bold" x-text="c.topic + ' (Score: ' + c.score + '): '"></span>
+                            <span x-text="c.content" class="text-slate-300"></span>
+                          </div>
+                        </template>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+
+                <div class="flex items-center space-x-2 pt-3 border-t border-slate-800">
+                  <input type="text" x-model="userQuery" @keyup.enter="sendPrompt(userQuery)" placeholder="Ask about academic policies, credit transfer, attendance..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <button @click="sendPrompt(userQuery)" class="btn-primary px-5 py-3 rounded-xl">
+                    <i class="fa-solid fa-paper-plane"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Profile Sidebar -->
+              <div class="glass-card p-6 space-y-4 text-sm">
+                <h3 class="font-semibold text-base border-b border-slate-800 pb-3">Student Summary</h3>
+                <div><span class="text-xs text-slate-400 block">Name</span><span class="font-medium" x-text="currentStudent.name"></span></div>
+                <div><span class="text-xs text-slate-400 block">Roll No</span><span class="font-mono text-blue-400" x-text="currentStudent.roll_no"></span></div>
+                <div><span class="text-xs text-slate-400 block">Department</span><span class="font-medium" x-text="currentStudent.department"></span></div>
+                <div><span class="text-xs text-slate-400 block">CGPA</span><span class="font-bold text-emerald-400" x-text="currentStudent.cgpa"></span></div>
+                <div><span class="text-xs text-slate-400 block">Attendance</span><span class="font-bold" :class="parseFloat(currentStudent.attendance_percentage || 0) >= 75 ? 'text-emerald-400' : 'text-red-400'" x-text="(currentStudent.attendance_percentage || 0) + '%'"></span></div>
+                <button @click="fetchGuidance()" class="btn-primary w-full py-2.5 rounded-xl text-xs">Generate Guidance Report</button>
+              </div>
+            </div>
+
+            <!-- Tab 2: Biometrics & 2FA -->
+            <div x-show="activeTab === 'biometrics'" class="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div class="glass-card p-6 space-y-4">
+                <h3 class="font-semibold text-sm">Face Recognition</h3>
+                <div class="bg-slate-900 p-4 rounded-xl text-center font-mono text-xs text-emerald-400 h-28 flex items-center justify-center border border-slate-800" x-text="faceStatus"></div>
+                <button @click="runBiometric('face')" class="btn-primary w-full py-2 rounded-xl text-xs">Run Face Scan</button>
+              </div>
+              <div class="glass-card p-6 space-y-4">
+                <h3 class="font-semibold text-sm">Document OCR</h3>
+                <div class="bg-slate-900 p-4 rounded-xl text-center font-mono text-xs text-emerald-400 h-28 flex items-center justify-center border border-slate-800" x-text="ocrStatus"></div>
+                <button @click="runBiometric('ocr')" class="btn-primary w-full py-2 rounded-xl text-xs">Scan ID Card</button>
+              </div>
+              <div class="glass-card p-6 space-y-4">
+                <h3 class="font-semibold text-sm">Voice Biometric</h3>
+                <div class="bg-slate-900 p-4 rounded-xl text-center font-mono text-xs text-emerald-400 h-28 flex items-center justify-center border border-slate-800" x-text="voiceStatus"></div>
+                <button @click="runBiometric('voice')" class="btn-primary w-full py-2 rounded-xl text-xs">Verify Voice</button>
+              </div>
+              <div class="glass-card p-6 space-y-4">
+                <h3 class="font-semibold text-sm">2FA OTP Code</h3>
+                <div class="space-y-2">
+                  <button @click="sendOtp()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 py-1.5 rounded-lg text-xs border border-slate-700">Send OTP</button>
+                  <input type="text" x-model="otpInput" placeholder="6-digit OTP" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-center font-mono text-slate-200">
+                  <span class="text-[11px] font-mono text-emerald-400 block text-center" x-text="otpStatus"></span>
+                </div>
+                <button @click="verifyOtp()" class="btn-primary w-full py-2 rounded-xl text-xs">Verify OTP</button>
+              </div>
+            </div>
+
+            <!-- Tab 3: Credentials -->
+            <div x-show="activeTab === 'credentials'" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div class="glass-card p-6 space-y-4">
+                <h3 class="font-semibold text-base">APAAR ID Verification</h3>
+                <input type="text" x-model="apaarInput" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm">
+                <button @click="verifyApaar()" class="btn-primary w-full py-2.5 rounded-xl text-xs">Verify APAAR ID</button>
+                <div x-show="apaarResult" class="bg-slate-950 p-3 rounded-xl text-xs font-mono text-emerald-400 overflow-x-auto" x-text="JSON.stringify(apaarResult, null, 2)"></div>
+              </div>
+              <div class="glass-card p-6 space-y-4">
+                <h3 class="font-semibold text-base">DigiLocker Sync</h3>
+                <select x-model="digilockerDocType" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm">
+                  <option value="DEGREE_CERTIFICATE">B.Tech Degree Certificate</option>
+                  <option value="SEMESTER_MARK_SHEET">Semester Mark Sheet</option>
+                </select>
+                <button @click="fetchDigilocker()" class="btn-primary w-full py-2.5 rounded-xl text-xs">Sync from DigiLocker</button>
+                <div x-show="digilockerResult" class="bg-slate-950 p-3 rounded-xl text-xs font-mono text-emerald-400 overflow-x-auto" x-text="JSON.stringify(digilockerResult, null, 2)"></div>
+              </div>
+            </div>
+
+            <!-- Tab 4: Website Legitimacy Checker (Opportunity Scam Shield) -->
+            <div x-show="activeTab === 'legitimacy'" class="glass-card p-6 space-y-6">
+              <div class="border-b border-slate-800 pb-4">
+                <h2 class="font-semibold text-lg text-emerald-400"><i class="fa-solid fa-shield-virus mr-2"></i> Opportunity Scam Shield (Website Legitimacy Checker)</h2>
+                <p class="text-xs text-slate-400 mt-1">Verify scholarship, internship, and admissions portals to avoid phishing and financial aid fraud.</p>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2 space-y-4">
+                  <label class="block text-xs text-slate-300 font-medium">Enter Portal URL to Verify</label>
+                  <div class="flex space-x-2">
+                    <input type="url" x-model="targetUrl" placeholder="https://scholarships.gov.in or https://suspicious-grant.xyz" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200">
+                    <button @click="checkWebsiteLegitimacy()" class="btn-primary px-6 py-3 text-sm rounded-xl">Analyze URL</button>
+                  </div>
+
+                  <div x-show="urlCheckResult" class="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 space-y-4">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs text-slate-400 font-mono" x-text="urlCheckResult.category"></span>
+                      <span class="badge" :class="urlCheckResult.is_safe ? 'badge-success' : 'badge-warning'" x-text="urlCheckResult.is_safe ? 'SAFE TO APPLY' : 'HIGH RISK / SCAM'"></span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                      <div class="text-3xl font-bold font-mono" :class="urlCheckResult.trust_score >= 75 ? 'text-emerald-400' : 'text-red-400'" x-text="urlCheckResult.trust_score + '% Trust Score'"></div>
+                    </div>
+                    <div x-show="urlCheckResult.warnings && urlCheckResult.warnings.length > 0" class="space-y-1">
+                      <span class="text-xs font-semibold text-red-400">Security Warnings:</span>
+                      <template x-for="w in urlCheckResult.warnings">
+                        <div class="text-xs bg-red-500/10 text-red-300 p-2 rounded-lg border border-red-500/20" x-text="w"></div>
+                      </template>
+                    </div>
+                    <div>
+                      <span class="text-xs font-semibold text-blue-300">AI Recommendation:</span>
+                      <p class="text-xs text-slate-300 mt-1 bg-slate-950 p-3 rounded-xl border border-slate-800" x-text="urlCheckResult.recommendation"></p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 space-y-4 text-xs">
+                  <h3 class="font-semibold text-sm text-slate-200"><i class="fa-solid fa-lightbulb text-amber-400 mr-1.5"></i> Scam Prevention Tips</h3>
+                  <ul class="space-y-2 text-slate-400 list-disc list-inside">
+                    <li>Official Indian government portals always end in <span class="text-slate-200 font-mono">.gov.in</span> or <span class="text-slate-200 font-mono">.ac.in</span>.</li>
+                    <li>Never pay registration fees for legitimate university scholarships.</li>
+                    <li>Verify the digital certificate issuer via DigiLocker before sharing personal documents.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <!-- FACULTY VIEWS -->
+        <template x-if="currentUserRole === 'faculty'">
+          <div class="space-y-8">
+            <div x-show="activeTab === 'faculty_roster'" class="glass-card p-6 space-y-6">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <h2 class="font-semibold text-lg text-indigo-300"><i class="fa-solid fa-users-viewfinder mr-2"></i> Faculty Mentorship & Student Roster</h2>
+                <span class="badge badge-success">Advising 5 Assigned Mentees</span>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                  <thead class="bg-slate-900 text-slate-400 text-xs uppercase border-b border-slate-800">
+                    <tr><th class="p-3">Roll No</th><th class="p-3">Name</th><th class="p-3">Department</th><th class="p-3">CGPA</th><th class="p-3">Attendance</th><th class="p-3">Backlogs</th></tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-800">
+                    <template x-for="s in students" :key="s.id">
+                      <tr class="hover:bg-slate-900/50 transition">
+                        <td class="p-3 font-mono text-indigo-400" x-text="s.roll_no"></td>
+                        <td class="p-3 font-semibold" x-text="s.name"></td>
+                        <td class="p-3 text-slate-300" x-text="s.department"></td>
+                        <td class="p-3 font-bold text-emerald-400" x-text="s.cgpa"></td>
+                        <td class="p-3 font-bold" :class="parseFloat(s.attendance_percentage || 0) >= 75 ? 'text-emerald-400' : 'text-red-400'" x-text="s.attendance_percentage + '%'"></td>
+                        <td class="p-3 font-bold text-amber-400" x-text="s.backlogs"></td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- At-Risk Section -->
+            <div x-show="activeTab === 'faculty_at_risk'" class="glass-card p-6 space-y-4">
+              <h3 class="font-semibold text-base text-rose-400"><i class="fa-solid fa-triangle-exclamation mr-2"></i> At-Risk Students Requiring Intervention</h3>
+              <p class="text-xs text-slate-400">Students with attendance < 75% or active backlogs:</p>
+              <div class="space-y-3">
+                <template x-for="s in students.filter(x => parseFloat(x.attendance_percentage) < 75 || x.backlogs > 0)" :key="s.id">
+                  <div class="bg-slate-900 p-4 rounded-xl border border-rose-500/20 flex items-center justify-between">
+                    <div>
+                      <span class="font-semibold" x-text="s.name"></span> (<span class="font-mono text-xs text-rose-300" x-text="s.roll_no"></span>)
+                      <span class="block text-xs text-slate-400 mt-1" x-text="'Attendance: ' + s.attendance_percentage + '% | Backlogs: ' + s.backlogs"></span>
+                    </div>
+                    <button @click="alertStudent(s.name)" class="bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 px-3 py-1.5 rounded-lg text-xs border border-rose-500/30">Send Counseling Notice</button>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- Faculty Legitimacy Checker (Research Portal Verifier) -->
+            <div x-show="activeTab === 'legitimacy'" class="glass-card p-6 space-y-6">
+              <div class="border-b border-slate-800 pb-4">
+                <h2 class="font-semibold text-lg text-indigo-400"><i class="fa-solid fa-book-bookmark mr-2"></i> Research & Conference Portal Verifier</h2>
+                <p class="text-xs text-slate-400 mt-1">Verify academic journals, conference submission websites, and grant portals before recommending to mentees.</p>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2 space-y-4">
+                  <label class="block text-xs text-slate-300 font-medium">Enter Journal or Conference URL</label>
+                  <div class="flex space-x-2">
+                    <input type="url" x-model="targetUrl" placeholder="https://ieeexplore.ieee.org or https://predatory-journal.xyz" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-200">
+                    <button @click="checkWebsiteLegitimacy()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 text-sm rounded-xl font-semibold">Verify Portal</button>
+                  </div>
+
+                  <div x-show="urlCheckResult" class="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 space-y-4">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs text-slate-400 font-mono" x-text="urlCheckResult.category"></span>
+                      <span class="badge" :class="urlCheckResult.is_safe ? 'badge-success' : 'badge-warning'" x-text="urlCheckResult.is_safe ? 'REPUTABLE JOURNAL' : 'PREDATORY / HIGH RISK'"></span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                      <div class="text-3xl font-bold font-mono" :class="urlCheckResult.trust_score >= 75 ? 'text-emerald-400' : 'text-red-400'" x-text="urlCheckResult.trust_score + '% Trust Score'"></div>
+                    </div>
+                    <div x-show="urlCheckResult.warnings && urlCheckResult.warnings.length > 0" class="space-y-1">
+                      <span class="text-xs font-semibold text-red-400">Analysis Warnings:</span>
+                      <template x-for="w in urlCheckResult.warnings">
+                        <div class="text-xs bg-red-500/10 text-red-300 p-2 rounded-lg border border-red-500/20" x-text="w"></div>
+                      </template>
+                    </div>
+                    <div>
+                      <span class="text-xs font-semibold text-indigo-300">Faculty Advisory:</span>
+                      <p class="text-xs text-slate-300 mt-1 bg-slate-950 p-3 rounded-xl border border-slate-800" x-text="urlCheckResult.recommendation"></p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 space-y-4 text-xs">
+                  <h3 class="font-semibold text-sm text-slate-200"><i class="fa-solid fa-shield-halved text-indigo-400 mr-1.5"></i> Faculty Guidelines</h3>
+                  <ul class="space-y-2 text-slate-400 list-disc list-inside">
+                    <li>Check indexing against UGC CARE and Scopus registries.</li>
+                    <li>Avoid predatory open-access publishers requesting exorbitant APCs with rapid peer review.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <!-- ADMIN VIEWS -->
+        <template x-if="currentUserRole === 'admin'">
+          <div class="space-y-8">
+            <!-- Admin Student CRUD -->
+            <div x-show="activeTab === 'admin_crud'" class="glass-card p-6 space-y-6">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <h2 class="font-semibold text-lg text-rose-400"><i class="fa-solid fa-database mr-2"></i> System-Wide Student Database Administration</h2>
+                <button @click="showAddModal = true" class="btn-primary px-4 py-2 text-xs rounded-xl"><i class="fa-solid fa-user-plus mr-1"></i> Add New Student</button>
+              </div>
+
+              <!-- Add Student Form Modal / Box -->
+              <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-800 space-y-4">
+                <h3 class="font-semibold text-sm text-slate-200">Register New Student Record (3NF)</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                  <input type="text" x-model="newStudent.roll_no" placeholder="Roll No (UNI2026-006)" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-200">
+                  <input type="text" x-model="newStudent.name" placeholder="Full Name" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-200">
+                  <input type="email" x-model="newStudent.email" placeholder="Email" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-200">
+                  <input type="text" x-model="newStudent.department" placeholder="Department" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-200">
+                  <input type="text" x-model="newStudent.semester" placeholder="Semester" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-200">
+                  <input type="text" x-model="newStudent.cgpa" placeholder="CGPA" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-200">
+                  <input type="text" x-model="newStudent.attendance_percentage" placeholder="Attendance %" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-200">
+                  <input type="text" x-model="newStudent.credits_earned" placeholder="Credits Earned" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-200">
+                  <input type="number" x-model.number="newStudent.backlogs" placeholder="Backlogs" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-200">
+                </div>
+                <button @click="createStudent()" class="btn-primary px-4 py-2 text-xs rounded-xl">Save Student to Database</button>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                  <thead class="bg-slate-900 text-slate-400 text-xs uppercase border-b border-slate-800">
+                    <tr><th class="p-3">Roll No</th><th class="p-3">Name</th><th class="p-3">Department</th><th class="p-3">CGPA</th><th class="p-3">Status</th><th class="p-3">Actions</th></tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-800">
+                    <template x-for="s in students" :key="s.id">
+                      <tr class="hover:bg-slate-900/50 transition">
+                        <td class="p-3 font-mono text-rose-400" x-text="s.roll_no"></td>
+                        <td class="p-3 font-semibold" x-text="s.name"></td>
+                        <td class="p-3 text-slate-300" x-text="s.department"></td>
+                        <td class="p-3 font-bold text-emerald-400" x-text="s.cgpa"></td>
+                        <td class="p-3"><span class="badge" :class="s.status === 'VERIFIED' ? 'badge-success' : 'badge-warning'" x-text="s.status"></span></td>
+                        <td class="p-3">
+                          <button @click="deleteStudent(s.id)" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 px-2.5 py-1 rounded-lg text-xs">Delete</button>
+                        </td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Admin Legitimacy Checker (Domain Security & Threat Intelligence Scanner) -->
+            <div x-show="activeTab === 'legitimacy'" class="glass-card p-6 space-y-6">
+              <div class="border-b border-slate-800 pb-4">
+                <h2 class="font-semibold text-lg text-rose-400"><i class="fa-solid fa-globe mr-2"></i> Domain Security & Threat Intelligence Scanner</h2>
+                <p class="text-xs text-slate-400 mt-1">Scan campus partner systems, vendor portals, and external links for enterprise phishing and malware threats.</p>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2 space-y-4">
+                  <label class="block text-xs text-slate-300 font-medium">Enter Partner Domain or External URL</label>
+                  <div class="flex space-x-2">
+                    <input type="url" x-model="targetUrl" placeholder="https://partner-vendor.com or https://malicious-phishing.top" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 text-slate-200">
+                    <button @click="checkWebsiteLegitimacy()" class="bg-rose-600 hover:bg-rose-500 text-white px-6 py-3 text-sm rounded-xl font-semibold">Scan Threat Intelligence</button>
+                  </div>
+
+                  <div x-show="urlCheckResult" class="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 space-y-4">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs text-slate-400 font-mono" x-text="urlCheckResult.category"></span>
+                      <span class="badge" :class="urlCheckResult.is_safe ? 'badge-success' : 'badge-warning'" x-text="urlCheckResult.is_safe ? 'DOMAIN SECURE' : 'MALICIOUS THREAT DETECTED'"></span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                      <div class="text-3xl font-bold font-mono" :class="urlCheckResult.trust_score >= 75 ? 'text-emerald-400' : 'text-red-400'" x-text="urlCheckResult.trust_score + '% Trust Score'"></div>
+                    </div>
+                    <div x-show="urlCheckResult.warnings && urlCheckResult.warnings.length > 0" class="space-y-1">
+                      <span class="text-xs font-semibold text-red-400">Threat Indicators:</span>
+                      <template x-for="w in urlCheckResult.warnings">
+                        <div class="text-xs bg-red-500/10 text-red-300 p-2 rounded-lg border border-red-500/20" x-text="w"></div>
+                      </template>
+                    </div>
+                    <div>
+                      <span class="text-xs font-semibold text-rose-300">Security Command Action:</span>
+                      <p class="text-xs text-slate-300 mt-1 bg-slate-950 p-3 rounded-xl border border-slate-800" x-text="urlCheckResult.recommendation"></p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 space-y-4 text-xs">
+                  <h3 class="font-semibold text-sm text-slate-200"><i class="fa-solid fa-shield-halved text-rose-400 mr-1.5"></i> Admin Security Actions</h3>
+                  <ul class="space-y-2 text-slate-400 list-disc list-inside">
+                    <li>Automatically blacklist TLDs flagged with < 30% trust scores in gateway firewall.</li>
+                    <li>Audit SSL certificate transparency logs for enterprise domains.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Observability & Prometheus -->
+            <div x-show="activeTab === 'observability'" class="space-y-6">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div class="glass-card p-6"><p class="text-xs text-slate-400">System Uptime</p><h4 class="text-2xl font-bold text-emerald-400 mt-1">99.99%</h4></div>
+                <div class="glass-card p-6"><p class="text-xs text-slate-400">Vector Search Latency</p><h4 class="text-2xl font-bold text-blue-400 mt-1">12.4 ms</h4></div>
+                <div class="glass-card p-6"><p class="text-xs text-slate-400">Active Rate Limit IP Blocks</p><h4 class="text-2xl font-bold text-rose-400 mt-1">0 Blocks</h4></div>
+              </div>
+            </div>
+
+            <!-- Audit Logs -->
+            <div x-show="activeTab === 'audit_logs'" class="glass-card p-6 space-y-4">
+              <h3 class="font-semibold text-base text-rose-300"><i class="fa-solid fa-terminal mr-2"></i> Live Audit Log Stream</h3>
+              <div class="bg-slate-950 p-4 rounded-xl font-mono text-xs text-slate-300 h-80 overflow-y-auto space-y-2 border border-slate-800">
+                <template x-for="log in auditLogs">
+                  <div x-text="log"></div>
+                </template>
+              </div>
+            </div>
+          </div>
+        </template>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

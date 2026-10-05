@@ -1,0 +1,126 @@
+{
+  "students": [
+    {
+      "id": "stu_001",
+      "roll_no": "UNI2026-001",
+      "name": "Amit Sharma",
+      "email": "amit.sharma@uni.edu",
+      "department": "Computer Science & Engineering",
+      "semester": "6th Semester",
+      "cgpa": "8.75",
+      "attendance_percentage": "92.4",
+      "credits_earned": "120",
+      "max_credits": "160",
+      "backlogs": 0,
+      "apaar_id": "APAAR-9988-7766-5544",
+      "digilocker_verified": true,
+      "face_enrolled": true,
+      "voice_enrolled": true,
+      "biometric_hash": "b2e4c8f19a03... (SHA256)",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "stu_002",
+      "roll_no": "UNI2026-002",
+      "name": "Priya Verma",
+      "email": "priya.verma@uni.edu",
+      "department": "Artificial Intelligence & Data Science",
+      "semester": "4th Semester",
+      "cgpa": "9.12",
+      "attendance_percentage": "88.5",
+      "credits_earned": "82",
+      "max_credits": "160",
+      "backlogs": 0,
+      "apaar_id": "APAAR-1122-3344-5566",
+      "digilocker_verified": true,
+      "face_enrolled": true,
+      "voice_enrolled": false,
+      "biometric_hash": "a1f9e2b48c71... (SHA256)",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "stu_003",
+      "roll_no": "UNI2026-003",
+      "name": "Rahul Gupta",
+      "email": "rahul.gupta@uni.edu",
+      "department": "Electronics & Communication",
+      "semester": "8th Semester",
+      "cgpa": "7.45",
+      "attendance_percentage": "74.2",
+      "credits_earned": "150",
+      "max_credits": "160",
+      "backlogs": 1,
+      "apaar_id": "APAAR-5544-3322-1100",
+      "digilocker_verified": false,
+      "face_enrolled": true,
+      "voice_enrolled": true,
+      "biometric_hash": "c3d5e7f90b24... (SHA256)",
+      "status": "PENDING_REVIEW"
+    },
+    {
+      "id": "stu_004",
+      "roll_no": "UNI2026-004",
+      "name": "Neha Singh",
+      "email": "neha.singh@uni.edu",
+      "department": "Information Technology",
+      "semester": "5th Semester",
+      "cgpa": "8.40",
+      "attendance_percentage": "90.1",
+      "credits_earned": "100",
+      "max_credits": "160",
+      "backlogs": 0,
+      "apaar_id": "APAAR-4433-2211-9988",
+      "digilocker_verified": true,
+      "face_enrolled": true,
+      "voice_enrolled": true,
+      "biometric_hash": "d4e6f8a10c35... (SHA256)",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "stu_005",
+      "roll_no": "UNI2026-005",
+      "name": "Vikram Malhotra",
+      "email": "vikram.malhotra@uni.edu",
+      "department": "Mechanical Engineering",
+      "semester": "6th Semester",
+      "cgpa": "6.85",
+      "attendance_percentage": "78.0",
+      "credits_earned": "112",
+      "max_credits": "160",
+      "backlogs": 2,
+      "apaar_id": "APAAR-6677-8899-0011",
+      "digilocker_verified": false,
+      "face_enrolled": false,
+      "voice_enrolled": false,
+      "biometric_hash": "e5f7a9b21d46... (SHA256)",
+      "status": "PENDING_REVIEW"
+    }
+  ],
+  "knowledge_base": [
+    {
+      "id": "kb_01",
+      "topic": "Credit Transfer Policy",
+      "content": "Students can transfer up to 20% of total degree credits (32 credits for a 160-credit program) via SWAYAM, NPTEL, or recognized partner institutions under the Academic Bank of Credits (ABC) framework. Minimum grade required is 'B' or equivalent (CGPA 6.0+)."
+    },
+    {
+      "id": "kb_02",
+      "topic": "Attendance Requirements",
+      "content": "A minimum of 75% attendance is mandatory in all theory and practical courses to appear for end-semester examinations. Medical condonation up to 10% is permitted with valid hospital admission records and approval from the Dean of Academics."
+    },
+    {
+      "id": "kb_03",
+      "topic": "APAAR & DigiLocker Integration",
+      "content": "APAAR (Automated Permanent Academic Account Registry) ID acts as a lifelong digital identifier (EduLocker ID) linked with National Academic Depository (NAD). All degree certificates, mark sheets, and transfer certificates must be verified via DigiLocker API integration."
+    },
+    {
+      "id": "kb_04",
+      "topic": "Backlog & Re-evaluation Rules",
+      "content": "Students with more than 3 active backlogs are not eligible for campus placement drives until cleared. Re-evaluation applications must be submitted within 14 days of grade publication."
+    },
+    {
+      "id": "kb_05",
+      "topic": "Biometric Gatekeeper Security",
+      "content": "Multimodal biometric verification combines facial recognition (DeepFace VGG-Face), ID document OCR (EasyOCR), and voice verification (SpeechBrain) with a weighted fusion score threshold of 85% to grant access."
+    }
+  ]
+}

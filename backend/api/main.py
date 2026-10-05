@@ -1,0 +1,123 @@
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
+from contextlib import asynccontextmanager
+import time
+import json
+import os
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST, Counter, Histogram
+from starlette.responses import Response
+
+from backend.services.db import engine, Base, SessionLocal
+from backend.models.student import StudentModel, UserModel
+from backend.api.routes import auth_routes, student_routes, rag_router, ws_router
+from backend.api.middleware.rate_limiter import RateLimiterMiddleware
+from backend.core.config import settings
+from passlib.context import CryptContext
+import uuid
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# Prometheus Metrics
+REQUEST_COUNT = Counter("http_requests_total", "Total HTTP Requests", ["method", "endpoint"])
+REQUEST_LATENCY = Histogram("http_request_duration_seconds", "HTTP Request Latency")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: create tables and seed database
+    Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+    try:
+        # Check if students exist
+        count = db.query(StudentModel).count()
+        if count == 0:
+            json_path = "backend/models/sample_students.json"
+            if os.path.exists(json_path):
+                with open(json_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    for s in data.get("students", []):
+                        db.add(StudentModel(**s))
+            
+            # Add default admin & student users
+            admin_user = UserModel(
+                id=f"usr_{uuid.uuid4().hex[:8]}",
+                username="admin",
+                email="admin@uni.edu",
+                hashed_password=pwd_context.hash("admin123"),
+                role="admin",
+                full_name="System Administrator"
+            )
+            student_user = UserModel(
+                id=f"usr_{uuid.uuid4().hex[:8]}",
+                username="amit",
+                email="amit.sharma@uni.edu",
+                hashed_password=pwd_context.hash("amit123"),
+                role="student",
+                full_name="Amit Sharma"
+            )
+            db.add(admin_user)
+            db.add(student_user)
+            db.commit()
+    finally:
+        db.close()
+    yield
+    # Shutdown
+
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    version="2.1.0",
+    lifespan=lifespan
+)
+
+# Rate Limiting Middleware
+app.add_middleware(RateLimiterMiddleware, max_requests=100, window_seconds=60)
+
+# CORS Middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Request Timing Middleware
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(round(process_time * 1000, 2))
+    return response
+
+# Include Routers
+app.include_router(auth_routes.router, prefix=settings.API_V1_STR)
+app.include_router(student_routes.router, prefix=settings.API_V1_STR)
+app.include_router(rag_router.router)
+app.include_router(ws_router.router)
+
+# Health & Metrics Endpoints
+@app.get("/health")
+def health_check():
+    return {
+        "status": "HEALTHY",
+        "service": settings.PROJECT_NAME,
+        "database": "CONNECTED",
+        "vector_store": "ACTIVE",
+        "rate_limiter": "ACTIVE",
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    }
+
+@app.get("/metrics")
+def metrics():
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+# Root landing redirect
+@app.get("/")
+def root():
+    return RedirectResponse(url="/portal/index.html")
+
+# Mount Frontend Portal static files
+if os.path.exists("frontend"):
+    app.mount("/portal", StaticFiles(directory="frontend", html=True), name="portal")

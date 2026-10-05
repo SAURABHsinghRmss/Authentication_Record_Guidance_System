@@ -1,0 +1,9 @@
+dependencies/
+ai_engine/weights/
+**/*.bin
+**/*.onnx
+**/*.pt
+.git
+.env
+__pycache__/
+node_modules/
