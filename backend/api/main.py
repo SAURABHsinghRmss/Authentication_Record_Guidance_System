@@ -40,6 +40,23 @@ async def lifespan(app: FastAPI):
             db.add(default_inst)
             db.commit()
 
+        # Ensure user 'msrch' and 'admin' exist as universal admins
+        for uname in ["admin", "msrch"]:
+            existing_user = db.query(UserModel).filter(UserModel.username == uname).first()
+            if not existing_user:
+                admin_user = UserModel(
+                    id=f"usr_{uuid.uuid4().hex[:8]}",
+                    username=uname,
+                    email=f"{uname}@uni.edu",
+                    hashed_password=pwd_context.hash("admin123"),
+                    role="admin",
+                    full_name="System Administrator",
+                    institution_name="GL Bajaj Institute of Technology and Management",
+                    institution_verified=True
+                )
+                db.add(admin_user)
+                db.commit()
+
         # Check if students exist
         count = db.query(StudentModel).count()
         if count == 0:
@@ -50,27 +67,6 @@ async def lifespan(app: FastAPI):
                     for s in data.get("students", []):
                         db.add(StudentModel(**s))
             
-            # Add default admin & student users
-            admin_user = UserModel(
-                id=f"usr_{uuid.uuid4().hex[:8]}",
-                username="admin",
-                email="admin@uni.edu",
-                hashed_password=pwd_context.hash("admin123"),
-                role="admin",
-                full_name="System Administrator",
-                institution_name="GL Bajaj Institute of Technology and Management",
-                institution_verified=True
-            )
-            msrch_admin = UserModel(
-                id=f"usr_{uuid.uuid4().hex[:8]}",
-                username="msrch",
-                email="msrch@uni.edu",
-                hashed_password=pwd_context.hash("admin123"),
-                role="admin",
-                full_name="System Administrator (msrch)",
-                institution_name="GL Bajaj Institute of Technology and Management",
-                institution_verified=True
-            )
             student_user = UserModel(
                 id=f"usr_{uuid.uuid4().hex[:8]}",
                 username="amit",
@@ -81,8 +77,6 @@ async def lifespan(app: FastAPI):
                 institution_name="GL Bajaj Institute of Technology and Management",
                 institution_verified=True
             )
-            db.add(admin_user)
-            db.add(msrch_admin)
             db.add(student_user)
             db.commit()
     finally:
