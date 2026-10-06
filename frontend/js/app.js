@@ -1,11 +1,15 @@
 function portalApp() {
   return {
     isLoggedIn: false,
+    authMode: 'login',
     loginForm: { username: 'amit', password: 'amit123', role: 'student' },
+    registerForm: { full_name: '', username: '', email: '', password: '', role: 'student', institution_name: '' },
     captchaVerified: false,
     captchaAnswer: '',
     authError: '',
     currentUserRole: 'student',
+    currentUserInstitution: 'GL Bajaj',
+    institutionVerified: true,
     authToken: '',
     themeClass: 'theme-student',
 
@@ -29,6 +33,7 @@ function portalApp() {
     
     targetUrl: '',
     urlCheckResult: null,
+    pendingInstitutions: [],
 
     newStudent: {
       roll_no: '', name: '', email: '', department: 'Computer Science', semester: '6th Semester',
@@ -44,13 +49,18 @@ function portalApp() {
     async init() {
       const token = localStorage.getItem('edu_token');
       const role = localStorage.getItem('edu_role');
+      const inst = localStorage.getItem('edu_inst');
+      const verified = localStorage.getItem('edu_inst_verified');
       if (token) {
         this.authToken = token;
         this.currentUserRole = role || 'student';
+        this.currentUserInstitution = inst || 'GL Bajaj';
+        this.institutionVerified = verified === 'true';
         this.loginForm.role = this.currentUserRole;
         this.updateTheme();
         this.isLoggedIn = true;
         await this.fetchStudents();
+        if (this.currentUserRole === 'admin') await this.fetchPendingInstitutions();
         this.initWebSocket();
       }
     },
@@ -84,14 +94,24 @@ function portalApp() {
 
           localStorage.setItem('edu_token', data.access_token);
           localStorage.setItem('edu_role', assignedRole);
+          localStorage.setItem('edu_inst', data.institution_name || 'GL Bajaj');
+          localStorage.setItem('edu_inst_verified', data.institution_verified ? 'true' : 'false');
+
           this.authToken = data.access_token;
           this.currentUserRole = assignedRole;
+          this.currentUserInstitution = data.institution_name || 'GL Bajaj';
+          this.institutionVerified = data.institution_verified;
           this.updateTheme();
           this.isLoggedIn = true;
 
-          if (assignedRole === 'admin') this.activeTab = 'admin_crud';
-          else if (assignedRole === 'faculty') this.activeTab = 'faculty_roster';
-          else this.activeTab = 'guidance';
+          if (assignedRole === 'admin') {
+            this.activeTab = 'admin_crud';
+            await this.fetchPendingInstitutions();
+          } else if (assignedRole === 'faculty') {
+            this.activeTab = 'faculty_roster';
+          } else {
+            this.activeTab = 'guidance';
+          }
 
           await this.fetchStudents();
           this.initWebSocket();
@@ -104,11 +124,79 @@ function portalApp() {
       }
     },
 
+    async register() {
+      this.authError = '';
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(this.registerForm)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          localStorage.setItem('edu_token', data.access_token);
+          localStorage.setItem('edu_role', data.role);
+          localStorage.setItem('edu_inst', this.registerForm.institution_name);
+          localStorage.setItem('edu_inst_verified', data.institution_verified ? 'true' : 'false');
+
+          this.authToken = data.access_token;
+          this.currentUserRole = data.role;
+          this.currentUserInstitution = this.registerForm.institution_name;
+          this.institutionVerified = data.institution_verified;
+          this.updateTheme();
+          this.isLoggedIn = true;
+
+          if (!data.institution_verified) {
+            alert('Sign-up successful! Note: Your institution is pending verification. An administrator has been notified to add your school/college to the verified list.');
+          }
+
+          await this.fetchStudents();
+          this.initWebSocket();
+        } else {
+          const err = await res.json();
+          this.authError = err.detail || 'Registration failed.';
+        }
+      } catch (e) {
+        this.authError = 'Network error during registration.';
+      }
+    },
+
     logout() {
       localStorage.removeItem('edu_token');
       localStorage.removeItem('edu_role');
+      localStorage.removeItem('edu_inst');
+      localStorage.removeItem('edu_inst_verified');
       this.isLoggedIn = false;
       this.authToken = '';
+    },
+
+    async fetchPendingInstitutions() {
+      try {
+        const res = await fetch('/api/auth/institutions/pending', {
+          headers: { 'Authorization': `Bearer ${this.authToken}` }
+        });
+        if (res.ok) {
+          this.pendingInstitutions = await res.json();
+        }
+      } catch (e) {
+        console.error('Failed to fetch pending institutions:', e);
+      }
+    },
+
+    async approveInstitution(instId) {
+      try {
+        const res = await fetch(`/api/auth/institutions/${instId}/approve`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${this.authToken}` }
+        });
+        if (res.ok) {
+          await this.fetchPendingInstitutions();
+          alert('Institution successfully verified and added to the verified list!');
+          this.auditLogs.unshift(`[${new Date().toISOString()}] ADMIN: Approved institution ID ${instId}`);
+        }
+      } catch (e) {
+        alert('Failed to approve institution.');
+      }
     },
 
     async sendOtp() {
@@ -142,6 +230,7 @@ function portalApp() {
           body: JSON.stringify({ email: email, otp_code: this.otpInput })
         });
         if (res.ok) {
+          const data = await res.json();
           this.otpStatus = 'Verified Successfully!';
           this.auditLogs.unshift(`[${new Date().toISOString()}] 2FA OTP VERIFIED: Secure login code accepted.`);
         } else {

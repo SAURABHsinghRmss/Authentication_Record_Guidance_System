@@ -21,7 +21,7 @@
           <i class="fa-solid fa-shield-halved text-2xl"></i>
         </div>
         <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">EduIdentityAI Secure Portal</h1>
-        <p class="text-xs text-slate-400">Select Role & Authenticate to Access Dedicated Workspace</p>
+        <p class="text-xs text-slate-400">Strict Institutional Verification & Access Control</p>
       </div>
 
       <!-- Role Selector Tabs -->
@@ -31,8 +31,14 @@
         <button @click="loginForm.role = 'admin'; themeClass = 'theme-admin'" :class="loginForm.role === 'admin' ? 'bg-rose-600 text-white shadow' : 'text-slate-400 hover:text-white'" class="py-2 rounded-lg transition">Admin</button>
       </div>
 
+      <!-- Tab Switcher (Sign In / Register) -->
+      <div class="flex bg-slate-900 p-1 rounded-xl border border-slate-800">
+        <button @click="authMode = 'login'" :class="authMode === 'login' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'" class="flex-1 py-2 rounded-lg text-xs font-semibold transition">Sign In</button>
+        <button @click="authMode = 'register'" :class="authMode === 'register' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'" class="flex-1 py-2 rounded-lg text-xs font-semibold transition">New Sign-Up</button>
+      </div>
+
       <!-- Login Form -->
-      <form @submit.prevent="login()" class="space-y-4">
+      <form x-show="authMode === 'login'" @submit.prevent="login()" class="space-y-4">
         <div>
           <label class="block text-xs text-slate-400 mb-1 font-medium">Username</label>
           <input type="text" x-model="loginForm.username" required placeholder="e.g. amit, faculty, admin" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200">
@@ -62,9 +68,45 @@
         <div class="text-center text-xs text-slate-500 pt-1 space-y-1">
           <div>Quick test accounts:</div>
           <div>Student: <span class="text-slate-300 font-mono">amit / amit123</span></div>
-          <div>Faculty: <span class="text-slate-300 font-mono">faculty / faculty123</span></div>
           <div>Admin: <span class="text-slate-300 font-mono">admin / admin123</span></div>
         </div>
+      </form>
+
+      <!-- Register Form (Strict Institutional Sign-Up) -->
+      <form x-show="authMode === 'register'" @submit.prevent="register()" class="space-y-3">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1 font-medium">Full Name</label>
+          <input type="text" x-model="registerForm.full_name" required placeholder="John Doe" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1 font-medium">Username</label>
+          <input type="text" x-model="registerForm.username" required placeholder="johndoe" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1 font-medium">Email Address</label>
+          <input type="email" x-model="registerForm.email" required placeholder="john@college.edu" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1 font-medium">Password</label>
+          <input type="password" x-model="registerForm.password" required placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1 font-medium">School or College Name (Strict Verification)</label>
+          <input type="text" x-model="registerForm.institution_name" required placeholder="e.g. GL Bajaj Institute of Technology" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200">
+          <span class="text-[10px] text-slate-500 mt-0.5 block">If unverified, an admin request will be automatically dispatched.</span>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1 font-medium">Role</label>
+          <select x-model="registerForm.role" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200">
+            <option value="student">Student</option>
+            <option value="faculty">Faculty</option>
+            <option value="admin">Administrator</option>
+          </select>
+        </div>
+        <div x-show="authError" class="text-xs text-red-400 bg-red-500/10 p-2 rounded-lg border border-red-500/20" x-text="authError"></div>
+        <button type="submit" class="btn-primary w-full py-2.5 rounded-xl text-xs font-semibold shadow-lg">
+          Submit Institutional Sign-Up
+        </button>
       </form>
     </div>
   </div>
@@ -103,10 +145,16 @@
       <!-- SIDE BAR / SLIDING BAR -->
       <aside class="w-64 border-r border-slate-800 bg-slate-900/50 backdrop-blur-md p-4 flex flex-col justify-between hidden md:flex">
         <div class="space-y-6">
-          <div class="px-3 py-2 bg-slate-800/50 rounded-xl border border-slate-700/50">
-            <span class="text-xs text-slate-400 block">Logged in as</span>
-            <span class="font-semibold text-sm text-slate-200" x-text="loginForm.username"></span>
-            <span class="badge badge-success text-[10px] mt-1" x-text="currentUserRole.toUpperCase()"></span>
+          <div class="px-3 py-2 bg-slate-800/50 rounded-xl border border-slate-700/50 space-y-1">
+            <div>
+              <span class="text-[10px] text-slate-400 block">Logged in as</span>
+              <span class="font-semibold text-sm text-slate-200" x-text="loginForm.username"></span>
+            </div>
+            <div>
+              <span class="text-[10px] text-slate-400 block">Institution</span>
+              <span class="text-xs font-medium text-emerald-400 truncate block" x-text="currentUserInstitution || 'GL Bajaj'"></span>
+            </div>
+            <span class="badge" :class="institutionVerified ? 'badge-success' : 'badge-warning'" x-text="institutionVerified ? 'VERIFIED INST' : 'PENDING INST VERIFY'"></span>
           </div>
 
           <!-- Navigation Links per Role -->
@@ -150,6 +198,9 @@
                 <button @click="activeTab = 'admin_crud'" :class="activeTab === 'admin_crud' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
                   <i class="fa-solid fa-database w-5"></i><span>Student Database CRUD</span>
                 </button>
+                <button @click="activeTab = 'admin_institutions'" :class="activeTab === 'admin_institutions' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
+                  <i class="fa-solid fa-building-columns w-5"></i><span>Institution Requests</span>
+                </button>
                 <button @click="activeTab = 'legitimacy'" :class="activeTab === 'legitimacy' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
                   <i class="fa-solid fa-globe w-5"></i><span>Domain Threat Intelligence</span>
                 </button>
@@ -165,7 +216,7 @@
         </div>
 
         <div class="p-3 bg-slate-950/50 rounded-xl border border-slate-800 text-[11px] text-slate-500 font-mono text-center">
-          EduIdentityAI v2.1 Secure Engine
+          EduIdentityAI v2.2 Secure Engine
         </div>
       </aside>
 
@@ -472,6 +523,29 @@
                     </template>
                   </tbody>
                 </table>
+              </div>
+            </div>
+
+            <!-- Admin Institution Requests Approval Tab -->
+            <div x-show="activeTab === 'admin_institutions'" class="glass-card p-6 space-y-6">
+              <div class="border-b border-slate-800 pb-4">
+                <h2 class="font-semibold text-lg text-rose-400"><i class="fa-solid fa-building-columns mr-2"></i> Pending Institution Verification Requests</h2>
+                <p class="text-xs text-slate-400 mt-1">Approve unverified schools and colleges submitted during user sign-up to add them to the verified list.</p>
+              </div>
+
+              <div class="space-y-3">
+                <template x-for="inst in pendingInstitutions" :key="inst.id">
+                  <div class="bg-slate-900 p-4 rounded-xl border border-rose-500/20 flex items-center justify-between">
+                    <div>
+                      <span class="font-semibold text-slate-200" x-text="inst.name"></span>
+                      <span class="block text-xs text-slate-400 mt-1" x-text="'Requested by user: ' + (inst.requested_by || 'Unknown')"></span>
+                    </div>
+                    <button @click="approveInstitution(inst.id)" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow">Approve & Verify Institution</button>
+                  </div>
+                </template>
+                <div x-show="pendingInstitutions.length === 0" class="text-center py-8 text-xs text-slate-500 font-mono">
+                  No pending institution requests. All registered schools/colleges are verified.
+                </div>
               </div>
             </div>
 

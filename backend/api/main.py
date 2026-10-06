@@ -10,7 +10,7 @@ from prometheus_client import generate_latest, CONTENT_TYPE_LATEST, Counter, His
 from starlette.responses import Response
 
 from backend.services.db import engine, Base, SessionLocal
-from backend.models.student import StudentModel, UserModel
+from backend.models.student import StudentModel, UserModel, InstitutionModel
 from backend.api.routes import auth_routes, student_routes, rag_router, ws_router
 from backend.api.middleware.rate_limiter import RateLimiterMiddleware
 from backend.core.config import settings
@@ -29,6 +29,17 @@ async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
+        # Seed default verified institution
+        if db.query(InstitutionModel).count() == 0:
+            default_inst = InstitutionModel(
+                id=f"inst_{uuid.uuid4().hex[:8]}",
+                name="GL Bajaj Institute of Technology and Management",
+                status="VERIFIED",
+                requested_by="system"
+            )
+            db.add(default_inst)
+            db.commit()
+
         # Check if students exist
         count = db.query(StudentModel).count()
         if count == 0:
@@ -46,7 +57,9 @@ async def lifespan(app: FastAPI):
                 email="admin@uni.edu",
                 hashed_password=pwd_context.hash("admin123"),
                 role="admin",
-                full_name="System Administrator"
+                full_name="System Administrator",
+                institution_name="GL Bajaj Institute of Technology and Management",
+                institution_verified=True
             )
             student_user = UserModel(
                 id=f"usr_{uuid.uuid4().hex[:8]}",
@@ -54,7 +67,9 @@ async def lifespan(app: FastAPI):
                 email="amit.sharma@uni.edu",
                 hashed_password=pwd_context.hash("amit123"),
                 role="student",
-                full_name="Amit Sharma"
+                full_name="Amit Sharma",
+                institution_name="GL Bajaj Institute of Technology and Management",
+                institution_verified=True
             )
             db.add(admin_user)
             db.add(student_user)
@@ -66,7 +81,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    version="2.1.0",
+    version="2.2.0",
     lifespan=lifespan
 )
 
@@ -106,6 +121,7 @@ def health_check():
         "database": "CONNECTED",
         "vector_store": "ACTIVE",
         "rate_limiter": "ACTIVE",
+        "institutional_verification": "STRICT_ACTIVE",
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     }
 

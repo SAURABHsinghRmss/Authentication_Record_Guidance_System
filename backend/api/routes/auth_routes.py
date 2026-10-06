@@ -7,14 +7,13 @@ from passlib.context import CryptContext
 from jose import jwt
 
 from backend.services.db import get_db
-from backend.models.student import UserModel, UserRegister, UserLogin, Token, OtpSendRequest, OtpVerifyRequest, BiometricVerificationRequest, BiometricVerificationResponse, ApaarVerificationRequest, DigiLockerFetchRequest
+from backend.models.student import UserModel, InstitutionModel, UserRegister, UserLogin, Token, OtpSendRequest, OtpVerifyRequest, BiometricVerificationRequest, BiometricVerificationResponse, ApaarVerificationRequest, DigiLockerFetchRequest
 from backend.core.config import settings
 from ai_engine.pipelines.biometric_worker import biometric_pipeline
 
 router = APIRouter(prefix="/auth", tags=["Authentication & Biometrics"])
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
-# Temporary in-memory OTP storage
 OTP_STORE = {}
 
 def verify_password(plain_password, hashed_password):
@@ -35,6 +34,24 @@ def register(user_in: UserRegister, db: Session = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=400, detail="Username already registered")
     
+    # Check if institution is verified
+    inst_name = user_in.institution_name.strip()
+    inst = db.query(InstitutionModel).filter(InstitutionModel.name.ilike(inst_name)).first()
+    
+    is_verified = False
+    if inst and inst.status == "VERIFIED":
+        is_verified = True
+    else:
+        if not inst:
+            new_inst = InstitutionModel(
+                id=f"inst_{uuid.uuid4().hex[:8]}",
+                name=inst_name,
+                status="PENDING",
+                requested_by=user_in.username
+            )
+            db.add(new_inst)
+            db.commit()
+
     user_id = f"usr_{uuid.uuid4().hex[:8]}"
     hashed_pw = get_password_hash(user_in.password)
     user = UserModel(
@@ -43,14 +60,22 @@ def register(user_in: UserRegister, db: Session = Depends(get_db)):
         email=user_in.email,
         hashed_password=hashed_pw,
         role=user_in.role,
-        full_name=user_in.full_name
+        full_name=user_in.full_name,
+        institution_name=inst_name,
+        institution_verified=is_verified
     )
     db.add(user)
     db.commit()
     db.refresh(user)
 
     access_token = create_access_token(data={"sub": user.username, "role": user.role})
-    return {"access_token": access_token, "token_type": "bearer", "role": user.role, "username": user.username}
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "role": user.role,
+        "username": user.username,
+        "institution_verified": is_verified
+    }
 
 @router.post("/login", response_model=Token)
 def login(form_data: UserLogin, db: Session = Depends(get_db)):
@@ -59,7 +84,33 @@ def login(form_data: UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
     
     access_token = create_access_token(data={"sub": user.username, "role": user.role})
-    return {"access_token": access_token, "token_type": "bearer", "role": user.role, "username": user.username}
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "role": user.role,
+        "username": user.username,
+        "institution_verified": user.institution_verified
+    }
+
+@router.get("/institutions/pending")
+def list_pending_institutions(db: Session = Depends(get_db)):
+    return db.query(InstitutionModel).filter(InstitutionModel.status == "PENDING").all()
+
+@router.post("/institutions/{inst_id}/approve")
+def approve_institution(inst_id: str, db: Session = Depends(get_db)):
+    inst = db.query(InstitutionModel).filter(InstitutionModel.id == inst_id).first()
+    if not inst:
+        raise HTTPException(status_code=404, detail="Institution request not found")
+    
+    inst.status = "VERIFIED"
+    
+    # Also verify users belonging to this institution
+    users = db.query(UserModel).filter(UserModel.institution_name.ilike(inst.name)).all()
+    for u in users:
+        u.institution_verified = True
+    
+    db.commit()
+    return {"message": f"Institution '{inst.name}' successfully verified and added to verified list.", "status": "VERIFIED"}
 
 @router.post("/otp/send")
 def send_otp(payload: OtpSendRequest):
@@ -81,7 +132,6 @@ def verify_otp(payload: OtpVerifyRequest):
     if record["code"] != payload.otp_code:
         raise HTTPException(status_code=400, detail="Invalid OTP code entered.")
     
-    # Clear OTP after success
     del OTP_STORE[payload.email]
     return {"status": "SUCCESS", "verified": True, "message": "OTP verification successful."}
 
