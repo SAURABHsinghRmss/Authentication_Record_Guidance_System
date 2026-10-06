@@ -4,7 +4,8 @@ from typing import List, Optional
 import uuid
 
 from backend.services.db import get_db
-from backend.models.student import StudentModel, StudentCreate, StudentUpdate, StudentResponse
+from backend.models.student import StudentModel, StudentCreate, StudentUpdate, StudentResponse, UserModel
+from backend.api.dependencies import require_role
 
 router = APIRouter(prefix="/students", tags=["Student Record Management"])
 
@@ -21,7 +22,11 @@ def list_students(
     return query.offset(skip).limit(limit).all()
 
 @router.post("/", response_model=StudentResponse, status_code=status.HTTP_201_CREATED)
-def create_student(student_in: StudentCreate, db: Session = Depends(get_db)):
+def create_student(
+    student_in: StudentCreate,
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(require_role(["admin", "faculty"]))
+):
     existing = db.query(StudentModel).filter(StudentModel.roll_no == student_in.roll_no).first()
     if existing:
         raise HTTPException(status_code=400, detail="Student roll number already exists")
@@ -41,7 +46,12 @@ def get_student(student_id: str, db: Session = Depends(get_db)):
     return student
 
 @router.put("/{student_id}", response_model=StudentResponse)
-def update_student(student_id: str, student_in: StudentUpdate, db: Session = Depends(get_db)):
+def update_student(
+    student_id: str,
+    student_in: StudentUpdate,
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(require_role(["admin", "faculty"]))
+):
     student = db.query(StudentModel).filter((StudentModel.id == student_id) | (StudentModel.roll_no == student_id)).first()
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
@@ -55,7 +65,11 @@ def update_student(student_id: str, student_in: StudentUpdate, db: Session = Dep
     return student
 
 @router.delete("/{student_id}")
-def delete_student(student_id: str, db: Session = Depends(get_db)):
+def delete_student(
+    student_id: str,
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(require_role(["admin"]))
+):
     student = db.query(StudentModel).filter((StudentModel.id == student_id) | (StudentModel.roll_no == student_id)).first()
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")

@@ -6,7 +6,9 @@ from backend.models.student import StudentModel, UserModel, InstitutionModel
 import json
 import os
 import uuid
+from passlib.context import CryptContext
 
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 client = TestClient(app)
 
 class TestEduIdentityAPI(unittest.TestCase):
@@ -23,6 +25,20 @@ class TestEduIdentityAPI(unittest.TestCase):
                     requested_by="system"
                 )
                 db.add(default_inst)
+                db.commit()
+
+            if db.query(UserModel).filter(UserModel.username == "admin").count() == 0:
+                admin_user = UserModel(
+                    id=f"usr_{uuid.uuid4().hex[:8]}",
+                    username="admin",
+                    email="admin@uni.edu",
+                    hashed_password=pwd_context.hash("admin123"),
+                    role="admin",
+                    full_name="System Administrator",
+                    institution_name="GL Bajaj Institute of Technology and Management",
+                    institution_verified=True
+                )
+                db.add(admin_user)
                 db.commit()
 
             if db.query(StudentModel).count() == 0:
@@ -86,6 +102,39 @@ class TestEduIdentityAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertIn("access_token", data)
+
+    def test_admin_student_crud(self):
+        # Login as admin
+        login_payload = {
+            "username": "admin",
+            "password": "admin123"
+        }
+        res = client.post("/api/auth/login", json=login_payload)
+        self.assertEqual(res.status_code, 200)
+        token = res.json()["access_token"]
+        headers = {"Authorization": f"Bearer {token}"}
+
+        # Create student as admin
+        new_student = {
+            "roll_no": f"TST-{uuid.uuid4().hex[:4]}",
+            "name": "Admin Test Student",
+            "email": "admintest@uni.edu",
+            "department": "Computer Science",
+            "semester": "5th Semester",
+            "cgpa": "9.0",
+            "attendance_percentage": "95.0",
+            "credits_earned": "100",
+            "max_credits": "160",
+            "backlogs": 0,
+            "status": "VERIFIED"
+        }
+        res = client.post("/api/students", json=new_student, headers=headers)
+        self.assertEqual(res.status_code, 201)
+        created_id = res.json()["id"]
+
+        # Delete student as admin
+        res = client.delete(f"/api/students/{created_id}", headers=headers)
+        self.assertEqual(res.status_code, 200)
 
 if __name__ == "__main__":
     unittest.main()

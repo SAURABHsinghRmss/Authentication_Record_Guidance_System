@@ -41,7 +41,7 @@
       <form x-show="authMode === 'login'" @submit.prevent="login()" class="space-y-4">
         <div>
           <label class="block text-xs text-slate-400 mb-1 font-medium">Username</label>
-          <input type="text" x-model="loginForm.username" required placeholder="e.g. amit, faculty, admin" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200">
+          <input type="text" x-model="loginForm.username" required placeholder="e.g. amit, msrch, admin" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200">
         </div>
         <div>
           <label class="block text-xs text-slate-400 mb-1 font-medium">Password</label>
@@ -68,7 +68,7 @@
         <div class="text-center text-xs text-slate-500 pt-1 space-y-1">
           <div>Quick test accounts:</div>
           <div>Student: <span class="text-slate-300 font-mono">amit / amit123</span></div>
-          <div>Admin: <span class="text-slate-300 font-mono">admin / admin123</span></div>
+          <div>Administrator (You): <span class="text-emerald-400 font-mono font-bold">msrch / admin123</span></div>
         </div>
       </form>
 
@@ -216,7 +216,7 @@
         </div>
 
         <div class="p-3 bg-slate-950/50 rounded-xl border border-slate-800 text-[11px] text-slate-500 font-mono text-center">
-          EduIdentityAI v2.2 Secure Engine
+          EduIdentityAI v2.3 Secure Engine
         </div>
       </aside>
 
@@ -439,7 +439,7 @@
                 <div class="md:col-span-2 space-y-4">
                   <label class="block text-xs text-slate-300 font-medium">Enter Journal or Conference URL</label>
                   <div class="flex space-x-2">
-                    <input type="url" x-model="targetUrl" placeholder="https://ieeexplore.ieee.org or https://predatory-journal.xyz" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-200">
+                    <input type="url" x-model="targetUrl" placeholder="https://ieeexplore.ieee.org or https://predatory-keyword.xyz" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-200">
                     <button @click="checkWebsiteLegitimacy()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 text-sm rounded-xl font-semibold">Verify Portal</button>
                   </div>
 
@@ -597,11 +597,7 @@
 
             <!-- Observability & Prometheus -->
             <div x-show="activeTab === 'observability'" class="space-y-6">
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <div class="glass-card p-6"><p class="text-xs text-slate-400">System Uptime</p><h4 class="text-2xl font-bold text-emerald-400 mt-1">99.99%</h4></div>
-                <div class="glass-card p-6"><p class="text-xs text-slate-400">Vector Search Latency</p><h4 class="text-2xl font-bold text-blue-400 mt-1">12.4 ms</h4></div>
-                <div class="glass-card p-6"><p class="text-xs text-slate-400">Active Rate Limit IP Blocks</p><h4 class="text-2xl font-bold text-rose-400 mt-1">0 Blocks</h4></div>
-              </div>
+              <div class="glass-card p-6"><p class="text-xs text-slate-400">System Uptime</p><h4 class="text-2xl font-bold text-emerald-400 mt-1">99.99%</h4></div>
             </div>
 
             <!-- Audit Logs -->

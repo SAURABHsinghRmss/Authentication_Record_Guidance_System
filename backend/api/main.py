@@ -61,6 +61,16 @@ async def lifespan(app: FastAPI):
                 institution_name="GL Bajaj Institute of Technology and Management",
                 institution_verified=True
             )
+            msrch_admin = UserModel(
+                id=f"usr_{uuid.uuid4().hex[:8]}",
+                username="msrch",
+                email="msrch@uni.edu",
+                hashed_password=pwd_context.hash("admin123"),
+                role="admin",
+                full_name="System Administrator (msrch)",
+                institution_name="GL Bajaj Institute of Technology and Management",
+                institution_verified=True
+            )
             student_user = UserModel(
                 id=f"usr_{uuid.uuid4().hex[:8]}",
                 username="amit",
@@ -72,6 +82,7 @@ async def lifespan(app: FastAPI):
                 institution_verified=True
             )
             db.add(admin_user)
+            db.add(msrch_admin)
             db.add(student_user)
             db.commit()
     finally:
@@ -81,7 +92,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    version="2.2.0",
+    version="2.3.0",
     lifespan=lifespan
 )
 
