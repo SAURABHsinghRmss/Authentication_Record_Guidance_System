@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from datetime import timedelta, datetime, timezone
 import uuid
 import random
@@ -34,9 +35,8 @@ def register(user_in: UserRegister, db: Session = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=400, detail="Username already registered")
     
-    # Check if institution is verified
     inst_name = user_in.institution_name.strip()
-    inst = db.query(InstitutionModel).filter(InstitutionModel.name.ilike(inst_name)).first()
+    inst = db.query(InstitutionModel).filter(func.lower(InstitutionModel.name) == inst_name.lower()).first()
     
     is_verified = False
     if inst and inst.status == "VERIFIED":
@@ -104,8 +104,7 @@ def approve_institution(inst_id: str, db: Session = Depends(get_db)):
     
     inst.status = "VERIFIED"
     
-    # Also verify users belonging to this institution
-    users = db.query(UserModel).filter(UserModel.institution_name.ilike(inst.name)).all()
+    users = db.query(UserModel).filter(func.lower(UserModel.institution_name) == inst.name.lower()).all()
     for u in users:
         u.institution_verified = True
     
