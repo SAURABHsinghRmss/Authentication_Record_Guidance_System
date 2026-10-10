@@ -1,0 +1,26 @@
+0 verbose cli C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js
+1 info using npm@11.17.0
+2 info using node@v24.19.0
+3 silly config load:file:C:\Program Files\nodejs\node_modules\npm\npmrc
+4 silly config load:file:D:\git\mini_project\Authentication_Record_Guidance_System\frontend\.npmrc
+5 silly config load:file:C:\Users\msrch\.npmrc
+6 silly config load:file:C:\Users\msrch\AppData\Roaming\npm\etc\npmrc
+7 verbose title npm install
+8 verbose argv "install" "--offline" "--cache" "../dependencies/node_cache"
+9 verbose logfile logs-max:10 dir:D:\git\mini_project\Authentication_Record_Guidance_System\dependencies\node_cache\_logs\2026-10-10T18_17_57_829Z-
+10 verbose logfile D:\git\mini_project\Authentication_Record_Guidance_System\dependencies\node_cache\_logs\2026-10-10T18_17_57_829Z-debug-0.log
+11 silly logfile done cleaning log files
+12 silly packumentCache heap:4496293888 maxSize:1124073472 maxEntrySize:562036736
+13 silly idealTree buildDeps
+14 silly reify moves {}
+15 silly audit report null
+16 warn allow-scripts 1 package has install scripts not yet covered by allowScripts:
+16 warn allow-scripts   esbuild@0.21.5 (postinstall: node install.js)
+16 warn allow-scripts
+16 warn allow-scripts Run `npm approve-scripts --allow-scripts-pending` to review, or `npm approve-scripts <pkg>` to allow.
+17 verbose cwd D:\git\mini_project\Authentication_Record_Guidance_System\frontend
+18 verbose os Windows_NT 10.0.26200
+19 verbose node v24.19.0
+20 verbose npm  v11.17.0
+21 verbose exit 0
+22 info ok

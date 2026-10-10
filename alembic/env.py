@@ -37,7 +37,7 @@ def run_migrations_online() -> None:
         poolclass=pool.NullPool,
     )
 
-    with context.connect() as connection:
+    with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():

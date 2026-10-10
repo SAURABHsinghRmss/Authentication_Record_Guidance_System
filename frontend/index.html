@@ -414,7 +414,7 @@
             <!-- At-Risk Section -->
             <div x-show="activeTab === 'faculty_at_risk'" class="glass-card p-6 space-y-4">
               <h3 class="font-semibold text-base text-rose-400"><i class="fa-solid fa-triangle-exclamation mr-2"></i> At-Risk Students Requiring Intervention</h3>
-              <p class="text-xs text-slate-400">Students with attendance < 75% or active backlogs:</p>
+              <p class="text-xs text-slate-400">Students with attendance &lt; 75% or active backlogs:</p>
               <div class="space-y-3">
                 <template x-for="s in students.filter(x => parseFloat(x.attendance_percentage) < 75 || x.backlogs > 0)" :key="s.id">
                   <div class="bg-slate-900 p-4 rounded-xl border border-rose-500/20 flex items-center justify-between">
@@ -588,7 +588,7 @@
                 <div class="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 space-y-4 text-xs">
                   <h3 class="font-semibold text-sm text-slate-200"><i class="fa-solid fa-shield-halved text-rose-400 mr-1.5"></i> Admin Security Actions</h3>
                   <ul class="space-y-2 text-slate-400 list-disc list-inside">
-                    <li>Automatically blacklist TLDs flagged with < 30% trust scores in gateway firewall.</li>
+                    <li>Automatically blacklist TLDs flagged with &lt; 30% trust scores in gateway firewall.</li>
                     <li>Audit SSL certificate transparency logs for enterprise domains.</li>
                   </ul>
                 </div>

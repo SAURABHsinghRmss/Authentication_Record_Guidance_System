@@ -1,6 +1,8 @@
-# Internet Deployment Phased Roadmap (Render.com)
+# Internet Deployment Phased Roadmap (Render.com & Multi-Cloud)
 
-This roadmap defines the structured phases required to deploy **EduIdentityAI** live onto the internet via [Render Dashboard](https://dashboard.render.com/).
+This roadmap defines the structured phases required to deploy **EduIdentityAI** live onto the internet via [Render Dashboard](https://dashboard.render.com/) and scale to multi-cloud enterprise infrastructure.
+
+> 📘 **Master Architecture Reference**: See **[`dependencies_and_cloud_computing_plan.md`](dependencies_and_cloud_computing_plan.md)** for exhaustive dependency profiles, cloud vendor topologies (AWS, Azure, GCP), FinOps cost analysis, and disaster recovery blueprints.
 
 ---
 
@@ -25,12 +27,13 @@ This roadmap defines the structured phases required to deploy **EduIdentityAI** 
   2. Execute migration against live cloud database: `alembic upgrade head`
   3. Verify seed data initialization for default admin and student accounts.
 
-## **Phase 3: Containerization & ASGI Process Scaling**
-* **Objective**: Package application services for reliable container orchestration.
+## **Phase 3: Containerization & Dependency Management**
+* **Objective**: Package application services for reliable container orchestration with cached dependencies.
 * **Steps**:
-  1. Build optimized Docker images for backend (`backend/Dockerfile`) and AI workers.
-  2. Configure multi-worker Uvicorn/Gunicorn execution (`--workers 4`) to handle high concurrency.
-  3. Deploy using Docker Compose or Kubernetes manifests (`infrastructure/docker-compose.yml`).
+  1. Build optimized Docker images for backend (`backend/Dockerfile`) with system libraries (`libgl1-mesa-glx`, `libpq-dev`, `ffmpeg`).
+  2. For air-gapped / offline deployments, leverage pre-compiled wheels in `dependencies/python_wheels/` and model weights in `dependencies/ai_weights/`.
+  3. Configure multi-worker Uvicorn/Gunicorn execution (`--workers 4`) to handle high concurrency.
+  4. Deploy using Docker Compose or Kubernetes manifests (`infrastructure/docker-compose.yml`).
 
 ## **Phase 4: SSL/TLS Termination, DNS & Reverse Proxy**
 * **Objective**: Secure public internet traffic and domain routing.
@@ -46,16 +49,24 @@ This roadmap defines the structured phases required to deploy **EduIdentityAI** 
   2. Test WebSocket audit log streaming (`/ws/audit-logs`) over secure WSS.
   3. Run end-to-end integration tests (`python -m unittest backend.tests.test_api`) against the live internet endpoint.
 
-## **Phase 6: Cloud Storage Migration & User Log Lake Sync (GCS / S3)**
-* **Objective**: Transition local testing log files (`storage/logs/users/`) to Google Cloud Storage (GCS) or AWS S3 buckets for permanent, distributed audit storage.
+## **Phase 6: Cloud Storage Migration & User Log Lake Sync (GCS / S3 / Azure)**
+* **Objective**: Transition local testing log files (`storage/logs/users/`) to Google Cloud Storage (GCS), AWS S3, or Azure Blob buckets for permanent, distributed audit storage.
 * **Steps**:
-  1. Provision a dedicated Google Cloud Storage bucket: `gs://eduidentity-user-logs` (Standard storage class with multi-region redundancy).
-  2. Configure GCP IAM Service Account with `roles/storage.objectAdmin` and export credentials via `GOOGLE_APPLICATION_CREDENTIALS`.
+  1. Provision a dedicated storage bucket: `gs://eduidentity-user-logs` (or `s3://eduidentity-user-logs`).
+  2. Configure cloud IAM Service Account / IAM Role with storage object write permissions.
   3. Update environment variables in cloud deployment:
      ```env
      CLOUD_STORAGE_ENABLED=true
      CLOUD_STORAGE_BUCKET=eduidentity-user-logs
      LOGS_STORAGE_DIR=/var/data/storage/logs/users
      ```
-  4. Enable the automated background sync adapter in `backend/services/user_work_logger.py` to synchronize staged user session files (`last_work.json`, `login_history.jsonl`, `activity_stream.jsonl`) to their respective cloud path `gs://eduidentity-user-logs/users/{user_email}/`.
-  5. Configure bucket lifecycle management (auto-tier logs older than 30 days to Nearline and older than 90 days to Coldline).
+  4. Enable the automated background sync adapter in `backend/services/user_work_logger.py` to synchronize staged user session files (`last_work.json`, `login_history.jsonl`, `activity_stream.jsonl`) to their respective cloud path `users/{user_email}/`.
+  5. Configure bucket lifecycle management (auto-tier logs older than 30 days to Nearline/Cool and older than 90 days to Coldline/Glacier).
+
+## **Phase 7: Multi-Cloud Scaling & GPU Inference Cluster (AWS / Azure / GCP)**
+* **Objective**: Scale heavy neural biometric inferencing and vector search for multi-campus university operations.
+* **Steps**:
+  1. Provision managed container cluster (AWS ECS Fargate / Azure Container Apps / GCP Cloud Run).
+  2. Provision GPU worker nodes (`g4dn.xlarge` / `Standard_NC4as_T4_v3` / `L4`) for asynchronous facial anti-spoofing and speaker verification using `backend/requirements-ai.txt`.
+  3. Connect managed Qdrant vector database instance for dense institutional policy RAG queries.
+  4. Configure cross-region disaster recovery replication with sub-15-minute RPO.

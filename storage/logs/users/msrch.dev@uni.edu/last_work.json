@@ -1,25 +1,25 @@
 {
-  "session_id": "sess_4d9863bb25e6",
+  "session_id": "sess_9cfd42b4529c",
   "user_id": "usr_80fab1d3",
   "username": "msrch",
   "email": "msrch.dev@uni.edu",
   "role": "admin",
   "storage_location": "D:\\git\\mini_project\\Authentication_Record_Guidance_System\\storage\\logs\\users\\msrch.dev@uni.edu",
   "cloud_storage_uri": "gs://eduidentity-user-logs/users/msrch.dev@uni.edu/last_work.json",
-  "login_timestamp": "2026-10-10T18:07:33.936902+00:00",
-  "client_ip": "testclient",
-  "user_agent": "testclient",
-  "previous_login": "2026-10-10T18:07:33.736704+00:00",
+  "login_timestamp": "2026-10-10T19:10:56.133817+00:00",
+  "client_ip": "127.0.0.1",
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0",
+  "previous_login": "2026-10-10T19:05:24.064046+00:00",
   "previous_work": {
     "status": "ACTIVE_SESSION",
-    "session_started_at": "2026-10-10T18:07:33.736704+00:00",
+    "session_started_at": "2026-10-10T19:05:24.064046+00:00",
     "summary": "Session initiated by msrch (admin)",
     "actions_count": 0,
     "recent_actions": []
   },
   "current_work": {
     "status": "ACTIVE_SESSION",
-    "session_started_at": "2026-10-10T18:07:33.936902+00:00",
+    "session_started_at": "2026-10-10T19:10:56.133817+00:00",
     "summary": "Session initiated by msrch (admin)",
     "actions_count": 0,
     "recent_actions": []

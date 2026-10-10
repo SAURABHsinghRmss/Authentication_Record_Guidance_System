@@ -77,6 +77,11 @@ Authentication_Record_Guidance_System/
 │   ├── tests/
 │   │   └── test_api.py             # 10 comprehensive unit & integration tests
 │   └── requirements.txt            # Python dependencies with cross-platform markers
+├── dependencies/                   # Offline wheel cache, AI model weights, & node cache
+│   ├── README.md                   # Offline air-gapped installation guide
+│   ├── python_wheels/              # Pre-downloaded Python wheel binaries
+│   ├── ai_weights/                 # Pre-trained neural model weights
+│   └── node_cache/                 # Offline npm package cache
 ├── frontend/                       # Lit & Alpine.js Web Application
 │   ├── index.html                  # Cyber-glassmorphism portal UI & components
 │   ├── js/app.js                   # Alpine.js state store & API communications
@@ -218,6 +223,7 @@ All 10 test cases run in `< 0.5s` and execute against testclient with rate-limit
 
 Detailed architectural and deployment guides are available in the **[`n_defined/`](n_defined/)** folder:
 
+- **[`dependencies_and_cloud_computing_plan.md`](n_defined/dependencies_and_cloud_computing_plan.md)**: Master architecture blueprint for software dependencies, multi-cloud topologies (AWS, Azure, GCP, Render), FinOps, and disaster recovery.
 - **[`current_definitions.md`](n_defined/current_definitions.md)**: End-to-end trace from frontend UI to database persistence.
 - **[`internet_deployment_phases.md`](n_defined/internet_deployment_phases.md)**: Phased cloud deployment roadmap (Render.com, DNS, SSL, and Phase 6 Cloud Storage Lake migration).
 - **[`pending_definitions.md`](n_defined/pending_definitions.md)**: Enterprise scaling specifications for GPU neural inferencing, OIDC, and live GCS bucket streaming.

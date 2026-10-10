@@ -1,0 +1,28 @@
+{
+  "session_id": "sess_1b9e226b236e",
+  "user_id": "usr_61ddafc0",
+  "username": "user_3bc0dd",
+  "email": "user_3bc0dd@uni.edu",
+  "role": "student",
+  "storage_location": "D:\\git\\mini_project\\Authentication_Record_Guidance_System\\storage\\logs\\users\\user_3bc0dd@uni.edu",
+  "cloud_storage_uri": "gs://eduidentity-user-logs/users/user_3bc0dd@uni.edu/last_work.json",
+  "login_timestamp": "2026-10-10T19:05:23.760054+00:00",
+  "client_ip": "testclient",
+  "user_agent": "testclient",
+  "previous_login": null,
+  "previous_work": null,
+  "current_work": {
+    "status": "ACTIVE_SESSION",
+    "session_started_at": "2026-10-10T19:05:23.760054+00:00",
+    "summary": "Session initiated by user_3bc0dd (student)",
+    "actions_count": 0,
+    "recent_actions": []
+  },
+  "cloud_storage_metadata": {
+    "provider": "google_cloud_storage",
+    "bucket": "eduidentity-user-logs",
+    "sync_ready": true,
+    "last_synced_at": null,
+    "sync_status": "LOCAL_STAGED"
+  }
+}
