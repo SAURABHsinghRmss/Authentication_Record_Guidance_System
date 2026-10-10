@@ -48,15 +48,10 @@
           <input type="password" x-model="loginForm.password" required placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200">
         </div>
 
-        <!-- Not a Robot CAPTCHA -->
-        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 space-y-2">
-          <div class="flex items-center justify-between text-xs text-slate-300">
-            <span class="flex items-center space-x-2">
-              <input type="checkbox" x-model="captchaVerified" required class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 bg-slate-800 border-slate-700">
-              <span class="font-medium">I am not a robot (Solve: 6 + 4 = ?)</span>
-            </span>
-          </div>
-          <input type="number" x-model.number="captchaAnswer" placeholder="Enter sum (10)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200">
+        <!-- Not a Robot CAPTCHA Checkbox -->
+        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 flex items-center space-x-2 text-xs text-slate-300">
+          <input type="checkbox" x-model="captchaVerified" required class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 bg-slate-800 border-slate-700">
+          <span class="font-medium">I am not a robot (Math Challenge on Submit)</span>
         </div>
 
         <div x-show="authError" class="text-xs text-red-400 bg-red-500/10 p-2 rounded-lg border border-red-500/20" x-text="authError"></div>
@@ -64,6 +59,20 @@
         <button type="submit" class="btn-primary w-full py-3 rounded-xl text-sm font-semibold shadow-lg">
           Authenticate & Enter <span x-text="loginForm.role.toUpperCase()"></span> Workspace
         </button>
+
+        <!-- Dynamic Math CAPTCHA Popup Modal -->
+        <div x-show="showCaptchaModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md px-4">
+          <div class="glass-card w-full max-w-sm p-6 space-y-4 border border-blue-500/30 shadow-2xl">
+            <div class="flex items-center justify-between">
+              <h3 class="font-semibold text-sm text-blue-400"><i class="fa-solid fa-shield-halved mr-1.5"></i> Security Math Challenge</h3>
+              <button @click="showCaptchaModal = false" class="text-slate-400 hover:text-white text-xs">✕</button>
+            </div>
+            <p class="text-xs text-slate-300">Please solve the following math problem to prove you are human:</p>
+            <div class="bg-slate-900 p-4 rounded-xl text-center font-mono text-xl font-bold text-emerald-400 border border-slate-800" x-text="captchaPrompt + ' = ?'"></div>
+            <input type="number" x-model.number="captchaAnswer" placeholder="Enter answer" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-center font-mono text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button type="button" @click="verifyCaptchaPopup()" class="btn-primary w-full py-2.5 rounded-xl text-xs font-semibold">Verify & Login</button>
+          </div>
+        </div>
 
         <div class="text-center text-xs text-slate-500 pt-1 space-y-1">
           <div>Quick test accounts:</div>

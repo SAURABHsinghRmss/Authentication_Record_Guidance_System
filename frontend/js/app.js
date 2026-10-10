@@ -6,6 +6,9 @@ function portalApp() {
     registerForm: { full_name: '', username: '', email: '', password: '', role: 'student', institution_name: '' },
     captchaVerified: false,
     captchaAnswer: '',
+    showCaptchaModal: false,
+    captchaPrompt: '7 + 5',
+    captchaExpected: 12,
     authError: '',
     currentUserRole: 'student',
     currentUserInstitution: 'GL Bajaj',
@@ -47,6 +50,7 @@ function portalApp() {
     ],
 
     async init() {
+      this.generateCaptcha();
       const token = localStorage.getItem('edu_token');
       const role = localStorage.getItem('edu_role');
       const inst = localStorage.getItem('edu_inst');
@@ -65,6 +69,18 @@ function portalApp() {
       }
     },
 
+    generateCaptcha() {
+      const a = Math.floor(Math.random() * 10) + 1;
+      const b = Math.floor(Math.random() * 10) + 1;
+      const ops = ['+', '-', '*'];
+      const op = ops[Math.floor(Math.random() * ops.length)];
+      this.captchaPrompt = `${a} ${op} ${b}`;
+      if (op === '+') this.captchaExpected = a + b;
+      else if (op === '-') this.captchaExpected = a - b;
+      else this.captchaExpected = a * b;
+      this.captchaAnswer = '';
+    },
+
     updateTheme() {
       if (this.currentUserRole === 'admin') this.themeClass = 'theme-admin';
       else if (this.currentUserRole === 'faculty') this.themeClass = 'theme-faculty';
@@ -72,13 +88,35 @@ function portalApp() {
       document.body.className = this.themeClass;
     },
 
-    async login() {
-      this.authError = '';
-      if (!this.captchaVerified || parseInt(this.captchaAnswer) !== 10) {
-        this.authError = 'Please solve the "I am not a robot" challenge correctly (6 + 4 = 10).';
+    promptCaptcha() {
+      if (!this.captchaVerified) {
+        this.authError = 'Please check the "I am not a robot" box first.';
         return;
       }
+      this.generateCaptcha();
+      this.showCaptchaModal = true;
+    },
 
+    async verifyCaptchaPopup() {
+      if (parseInt(this.captchaAnswer) === this.captchaExpected) {
+        this.showCaptchaModal = false;
+        await this.executeLogin();
+      } else {
+        alert('Incorrect math answer. Please try again.');
+        this.generateCaptcha();
+      }
+    },
+
+    async login() {
+      this.authError = '';
+      if (!this.captchaVerified) {
+        this.authError = 'Please verify "I am not a robot".';
+        return;
+      }
+      this.promptCaptcha();
+    },
+
+    async executeLogin() {
       try {
         const res = await fetch('/api/auth/login', {
           method: 'POST',
