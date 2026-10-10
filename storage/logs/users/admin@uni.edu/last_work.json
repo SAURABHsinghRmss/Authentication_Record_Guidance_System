@@ -1,0 +1,34 @@
+{
+  "session_id": "sess_2e8c9e284b5d",
+  "user_id": "usr_2f974b3e",
+  "username": "admin",
+  "email": "admin@uni.edu",
+  "role": "admin",
+  "storage_location": "D:\\git\\mini_project\\Authentication_Record_Guidance_System\\storage\\logs\\users\\admin@uni.edu",
+  "cloud_storage_uri": "gs://eduidentity-user-logs/users/admin@uni.edu/last_work.json",
+  "login_timestamp": "2026-10-10T18:07:33.545273+00:00",
+  "client_ip": "testclient",
+  "user_agent": "testclient",
+  "previous_login": "2026-10-10T17:58:46.418235+00:00",
+  "previous_work": {
+    "status": "ACTIVE_SESSION",
+    "session_started_at": "2026-10-10T17:58:46.418235+00:00",
+    "summary": "Session initiated by admin (admin)",
+    "actions_count": 0,
+    "recent_actions": []
+  },
+  "current_work": {
+    "status": "ACTIVE_SESSION",
+    "session_started_at": "2026-10-10T18:07:33.545273+00:00",
+    "summary": "Session initiated by admin (admin)",
+    "actions_count": 0,
+    "recent_actions": []
+  },
+  "cloud_storage_metadata": {
+    "provider": "google_cloud_storage",
+    "bucket": "eduidentity-user-logs",
+    "sync_ready": true,
+    "last_synced_at": null,
+    "sync_status": "LOCAL_STAGED"
+  }
+}

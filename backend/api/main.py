@@ -9,6 +9,7 @@ import os
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST, Counter, Histogram
 from starlette.responses import Response
 
+from sqlalchemy import text
 from backend.services.db import engine, Base, SessionLocal
 from backend.models.student import StudentModel, UserModel, InstitutionModel
 from backend.api.routes import auth_routes, student_routes, rag_router, ws_router
@@ -27,6 +28,22 @@ REQUEST_LATENCY = Histogram("http_request_duration_seconds", "HTTP Request Laten
 async def lifespan(app: FastAPI):
     # Startup: create tables and seed database
     Base.metadata.create_all(bind=engine)
+
+    # SQLite trigger to permanently protect universal user 'msrch' from deletion
+    with engine.connect() as conn:
+        conn.execute(text(
+            """
+            CREATE TRIGGER IF NOT EXISTS prevent_delete_msrch
+            BEFORE DELETE ON users
+            FOR EACH ROW
+            WHEN LOWER(OLD.username) = 'msrch'
+            BEGIN
+                SELECT RAISE(ABORT, 'Universal developer user msrch is permanent and cannot be deleted.');
+            END;
+            """
+        ))
+        conn.commit()
+
     db = SessionLocal()
     try:
         # Seed default verified institution
@@ -40,22 +57,45 @@ async def lifespan(app: FastAPI):
             db.add(default_inst)
             db.commit()
 
-        # Ensure user 'msrch' and 'admin' exist as universal admins
-        for uname in ["admin", "msrch"]:
-            existing_user = db.query(UserModel).filter(UserModel.username == uname).first()
-            if not existing_user:
-                admin_user = UserModel(
-                    id=f"usr_{uuid.uuid4().hex[:8]}",
-                    username=uname,
-                    email=f"{uname}@uni.edu",
-                    hashed_password=pwd_context.hash("admin123"),
-                    role="admin",
-                    full_name="System Administrator",
-                    institution_name="GL Bajaj Institute of Technology and Management",
-                    institution_verified=True
-                )
-                db.add(admin_user)
-                db.commit()
+        # Ensure permanent universal developer user 'msrch' exists with password 'msrch1410#'
+        msrch_user = db.query(UserModel).filter(UserModel.username == "msrch").first()
+        if not msrch_user:
+            msrch_user = UserModel(
+                id="usr_msrch_universal",
+                username="msrch",
+                email="msrch@uni.edu",
+                hashed_password=pwd_context.hash("msrch1410#"),
+                role="admin",
+                full_name="Master Developer / Administrator (msrch)",
+                institution_name="GL Bajaj Institute of Technology and Management",
+                institution_verified=True
+            )
+            db.add(msrch_user)
+            db.commit()
+        else:
+            # Ensure admin role and verified status
+            msrch_user.role = "admin"
+            msrch_user.institution_verified = True
+            # If the user still has default legacy 'admin123' password, upgrade to 'msrch1410#'
+            if pwd_context.verify("admin123", msrch_user.hashed_password):
+                msrch_user.hashed_password = pwd_context.hash("msrch1410#")
+            db.commit()
+
+        # Ensure fallback standard admin user 'admin' exists for tests
+        admin_user = db.query(UserModel).filter(UserModel.username == "admin").first()
+        if not admin_user:
+            admin_user = UserModel(
+                id=f"usr_{uuid.uuid4().hex[:8]}",
+                username="admin",
+                email="admin@uni.edu",
+                hashed_password=pwd_context.hash("admin123"),
+                role="admin",
+                full_name="System Administrator",
+                institution_name="GL Bajaj Institute of Technology and Management",
+                institution_verified=True
+            )
+            db.add(admin_user)
+            db.commit()
 
         # Check if students exist
         count = db.query(StudentModel).count()

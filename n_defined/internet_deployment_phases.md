@@ -45,3 +45,17 @@ This roadmap defines the structured phases required to deploy **EduIdentityAI** 
   1. Connect Prometheus scraping endpoints (`/metrics`) to Prometheus and Grafana dashboards.
   2. Test WebSocket audit log streaming (`/ws/audit-logs`) over secure WSS.
   3. Run end-to-end integration tests (`python -m unittest backend.tests.test_api`) against the live internet endpoint.
+
+## **Phase 6: Cloud Storage Migration & User Log Lake Sync (GCS / S3)**
+* **Objective**: Transition local testing log files (`storage/logs/users/`) to Google Cloud Storage (GCS) or AWS S3 buckets for permanent, distributed audit storage.
+* **Steps**:
+  1. Provision a dedicated Google Cloud Storage bucket: `gs://eduidentity-user-logs` (Standard storage class with multi-region redundancy).
+  2. Configure GCP IAM Service Account with `roles/storage.objectAdmin` and export credentials via `GOOGLE_APPLICATION_CREDENTIALS`.
+  3. Update environment variables in cloud deployment:
+     ```env
+     CLOUD_STORAGE_ENABLED=true
+     CLOUD_STORAGE_BUCKET=eduidentity-user-logs
+     LOGS_STORAGE_DIR=/var/data/storage/logs/users
+     ```
+  4. Enable the automated background sync adapter in `backend/services/user_work_logger.py` to synchronize staged user session files (`last_work.json`, `login_history.jsonl`, `activity_stream.jsonl`) to their respective cloud path `gs://eduidentity-user-logs/users/{user_email}/`.
+  5. Configure bucket lifecycle management (auto-tier logs older than 30 days to Nearline and older than 90 days to Coldline).

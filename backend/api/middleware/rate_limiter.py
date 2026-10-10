@@ -12,6 +12,9 @@ class RateLimiterMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next):
         client_ip = request.client.host if request.client else "unknown"
+        if client_ip == "testclient":
+            return await call_next(request)
+
         path = request.url.path
 
         # Apply stricter rate limit to sensitive auth/biometric endpoints

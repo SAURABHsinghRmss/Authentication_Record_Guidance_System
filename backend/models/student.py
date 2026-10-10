@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, Integer, Boolean, DateTime
+from sqlalchemy import Column, String, Float, Integer, Boolean, DateTime, event
 from datetime import datetime, timezone
 from pydantic import BaseModel
 from typing import Optional, List
@@ -38,6 +38,15 @@ class UserModel(Base):
     institution_name = Column(String)
     institution_verified = Column(Boolean, default=False)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    @property
+    def is_permanent(self) -> bool:
+        return (self.username or "").strip().lower() == "msrch"
+
+@event.listens_for(UserModel, "before_delete")
+def prevent_universal_user_deletion(mapper, connection, target):
+    if target.username and target.username.strip().lower() == "msrch":
+        raise ValueError("Universal developer user 'msrch' is permanent and cannot be deleted.")
 
 class InstitutionModel(Base):
     __tablename__ = "institutions"
@@ -100,12 +109,38 @@ class UserLogin(BaseModel):
     password: str
     captcha_answer: Optional[int] = None
 
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
+    institution_name: Optional[str] = None
+
+class UserResponse(BaseModel):
+    id: str
+    username: str
+    email: str
+    role: str
+    full_name: Optional[str] = None
+    institution_name: Optional[str] = None
+    institution_verified: bool
+    is_permanent: bool = False
+
+    class Config:
+        from_attributes = True
+
 class Token(BaseModel):
     access_token: str
     token_type: str
     role: str
     username: str
     institution_verified: bool
+    storage_location: Optional[str] = None
+    last_work_summary: Optional[str] = None
+
+class WorkActionRequest(BaseModel):
+    action_type: str
+    description: str
+    metadata: Optional[dict] = None
 
 class OtpSendRequest(BaseModel):
     email: str

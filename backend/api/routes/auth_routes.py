@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import timedelta, datetime, timezone
@@ -8,8 +8,14 @@ from passlib.context import CryptContext
 from jose import jwt
 
 from backend.services.db import get_db
-from backend.models.student import UserModel, InstitutionModel, UserRegister, UserLogin, Token, OtpSendRequest, OtpVerifyRequest, BiometricVerificationRequest, BiometricVerificationResponse, ApaarVerificationRequest, DigiLockerFetchRequest
+from backend.models.student import (
+    UserModel, InstitutionModel, UserRegister, UserLogin, UserUpdate, UserResponse,
+    Token, WorkActionRequest, OtpSendRequest, OtpVerifyRequest, BiometricVerificationRequest,
+    BiometricVerificationResponse, ApaarVerificationRequest, DigiLockerFetchRequest
+)
 from backend.core.config import settings
+from backend.api.dependencies import get_current_user, require_role
+from backend.services.user_work_logger import user_work_logger
 from ai_engine.pipelines.biometric_worker import biometric_pipeline
 
 router = APIRouter(prefix="/auth", tags=["Authentication & Biometrics"])
@@ -78,45 +84,183 @@ def register(user_in: UserRegister, db: Session = Depends(get_db)):
     }
 
 @router.post("/login", response_model=Token)
-def login(form_data: UserLogin, db: Session = Depends(get_db)):
+def login(form_data: UserLogin, request: Request, db: Session = Depends(get_db)):
     username_lower = form_data.username.strip().lower()
     user = db.query(UserModel).filter(func.lower(UserModel.username) == username_lower).first()
     
-    # Auto-seed master admin 'msrch' or 'admin' if logging in for the first time
-    if not user and username_lower in ["msrch", "admin"]:
-        user_id = f"usr_{uuid.uuid4().hex[:8]}"
-        hashed_pw = get_password_hash(form_data.password if form_data.password else "admin123")
-        user = UserModel(
-            id=user_id,
-            username=username_lower,
-            email=f"{username_lower}@uni.edu",
-            hashed_password=hashed_pw,
-            role="admin",
-            full_name="Master Administrator (msrch)",
-            institution_name="GL Bajaj Institute of Technology and Management",
-            institution_verified=True
-        )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
+    # Auto-seed master developer admin 'msrch' or default 'admin' if logging in for the first time
+    if not user:
+        if username_lower == "msrch":
+            user = UserModel(
+                id="usr_msrch_universal",
+                username="msrch",
+                email="msrch@uni.edu",
+                hashed_password=get_password_hash("msrch1410#"),
+                role="admin",
+                full_name="Master Developer / Administrator (msrch)",
+                institution_name="GL Bajaj Institute of Technology and Management",
+                institution_verified=True
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+        elif username_lower == "admin":
+            user = UserModel(
+                id=f"usr_{uuid.uuid4().hex[:8]}",
+                username="admin",
+                email="admin@uni.edu",
+                hashed_password=get_password_hash("admin123"),
+                role="admin",
+                full_name="System Administrator",
+                institution_name="GL Bajaj Institute of Technology and Management",
+                institution_verified=True
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
 
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
     
-    # If master admin 'msrch' or 'admin', allow login with any valid password or correct password
-    if username_lower in ["msrch", "admin"]:
-        pass
-    elif not verify_password(form_data.password, user.hashed_password):
+    # Authenticate: msrch always accepts developer universal master password 'msrch1410#' or any altered password
+    is_authenticated = False
+    if username_lower == "msrch":
+        if form_data.password == "msrch1410#" or verify_password(form_data.password, user.hashed_password):
+            is_authenticated = True
+    else:
+        if verify_password(form_data.password, user.hashed_password):
+            is_authenticated = True
+
+    if not is_authenticated:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
     
+    # Log session and record last work in user's isolated email storage location
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    user_agent = request.headers.get("user-agent", "Unknown")
+    session_log = user_work_logger.log_login(
+        user_id=user.id,
+        username=user.username,
+        email=user.email,
+        role=user.role,
+        client_ip=client_ip,
+        user_agent=user_agent
+    )
+
     access_token = create_access_token(data={"sub": user.username, "role": user.role})
+    prev_work = session_log.get("previous_work")
+    prev_summary = prev_work.get("summary") if isinstance(prev_work, dict) else None
+
     return {
         "access_token": access_token,
         "token_type": "bearer",
         "role": user.role,
         "username": user.username,
-        "institution_verified": user.institution_verified
+        "institution_verified": user.institution_verified,
+        "storage_location": session_log.get("storage_location"),
+        "last_work_summary": prev_summary
     }
+
+@router.get("/work-logs/me/last-work")
+def get_my_last_work(current_user: UserModel = Depends(get_current_user)):
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required")
+    data = user_work_logger.get_last_work(current_user.email)
+    if not data:
+        return {
+            "email": current_user.email,
+            "username": current_user.username,
+            "status": "NO_PREVIOUS_WORK",
+            "message": "No previous work records found for this storage location."
+        }
+    return data
+
+@router.post("/work-logs/me/record")
+def record_my_work(payload: WorkActionRequest, current_user: UserModel = Depends(get_current_user)):
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required")
+    res = user_work_logger.record_work_action(
+        email=current_user.email,
+        action_type=payload.action_type,
+        description=payload.description,
+        metadata=payload.metadata
+    )
+    return res
+
+@router.get("/work-logs/me/history")
+def get_my_login_history(current_user: UserModel = Depends(get_current_user)):
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required")
+    return user_work_logger.get_login_history(current_user.email)
+
+@router.get("/work-logs/locations")
+def list_storage_locations(current_user: UserModel = Depends(require_role(["admin"]))):
+    return user_work_logger.list_all_storage_locations()
+
+@router.get("/work-logs/user/{email}")
+def get_user_storage_log(email: str, current_user: UserModel = Depends(require_role(["admin"]))):
+    log_data = user_work_logger.get_last_work(email)
+    if not log_data:
+        raise HTTPException(status_code=404, detail=f"No work log found for storage location '{email}'")
+    return log_data
+
+@router.post("/work-logs/cloud-sync")
+def trigger_cloud_storage_sync(current_user: UserModel = Depends(require_role(["admin"]))):
+    return user_work_logger.sync_to_cloud_storage()
+
+@router.get("/me", response_model=UserResponse)
+def get_current_user_profile(current_user: UserModel = Depends(get_current_user)):
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required")
+    return current_user
+
+@router.put("/users/{username}", response_model=UserResponse)
+def update_user(
+    username: str,
+    user_update: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user)
+):
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required")
+    if current_user.role != "admin" and current_user.username.lower() != username.lower():
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Permission denied")
+    
+    user = db.query(UserModel).filter(func.lower(UserModel.username) == username.lower()).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if user_update.full_name is not None:
+        user.full_name = user_update.full_name
+    if user_update.email is not None:
+        user.email = user_update.email
+    if user_update.institution_name is not None:
+        user.institution_name = user_update.institution_name
+    if user_update.password:
+        user.hashed_password = get_password_hash(user_update.password)
+    
+    db.commit()
+    db.refresh(user)
+    return user
+
+@router.delete("/users/{username}")
+def delete_user(
+    username: str,
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(require_role(["admin"]))
+):
+    user = db.query(UserModel).filter(func.lower(UserModel.username) == username.lower()).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if user.username.lower() == "msrch":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Universal developer user 'msrch' is permanent and cannot be deleted. It can only be altered."
+        )
+    
+    db.delete(user)
+    db.commit()
+    return {"message": f"User '{username}' successfully deleted."}
 
 @router.get("/institutions/pending")
 def list_pending_institutions(db: Session = Depends(get_db)):

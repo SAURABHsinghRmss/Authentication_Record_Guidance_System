@@ -16,3 +16,9 @@ This document outlines strategic architectural and feature enhancements to eleva
 ## 3. Monitoring & Developer Experience
 * **Automated CI/CD Workflows**: Add GitHub Actions workflows to run automated unit tests (`python -m unittest`), linting (`flake8`), and Docker image builds on every pull request.
 * **Grafana Dashboards**: Fully wire the JSON dashboard files located in `configs/grafana/` to Prometheus metrics for automated SLA and executive KPI scorecards.
+
+## 4. User Audit Logging & Cloud Storage Enhancements
+* **Automatic Session Restoration**: In the frontend portal, render an interactive "Last Work" card upon login displaying the user's previous work summary and quick resume shortcuts.
+* **Multi-Cloud Storage Providers**: Expand `UserWorkLogger` to support multi-cloud storage backends (Google Cloud Storage, AWS S3, Azure Blob Storage) dynamically selected via environment configuration (`CLOUD_PROVIDER=gcs|s3|azure`).
+* **Log Compression & Archival**: Implement automatic Gzip compression (`.jsonl.gz`) for inactive session activity files before cloud sync to minimize cloud bandwidth and storage costs.
+* **Developer Diagnostics View**: Provide a dedicated developer inspector for `msrch` in the portal to monitor live work actions and session telemetry across all user Gmail storage locations.
