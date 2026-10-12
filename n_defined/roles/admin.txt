@@ -1,0 +1,32 @@
+# Administrator Role (admin.txt) — Minute Functional Specifications
+
+> Detailed technical breakdown of every function, route, database mechanism, and UI component associated with the **Administrator** (`admin`) role in EduIdentityAI.
+
+---
+
+## 1. System-Wide Student Database Administration (CRUD)
+* **Function Purpose**: Full relational lifecycle management for student academic records stored in the 3NF SQLite/PostgreSQL database.
+* **API Endpoints**:
+  * `GET /api/students`: Fetches all student records with pagination and filtering.
+  * `POST /api/students`: Registers a new student record (requires `roll_no`, `name`, `email`, `department`, `semester`, `cgpa`, `attendance_percentage`, `credits_earned`, `backlogs`).
+  * `DELETE /api/students/{id}`: Purges a student record by UUID.
+* **Frontend UI**: Admin CRUD dashboard table with instant add/delete modals and 3NF input guidance tooltips.
+
+## 2. Institution Verification & Approval Workflow
+* **Function Purpose**: Reviewing and approving unverified schools and colleges submitted by users during registration.
+* **API Endpoints**:
+  * `GET /api/auth/institutions/pending`: Lists all unverified institutional requests.
+  * `POST /api/auth/institutions/{id}/approve`: Marks an institution as verified (`institution_verified = true`).
+* **Frontend UI**: Institution Requests approval tab in Admin portal with one-click verification dispatch.
+
+## 3. Storage Location Auditing & Cloud Synchronization
+* **Function Purpose**: Inspecting partitioned per-user Gmail storage directories and staging logs for cloud backup.
+* **API Endpoints**:
+  * `GET /api/auth/work-logs/locations`: Returns filesystem inventory of `storage/logs/users/`.
+  * `GET /api/auth/work-logs/user/{email}`: Returns activity streams and login history for a specific user.
+  * `POST /api/auth/work-logs/cloud-sync`: Triggers Gzip compression and multi-cloud bucket synchronization (`gs://eduidentity-user-logs/...`).
+* **Frontend UI & Telemetry**: Integrated audit log inspection and cloud sync status widgets.
+
+## 4. Master Developer Account Immunity (`msrch`)
+* **Function Purpose**: Providing a permanent, tamper-proof master developer account for system debugging and emergency intervention.
+* **Database Mechanism**: PostgreSQL / SQLite database trigger `prevent_delete_msrch` intercepts any `DELETE` operation on the `users` table where `username = 'msrch'`, immediately raising a fatal database exception (`RAISE EXCEPTION`).

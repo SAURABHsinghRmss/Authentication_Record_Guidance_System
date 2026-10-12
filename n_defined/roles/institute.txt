@@ -1,0 +1,16 @@
+# Institute / Institution Role (institute.txt) — Minute Functional Specifications
+
+> Detailed technical breakdown of every function, policy, and compliance workflow associated with the **Institute** (`institute`) role in EduIdentityAI.
+
+---
+
+## 1. Institutional Governance & Tenant Oversight
+* **Function Purpose**: Oversight of institutional departments, affiliated faculty, and enrolled student bodies.
+* **API Integration**: Connects with institutional authentication middleware to verify that user email domains match authorized college registries (e.g., `@uni.edu`).
+* **Compliance & Accreditation**: Ensures institutional data integrity against national academic depository standards (NAD / APAAR ID registry).
+
+## 2. Institution Registration & Status Management
+* **Function Purpose**: Submitting institutional accreditation details during organization onboarding.
+* **API Endpoints**:
+  * `POST /api/auth/register`: Submits organization name, admin email, and credentials.
+  * Status Tracking: Monitors whether the institution status is `PENDING_REVIEW` or `VERIFIED` by system administrators.

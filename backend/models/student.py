@@ -188,3 +188,120 @@ class ApaarVerificationRequest(BaseModel):
 class DigiLockerFetchRequest(BaseModel):
     apaar_id: str
     document_type: str = "DEGREE_CERTIFICATE"
+
+class MentorChatModel(Base):
+    __tablename__ = "mentor_chats"
+
+    id = Column(String, primary_key=True, index=True)
+    student_id = Column(String, index=True)
+    mentor_username = Column(String, index=True)
+    sender_role = Column(String) # "student" or "faculty"
+    sender_name = Column(String)
+    message = Column(String)
+    timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+class ChatMessageCreate(BaseModel):
+    student_id: str
+    mentor_username: str = "faculty"
+    sender_role: str
+    sender_name: str
+    message: str
+
+class ChatMessageResponse(BaseModel):
+    id: str
+    student_id: str
+    mentor_username: str
+    sender_role: str
+    sender_name: str
+    message: str
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True
+
+class CounselingNoticeModel(Base):
+    __tablename__ = "counseling_notices"
+
+    id = Column(String, primary_key=True, index=True)
+    student_id = Column(String, index=True)
+    student_name = Column(String)
+    faculty_username = Column(String)
+    notice_type = Column(String, default="ATTENDANCE_WARNING")
+    message = Column(Text)
+    timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    status = Column(String, default="DISPATCHED")
+
+class CounselingNoticeCreate(BaseModel):
+    student_id: str
+    student_name: str
+    faculty_username: str = "faculty"
+    notice_type: str = "ATTENDANCE_WARNING"
+    message: str
+
+class CounselingNoticeResponse(BaseModel):
+    id: str
+    student_id: str
+    student_name: str
+    faculty_username: str
+    notice_type: str
+    message: str
+    timestamp: datetime
+    status: str
+
+    class Config:
+        from_attributes = True
+
+class CommunityGroupModel(Base):
+    __tablename__ = "community_groups"
+
+    id = Column(String, primary_key=True, index=True)
+    name = Column(String, unique=True, index=True)
+    category = Column(String, default="CLUB") # CLUB, COMMUNITY, STUDY_GROUP, FACULTY_BOARD
+    role_access = Column(String, default="all") # student, faculty, admin, all
+    description = Column(String, nullable=True)
+    created_by = Column(String)
+    timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+class CommunityMessageModel(Base):
+    __tablename__ = "community_messages"
+
+    id = Column(String, primary_key=True, index=True)
+    group_id = Column(String, index=True)
+    sender_username = Column(String)
+    sender_name = Column(String)
+    sender_role = Column(String)
+    message = Column(Text)
+    timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+class CommunityGroupCreate(BaseModel):
+    name: str
+    category: str = "CLUB"
+    role_access: str = "all"
+    description: Optional[str] = None
+
+class CommunityGroupResponse(BaseModel):
+    id: str
+    name: str
+    category: str
+    role_access: str
+    description: Optional[str] = None
+    created_by: str
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True
+
+class CommunityMessageCreate(BaseModel):
+    message: str
+
+class CommunityMessageResponse(BaseModel):
+    id: str
+    group_id: str
+    sender_username: str
+    sender_name: str
+    sender_role: str
+    message: str
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True

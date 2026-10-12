@@ -33,6 +33,14 @@ function portalApp() {
     apaarResult: null,
     digilockerDocType: 'DEGREE_CERTIFICATE',
     digilockerResult: null,
+    mentorChatMessages: [],
+    mentorChatInput: '',
+    communityGroups: [],
+    selectedGroupId: null,
+    communityMessages: [],
+    communityMessageInput: '',
+    showCreateGroupModal: false,
+    newGroup: { name: '', category: 'CLUB', role_access: 'all', description: '' },
     
     targetUrl: '',
     urlCheckResult: null,
@@ -324,6 +332,10 @@ function portalApp() {
     },
 
     async createStudent() {
+      if (!this.newStudent.roll_no || !this.newStudent.name || !this.newStudent.email) {
+        alert('Please fill in Roll No, Full Name, and Email.');
+        return;
+      }
       try {
         const res = await fetch('/api/students', {
           method: 'POST',
@@ -336,7 +348,10 @@ function portalApp() {
           this.auditLogs.unshift(`[${new Date().toISOString()}] ADMIN CRUD: Created student ${this.newStudent.roll_no}`);
         } else {
           const err = await res.json();
-          alert('Error: ' + (err.detail || 'Failed to create student'));
+          let msg = 'Failed to create student';
+          if (typeof err.detail === 'string') msg = err.detail;
+          else if (Array.isArray(err.detail)) msg = err.detail.map(d => d.msg).join(', ');
+          alert('Error: ' + msg);
         }
       } catch (e) {
         alert('Network error during student creation.');
@@ -482,6 +497,123 @@ function portalApp() {
           if (this.auditLogs.length > 50) this.auditLogs.pop();
         } catch (e) {}
       };
+    },
+
+    async fetchMentorChat() {
+      try {
+        const studentId = this.currentUserRole === 'student' ? (this.currentStudent.id || 'stu_sample1') : this.selectedStudentId;
+        if (!studentId) return;
+        const res = await fetch(`/api/chat/messages/${studentId}?mentor_username=faculty`, {
+          headers: { 'Authorization': `Bearer ${this.authToken}` }
+        });
+        if (res.ok) {
+          this.mentorChatMessages = await res.json();
+        }
+      } catch (e) {
+        console.error('Failed to load mentor chat', e);
+      }
+    },
+
+    async sendMentorMessage() {
+      if (!this.mentorChatInput.trim()) return;
+      const studentId = this.currentUserRole === 'student' ? (this.currentStudent.id || 'stu_sample1') : this.selectedStudentId;
+      const senderRole = this.currentUserRole === 'student' ? 'student' : 'faculty';
+      const senderName = this.currentUserRole === 'student' ? (this.currentStudent.name || 'Student') : 'Faculty Mentor';
+      
+      try {
+        const res = await fetch('/api/chat/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.authToken}`
+          },
+          body: JSON.stringify({
+            student_id: studentId,
+            mentor_username: 'faculty',
+            sender_role: senderRole,
+            sender_name: senderName,
+            message: this.mentorChatInput
+          })
+        });
+        if (res.ok) {
+          this.mentorChatInput = '';
+          await this.fetchMentorChat();
+        }
+      } catch (e) {
+        console.error('Failed to send mentor message', e);
+      }
+    },
+
+    async fetchCommunityGroups() {
+      try {
+        const res = await fetch('/api/community/groups', {
+          headers: { 'Authorization': `Bearer ${this.authToken}` }
+        });
+        if (res.ok) {
+          this.communityGroups = await res.json();
+          if (this.communityGroups.length > 0 && !this.selectedGroupId) {
+            this.selectedGroupId = this.communityGroups[0].id;
+            await this.fetchCommunityMessages();
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load community groups', e);
+      }
+    },
+
+    async fetchCommunityMessages() {
+      if (!this.selectedGroupId) return;
+      try {
+        const res = await fetch(`/api/community/groups/${this.selectedGroupId}/messages`, {
+          headers: { 'Authorization': `Bearer ${this.authToken}` }
+        });
+        if (res.ok) {
+          this.communityMessages = await res.json();
+        }
+      } catch (e) {
+        console.error('Failed to load community messages', e);
+      }
+    },
+
+    async sendCommunityMessage() {
+      if (!this.communityMessageInput.trim() || !this.selectedGroupId) return;
+      try {
+        const res = await fetch(`/api/community/groups/${this.selectedGroupId}/messages`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.authToken}`
+          },
+          body: JSON.stringify({ message: this.communityMessageInput })
+        });
+        if (res.ok) {
+          this.communityMessageInput = '';
+          await this.fetchCommunityMessages();
+        }
+      } catch (e) {
+        console.error('Failed to send community message', e);
+      }
+    },
+
+    async createCommunityGroup() {
+      if (!this.newGroup.name.trim()) return;
+      try {
+        const res = await fetch('/api/community/groups', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.authToken}`
+          },
+          body: JSON.stringify(this.newGroup)
+        });
+        if (res.ok) {
+          this.newGroup = { name: '', category: 'CLUB', role_access: 'all', description: '' };
+          this.showCreateGroupModal = false;
+          await this.fetchCommunityGroups();
+        }
+      } catch (e) {
+        console.error('Failed to create group', e);
+      }
     }
   };
 }

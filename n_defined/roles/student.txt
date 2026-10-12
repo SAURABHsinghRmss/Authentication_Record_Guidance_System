@@ -1,0 +1,44 @@
+# Student Role (student.txt) — Minute Functional Specifications & Roadmap
+
+> Detailed technical breakdown of every function, route, and UI feature associated with the **Student** (`student`) role in EduIdentityAI, including implemented status vs. future roadmap.
+
+---
+
+## 1. AI Guidance & RAG Chat Advisor (Implemented)
+* **Function Purpose**: Answering student inquiries regarding academic policies, credit transfer rules (SWAYAM/NPTEL up to 20%), and attendance thresholds.
+* **API Endpoints**:
+  * `POST /rag_query`: Qwen3 embedding similarity search over institutional knowledge base (`sample_students.json`).
+* **Frontend UI**: AI Guidance RAG chat interface with interactive message bubbles and citation cards.
+
+## 2. Multimodal Biometrics & 2FA (Implemented)
+* **Function Purpose**: Verifying student identity via facial recognition, document OCR, voice biometrics, and 6-digit OTP passcodes.
+* **API Endpoints**:
+  * `POST /api/auth/biometric-verify`
+  * `POST /api/auth/otp/send`, `POST /api/auth/otp/verify`
+* **Frontend UI**: Biometrics & 2FA verification card grid.
+
+## 3. National Credentials & DigiLocker Integration (Implemented)
+* **Function Purpose**: Validating permanent academic account registry (APAAR ID) and fetching verified digital degree certificates and marksheets.
+* **API Endpoints**:
+  * `POST /api/auth/apaar-verify`, `POST /api/auth/digilocker-fetch`
+* **Frontend UI**: APAAR & DigiLocker sync dashboard.
+
+## 4. Opportunity Scam Shield (Implemented)
+* **Function Purpose**: Scanning scholarship, internship, and admissions URLs to detect phishing and financial aid fraud.
+* **API Endpoints**:
+  * `POST /api/security/check-url`
+* **Frontend UI**: Opportunity Scam Shield tab with trust score gauges and AI recommendations.
+
+## 5. Mentor-Student Direct Chat (Implemented)
+* **Function Purpose**: Direct secure messaging between student and their assigned faculty mentor.
+* **API Endpoints**:
+  * `GET /api/chat/messages/{student_id}`
+  * `POST /api/chat/messages`
+* **Frontend UI**: Mentor Chat tab with message history and real-time input dispatch.
+
+## 6. Pending / Future Scope Modules (Left)
+* **Notices & Alerts**: College news updates, timetables, and placement alerts.
+* **Library Services**: Book issue/return, OPAC search, and reservation.
+* **Hostel Management**: Leave management and hygiene/mess grievance ticketing.
+* **Bank & Fees**: NEFT bank details and institute/hostel fee payment gateway.
+* **Exam Results & Admit Card**: Detailed semester grade transcripts and downloadable exam admit cards.

@@ -1,0 +1,15 @@
+# Parent / Guardian Role (parent.txt) — Minute Functional Specifications
+
+> Detailed technical breakdown of every function, monitoring view, and alert mechanism associated with the **Parent / Guardian** (`parent`) role in EduIdentityAI.
+
+---
+
+## 1. Student Academic & Attendance Monitoring
+* **Function Purpose**: Guardian oversight of student semester progress, cumulative CGPA, credits earned, and attendance percentage.
+* **API Endpoints**:
+  * `GET /api/students/{id}/guidance`: Retrieves automated AI guidance reports and attendance compliance status against the mandatory 75% threshold.
+
+## 2. Safety & Opportunity Scam Shield Alerts
+* **Function Purpose**: Protecting students and guardians against predatory scholarship scams, fake internships, and fraudulent fee payment portals.
+* **API Endpoints**:
+  * `POST /api/security/check-url`: Verifies institutional validity of links accessed by the student.

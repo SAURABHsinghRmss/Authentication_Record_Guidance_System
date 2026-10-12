@@ -111,6 +111,20 @@ Authentication_Record_Guidance_System/
 
 ---
 
+## 👥 Role-Based Access Control (RBAC) Architecture
+
+As defined in `n_defined/roles/`, EduIdentityAI enforces strict role-based access control across five distinct user roles:
+
+| Role & Definition File | Core Privileges & Responsibilities |
+| :--- | :--- |
+| **`admin.txt`**<br>(Administrator / Master Developer) | Unrestricted system access, database CRUD, user management, institution request approvals, observability metrics, storage auditing, and cloud sync. Features permanent master account (`msrch`) with anti-deletion protection. |
+| **`institute.txt`**<br>(Institution / College Authority) | Institutional governance, verified student/faculty enrollments, institution registration status management, and compliance with national academic frameworks. |
+| **`mentor_teachers.txt`**<br>(Faculty & Mentor Teachers) | Student roster management, attendance tracking (75% mandatory threshold), CGPA & backlog monitoring, student record updates (`POST`/`PUT /api/students/`), and counseling notice dispatch. |
+| **`parent.txt`**<br>(Parent / Guardian) | Monitoring student academic progress, semester CGPA, attendance percentage, active backlogs, fee status, and receiving official institutional or scam/safety alerts. |
+| **`student.txt`**<br>(Student Portal) | AI guidance RAG advisor, multimodal biometrics (Face, OCR, Voice), 2FA OTP verification, APAAR ID / DigiLocker credentials, and opportunity scam shielding. |
+
+---
+
 ## 🛡️ Universal Developer Account
 
 For testing, auditing, and bug reproduction, a permanent universal master account is pre-configured:
