@@ -797,8 +797,71 @@
               </template>
             </div>
 
-            <!-- Chat Room Window -->
-            <div class="md:col-span-3 bg-slate-900/40 rounded-2xl border border-slate-800 flex flex-col p-4 overflow-hidden">
+            <!-- Chat Room Window with EduMentor Co-Pilot -->
+            <div class="md:col-span-3 bg-slate-900/40 rounded-2xl border border-slate-800 flex flex-col p-4 overflow-hidden space-y-4">
+              <!-- Co-Pilot Action Toolbar -->
+              <div class="flex flex-wrap items-center justify-between bg-slate-900/80 p-3 rounded-xl border border-slate-800 gap-2">
+                <div class="flex items-center space-x-2">
+                  <span class="text-xs font-bold text-blue-400"><i class="fa-solid fa-robot"></i> EduMentor Co-Pilot:</span>
+                  <button @click="fetchCoPilotSummary(); fetchCoPilotQuizzes()" class="px-3 py-1.5 rounded-lg bg-blue-600/20 text-blue-300 hover:bg-blue-600/30 text-xs font-semibold transition border border-blue-500/30">Summarize Thread</button>
+                  <button @click="generateCoPilotQuiz()" class="px-3 py-1.5 rounded-lg bg-purple-600/20 text-purple-300 hover:bg-purple-600/30 text-xs font-semibold transition border border-purple-500/30">Generate Quiz</button>
+                </div>
+                <div>
+                  <button @click="verifyTrustTier()" class="px-3 py-1.5 rounded-lg bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600/30 text-xs font-semibold transition border border-emerald-500/30"><i class="fa-solid fa-shield-halved"></i> Verify Trust Tier</button>
+                </div>
+              </div>
+
+              <!-- Trust Tier Status Banner -->
+              <template x-if="trustTierStatus">
+                <div class="bg-emerald-950/40 border border-emerald-800/60 p-3 rounded-xl text-xs text-emerald-300 flex items-center justify-between">
+                  <div>
+                    <span class="font-bold">Trust-Tier Status:</span> <span x-text="trustTierStatus.trust_tier_access"></span> — <span x-text="trustTierStatus.message"></span>
+                  </div>
+                  <button @click="trustTierStatus = null" class="text-emerald-400 hover:text-emerald-200"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+              </template>
+
+              <!-- Co-Pilot Summary Card -->
+              <template x-if="copilotSummary">
+                <div class="bg-blue-950/40 border border-blue-800/50 p-3 rounded-xl text-xs space-y-1 text-blue-200">
+                  <div class="flex items-center justify-between font-bold text-blue-300">
+                    <span><i class="fa-solid fa-brain"></i> AI Study Session Summary</span>
+                    <span x-text="new Date(copilotSummary.timestamp).toLocaleTimeString()" class="font-mono text-[10px] opacity-75"></span>
+                  </div>
+                  <p x-text="copilotSummary.summary_text"></p>
+                  <div class="text-[11px] text-blue-300/90 font-medium whitespace-pre-line mt-1 pt-1 border-t border-blue-800/30" x-text="copilotSummary.key_takeaways"></div>
+                </div>
+              </template>
+
+              <!-- Interactive Quizzes Banner -->
+              <template x-if="activeQuizzes.length > 0">
+                <div class="bg-purple-950/30 border border-purple-800/50 p-3 rounded-xl text-xs space-y-2">
+                  <div class="font-bold text-purple-300 flex items-center space-x-1">
+                    <i class="fa-solid fa-question-circle"></i> <span>Active Study Quizzes</span>
+                  </div>
+                  <template x-for="q in activeQuizzes" :key="q.id">
+                    <div class="bg-slate-900/80 p-2.5 rounded-lg border border-purple-900/50 space-y-2">
+                      <p class="font-semibold text-slate-200" x-text="q.question"></p>
+                      <div class="grid grid-cols-2 gap-2">
+                        <template x-for="opt in q.options" :key="opt">
+                          <label class="flex items-center space-x-2 bg-slate-950 px-3 py-1.5 rounded border border-slate-800 cursor-pointer hover:border-purple-500">
+                            <input type="radio" :name="'quiz_' + q.id" :value="opt" x-model="quizAnswers[q.id]" class="text-purple-600">
+                            <span class="text-slate-300 text-xs" x-text="opt"></span>
+                          </label>
+                        </template>
+                      </div>
+                      <div class="flex items-center justify-between pt-1">
+                        <button @click="submitQuizAnswer(q.id)" class="px-3 py-1 rounded bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-semibold">Submit Answer</button>
+                        <template x-if="quizResults[q.id]">
+                          <span :class="quizResults[q.id].correct ? 'text-emerald-400' : 'text-red-400'" class="font-bold text-[11px]" x-text="quizResults[q.id].correct ? 'Correct! 🎉' : 'Incorrect. Try again.'"></span>
+                        </template>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </template>
+
+              <!-- Chat Messages Area -->
               <div class="flex-1 overflow-y-auto space-y-4 pr-2">
                 <template x-for="msg in communityMessages">
                   <div :class="msg.sender_username === loginForm.username ? 'flex justify-end' : 'flex justify-start'">

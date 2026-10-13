@@ -12,7 +12,7 @@ from starlette.responses import Response
 from sqlalchemy import text
 from backend.services.db import engine, Base, SessionLocal
 from backend.models.student import StudentModel, UserModel, InstitutionModel
-from backend.api.routes import auth_routes, student_routes, rag_router, ws_router, chat_routes, notification_routes, community_chat_routes
+from backend.api.routes import auth_routes, student_routes, rag_router, ws_router, chat_routes, notification_routes, community_chat_routes, copilot_chat_routes
 from backend.api.middleware.rate_limiter import RateLimiterMiddleware
 from backend.core.config import settings
 from passlib.context import CryptContext
@@ -157,6 +157,7 @@ app.include_router(student_routes.router, prefix=settings.API_V1_STR)
 app.include_router(chat_routes.router, prefix=settings.API_V1_STR)
 app.include_router(notification_routes.router, prefix=settings.API_V1_STR)
 app.include_router(community_chat_routes.router, prefix=settings.API_V1_STR)
+app.include_router(copilot_chat_routes.router, prefix=settings.API_V1_STR)
 app.include_router(rag_router.router)
 app.include_router(ws_router.router)
 

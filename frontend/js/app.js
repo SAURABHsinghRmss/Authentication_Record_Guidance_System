@@ -41,6 +41,11 @@ function portalApp() {
     communityMessageInput: '',
     showCreateGroupModal: false,
     newGroup: { name: '', category: 'CLUB', role_access: 'all', description: '' },
+    copilotSummary: null,
+    activeQuizzes: [],
+    quizAnswers: {},
+    quizResults: {},
+    trustTierStatus: null,
     
     targetUrl: '',
     urlCheckResult: null,
@@ -613,6 +618,93 @@ function portalApp() {
         }
       } catch (e) {
         console.error('Failed to create group', e);
+      }
+    },
+
+    async fetchCoPilotSummary() {
+      if (!this.selectedGroupId) return;
+      try {
+        const res = await fetch(`/api/copilot/groups/${this.selectedGroupId}/summarize`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${this.authToken}` }
+        });
+        if (res.ok) {
+          this.copilotSummary = await res.json();
+        }
+      } catch (e) {
+        console.error('Failed to fetch Co-Pilot summary', e);
+      }
+    },
+
+    async fetchCoPilotQuizzes() {
+      if (!this.selectedGroupId) return;
+      try {
+        const res = await fetch(`/api/copilot/groups/${this.selectedGroupId}/quizzes`, {
+          headers: { 'Authorization': `Bearer ${this.authToken}` }
+        });
+        if (res.ok) {
+          this.activeQuizzes = await res.json();
+        }
+      } catch (e) {
+        console.error('Failed to fetch quizzes', e);
+      }
+    },
+
+    async generateCoPilotQuiz() {
+      if (!this.selectedGroupId) return;
+      try {
+        const res = await fetch(`/api/copilot/groups/${this.selectedGroupId}/quiz`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.authToken}`
+          },
+          body: JSON.stringify({
+            question: "Based on recent study group discussions and institutional academic policy, what is the mandatory minimum attendance percentage required for semester exams?",
+            options: ["60%", "75%", "85%", "100%"],
+            correct_answer: "75%"
+          })
+        });
+        if (res.ok) {
+          await this.fetchCoPilotQuizzes();
+        }
+      } catch (e) {
+        console.error('Failed to generate quiz', e);
+      }
+    },
+
+    async submitQuizAnswer(quizId) {
+      const selected = this.quizAnswers[quizId];
+      if (!selected) return;
+      try {
+        const res = await fetch(`/api/copilot/quizzes/${quizId}/answer`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.authToken}`
+          },
+          body: JSON.stringify({ selected_answer: selected })
+        });
+        if (res.ok) {
+          const result = await res.json();
+          this.quizResults[quizId] = result;
+        }
+      } catch (e) {
+        console.error('Failed to submit quiz answer', e);
+      }
+    },
+
+    async verifyTrustTier() {
+      try {
+        const res = await fetch('/api/copilot/verify-access', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${this.authToken}` }
+        });
+        if (res.ok) {
+          this.trustTierStatus = await res.json();
+        }
+      } catch (e) {
+        console.error('Failed to verify trust tier', e);
       }
     }
   };

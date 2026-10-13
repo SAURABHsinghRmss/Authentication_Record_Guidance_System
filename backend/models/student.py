@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, Integer, Boolean, DateTime, event
+from sqlalchemy import Column, String, Float, Integer, Boolean, DateTime, Text, event
 from datetime import datetime, timezone
 from pydantic import BaseModel
 from typing import Optional, List
@@ -305,3 +305,59 @@ class CommunityMessageResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class StudySessionSummaryModel(Base):
+    __tablename__ = "study_session_summaries"
+
+    id = Column(String, primary_key=True, index=True)
+    group_id = Column(String, index=True)
+    summary_text = Column(Text)
+    key_takeaways = Column(Text)
+    timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+class InteractiveQuizModel(Base):
+    __tablename__ = "interactive_quizzes"
+
+    id = Column(String, primary_key=True, index=True)
+    group_id = Column(String, index=True)
+    question = Column(Text)
+    options = Column(String)  # JSON-encoded list of options
+    correct_answer = Column(String)
+    created_by = Column(String)
+    timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+class StudySummaryResponse(BaseModel):
+    id: str
+    group_id: str
+    summary_text: str
+    key_takeaways: str
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True
+
+class InteractiveQuizCreate(BaseModel):
+    question: str
+    options: List[str]
+    correct_answer: str
+
+class InteractiveQuizResponse(BaseModel):
+    id: str
+    group_id: str
+    question: str
+    options: List[str]
+    correct_answer: Optional[str] = None # Can be omitted for student view
+    created_by: str
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True
+
+class QuizAnswerRequest(BaseModel):
+    selected_answer: str
+
+class QuizAnswerResponse(BaseModel):
+    correct: bool
+    explanation: str
+    correct_answer: str
+

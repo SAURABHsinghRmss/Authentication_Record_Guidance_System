@@ -50,6 +50,11 @@
    - Isolated log storage directories partitioned by user Gmail/email in `storage/logs/users/{user_email}/`.
    - Tracks previous session work snapshots at each login, continuous session activity streams, and cloud sync readiness for Google Cloud Storage (`gs://eduidentity-user-logs/...`).
 
+6. **EduMentor Co-Pilot & Verified Peer Study Hive**:
+   - AI-driven study thread summarization powered by RAG vector embeddings.
+   - Interactive study quiz generation, submission, and instant scoring.
+   - Trust-tiered verified peer study channels requiring institutional verification and role-based access.
+
 ---
 
 ## 📂 System Architecture & Directory Layout
