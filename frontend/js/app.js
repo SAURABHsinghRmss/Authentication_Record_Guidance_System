@@ -85,18 +85,24 @@ function portalApp() {
     generateCaptcha() {
       const a = Math.floor(Math.random() * 10) + 1;
       const b = Math.floor(Math.random() * 10) + 1;
-      const ops = ['+', '-', '*'];
+      const ops = ['+', '-'];
       const op = ops[Math.floor(Math.random() * ops.length)];
-      this.captchaPrompt = `${a} ${op} ${b}`;
-      if (op === '+') this.captchaExpected = a + b;
-      else if (op === '-') this.captchaExpected = a - b;
-      else this.captchaExpected = a * b;
+      if (op === '-' && a < b) {
+        // ensure positive result
+        this.captchaPrompt = `${b} - ${a}`;
+        this.captchaExpected = b - a;
+      } else {
+        this.captchaPrompt = `${a} ${op} ${b}`;
+        this.captchaExpected = op === '+' ? a + b : a - b;
+      }
       this.captchaAnswer = '';
     },
 
     updateTheme() {
       if (this.currentUserRole === 'admin') this.themeClass = 'theme-admin';
       else if (this.currentUserRole === 'faculty') this.themeClass = 'theme-faculty';
+      else if (this.currentUserRole === 'institute') this.themeClass = 'theme-institute';
+      else if (this.currentUserRole === 'parent') this.themeClass = 'theme-parent';
       else this.themeClass = 'theme-student';
       document.body.className = this.themeClass;
     },
@@ -139,9 +145,9 @@ function portalApp() {
         if (res.ok) {
           const data = await res.json();
           let assignedRole = data.role;
-          if (this.loginForm.username === 'admin') assignedRole = 'admin';
-          else if (this.loginForm.username === 'faculty') assignedRole = 'faculty';
-          else assignedRole = this.loginForm.role;
+          if (this.loginForm.username === 'admin' || this.loginForm.username === 'msrch') assignedRole = 'admin';
+          else if (this.loginForm.role) assignedRole = this.loginForm.role;
+          else assignedRole = data.role;
 
           localStorage.setItem('edu_token', data.access_token);
           localStorage.setItem('edu_role', assignedRole);
@@ -160,6 +166,11 @@ function portalApp() {
             await this.fetchPendingInstitutions();
           } else if (assignedRole === 'faculty') {
             this.activeTab = 'faculty_roster';
+          } else if (assignedRole === 'institute') {
+            this.activeTab = 'admin_institutions';
+            await this.fetchPendingInstitutions();
+          } else if (assignedRole === 'parent') {
+            this.activeTab = 'guidance';
           } else {
             this.activeTab = 'guidance';
           }

@@ -1,25 +1,25 @@
 {
-  "session_id": "sess_2d4795465dc4",
+  "session_id": "sess_0a9bac0519bf",
   "user_id": "usr_2f974b3e",
   "username": "admin",
   "email": "admin@uni.edu",
   "role": "admin",
   "storage_location": "D:\\git\\mini_project\\Authentication_Record_Guidance_System\\storage\\logs\\users\\admin@uni.edu",
   "cloud_storage_uri": "gs://eduidentity-user-logs/users/admin@uni.edu/last_work.json",
-  "login_timestamp": "2026-10-13T08:48:03.194906+00:00",
+  "login_timestamp": "2026-10-13T11:24:13.188041+00:00",
   "client_ip": "testclient",
   "user_agent": "testclient",
-  "previous_login": "2026-10-13T08:26:44.634474+00:00",
+  "previous_login": "2026-10-13T09:04:24.822439+00:00",
   "previous_work": {
     "status": "ACTIVE_SESSION",
-    "session_started_at": "2026-10-13T08:26:44.634474+00:00",
+    "session_started_at": "2026-10-13T09:04:24.822439+00:00",
     "summary": "Session initiated by admin (admin)",
     "actions_count": 0,
     "recent_actions": []
   },
   "current_work": {
     "status": "ACTIVE_SESSION",
-    "session_started_at": "2026-10-13T08:48:03.194906+00:00",
+    "session_started_at": "2026-10-13T11:24:13.188041+00:00",
     "summary": "Session initiated by admin (admin)",
     "actions_count": 0,
     "recent_actions": []

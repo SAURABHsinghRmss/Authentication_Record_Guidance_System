@@ -25,9 +25,11 @@
       </div>
 
       <!-- Role Selector Tabs -->
-      <div class="grid grid-cols-3 gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800 text-xs font-semibold text-center">
+      <div class="grid grid-cols-5 gap-1 bg-slate-900 p-1.5 rounded-xl border border-slate-800 text-[10px] font-semibold text-center">
         <button @click="loginForm.role = 'student'; themeClass = 'theme-student'" :class="loginForm.role === 'student' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'" class="py-2 rounded-lg transition">Student</button>
         <button @click="loginForm.role = 'faculty'; themeClass = 'theme-faculty'" :class="loginForm.role === 'faculty' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'" class="py-2 rounded-lg transition">Faculty</button>
+        <button @click="loginForm.role = 'institute'; themeClass = 'theme-institute'" :class="loginForm.role === 'institute' ? 'bg-teal-600 text-white shadow' : 'text-slate-400 hover:text-white'" class="py-2 rounded-lg transition">Institute</button>
+        <button @click="loginForm.role = 'parent'; themeClass = 'theme-parent'" :class="loginForm.role === 'parent' ? 'bg-amber-600 text-white shadow' : 'text-slate-400 hover:text-white'" class="py-2 rounded-lg transition">Parent</button>
         <button @click="loginForm.role = 'admin'; themeClass = 'theme-admin'" :class="loginForm.role === 'admin' ? 'bg-rose-600 text-white shadow' : 'text-slate-400 hover:text-white'" class="py-2 rounded-lg transition">Admin</button>
       </div>
 
@@ -69,7 +71,7 @@
             </div>
             <p class="text-xs text-slate-300">Please solve the following math problem to prove you are human:</p>
             <div class="bg-slate-900 p-4 rounded-xl text-center font-mono text-xl font-bold text-emerald-400 border border-slate-800" x-text="captchaPrompt + ' = ?'"></div>
-            <input type="number" x-model.number="captchaAnswer" placeholder="Enter answer" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-center font-mono text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="number" x-model.number="captchaAnswer" @keyup.enter="verifyCaptchaPopup()" placeholder="Enter answer" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-center font-mono text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
             <button type="button" @click="verifyCaptchaPopup()" class="btn-primary w-full py-2.5 rounded-xl text-xs font-semibold">Verify & Login</button>
           </div>
         </div>
