@@ -5,7 +5,8 @@ echo   EduIdentityAI — Starting Student Authentication, Record & Guidance Plat
 echo ==============================================================================
 
 echo [1/2] Starting FastAPI Backend Server on http://localhost:8000 ...
-start cmd /k "python -m uvicorn backend.api.main:app --host 0.0.0.0 --port 8000 --reload"
+set PYTHONPATH=%CD%
+start cmd /k "set PYTHONPATH=%CD% && python -m uvicorn backend.api.main:app --host 0.0.0.0 --port 8000 --reload"
 
 echo [2/2] Starting Frontend Portal Server on http://localhost:3000 ...
 start cmd /k "cd frontend && npx vite --port 3000"

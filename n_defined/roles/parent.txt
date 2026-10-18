@@ -4,12 +4,30 @@
 
 ---
 
-## 1. Student Academic & Attendance Monitoring
-* **Function Purpose**: Guardian oversight of student semester progress, cumulative CGPA, credits earned, and attendance percentage.
+## 1. Ward Academic & Attendance Monitoring (Implemented)
+* **Function Purpose**: Guardian oversight of linked student's semester progress, cumulative CGPA, credits earned, and attendance percentage compliance against the mandatory 75% threshold.
 * **API Endpoints**:
   * `GET /api/students/{id}/guidance`: Retrieves automated AI guidance reports and attendance compliance status against the mandatory 75% threshold.
+* **Frontend UI**: Parent Overview dashboard featuring ward profile card, attendance metric rings, and backlog warning banners.
 
-## 2. Safety & Opportunity Scam Shield Alerts
-* **Function Purpose**: Protecting students and guardians against predatory scholarship scams, fake internships, and fraudulent fee payment portals.
+## 2. Direct 1-on-1 Faculty Mentor Consultation (Implemented)
+* **Function Purpose**: Confidential, direct two-way messaging between parents/guardians and their ward's assigned faculty mentor.
 * **API Endpoints**:
-  * `POST /api/security/check-url`: Verifies institutional validity of links accessed by the student.
+  * `GET /api/chat/category/PERSONAL?peer_username=faculty`: Retrieves personal advisory thread.
+  * `POST /api/chat/send`: Dispatches confidential parental inquiries (`sender_role: "parent"`).
+* **Frontend UI**: Direct Message Ward's Faculty Mentor interface integrated into the 3-Category Unified Chat window.
+
+## 3. EduMentor Meta AI Educational Advisory for Parents (Implemented)
+* **Function Purpose**: Providing parents with clear, jargon-free explanations of statutory academic frameworks:
+  * Using **`POLICY_REGULATION`** to verify credit transfer policies (SWAYAM/NPTEL) and exam eligibility requirements.
+  * Using **`CAREER_PATHWAY`** to understand internship milestones, campus placement schedules, and technical career progression.
+* **API Endpoints**:
+  * `GET /api/chat/ai/criteria`
+  * `POST /api/chat/ai/ask`
+* **Frontend UI**: Dedicated Meta AI chat with iridescent ring avatar and quick-action prompt cards.
+
+## 4. Ward Safety & Opportunity Scam Shield (Implemented)
+* **Function Purpose**: Protecting students and families against predatory scholarship scams, fraudulent tuition fee links, and fake internship offers.
+* **API Endpoints**:
+  * `POST /api/security/check-url`: Verifies institutional validity and safety score of external links.
+* **Frontend UI**: Opportunity Scam Shield tab with risk score gauges and proactive defense advice.

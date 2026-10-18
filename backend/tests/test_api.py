@@ -100,7 +100,10 @@ class TestEduIdentityAPI(unittest.TestCase):
         uname = f"user_{uuid.uuid4().hex[:6]}"
         reg_payload = {
             "username": uname,
-            "email": f"{uname}@uni.edu",
+            "personal_email": f"{uname}@gmail.com",
+            "college_email": f"{uname}@uni.edu",
+            "mobile_number": "+19876543210",
+            "mobile_verified": True,
             "password": "securepassword123",
             "full_name": "New Test User",
             "role": "student",
@@ -235,7 +238,10 @@ class TestEduIdentityAPI(unittest.TestCase):
         gmail_email = f"{gmail_user}@gmail.com"
         reg_payload = {
             "username": gmail_user,
-            "email": gmail_email,
+            "personal_email": gmail_email,
+            "college_email": f"{gmail_user}@uni.edu",
+            "mobile_number": "+19876543210",
+            "mobile_verified": True,
             "password": "strongPassword123!",
             "full_name": "Gmail Test Developer",
             "role": "student",
@@ -264,7 +270,7 @@ class TestEduIdentityAPI(unittest.TestCase):
         last_work_res = client.get("/api/auth/work-logs/me/last-work", headers=headers)
         self.assertEqual(last_work_res.status_code, 200)
         last_work_data = last_work_res.json()
-        self.assertEqual(last_work_data["email"], gmail_email)
+        self.assertEqual(last_work_data["email"], f"{gmail_user}@uni.edu")
         self.assertIn("cloud_storage_uri", last_work_data)
 
         # 4. Record work action performed in session
@@ -292,7 +298,7 @@ class TestEduIdentityAPI(unittest.TestCase):
         locs_res = client.get("/api/auth/work-logs/locations", headers=admin_headers)
         self.assertEqual(locs_res.status_code, 200)
         locations = locs_res.json()
-        self.assertTrue(any(loc["email"] == gmail_email for loc in locations))
+        self.assertTrue(any(loc["email"] == f"{gmail_user}@uni.edu" for loc in locations))
 
         sync_res = client.post("/api/auth/work-logs/cloud-sync", headers=admin_headers)
         self.assertEqual(sync_res.status_code, 200)

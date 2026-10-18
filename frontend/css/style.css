@@ -119,3 +119,86 @@ body {
   background: rgba(255, 255, 255, 0.2);
   border-radius: 3px;
 }
+
+/* -------------------------------------------------------------
+ * META AI IN WHATSAPP ICONIC STYLING & CRITERIA BADGES
+ * ------------------------------------------------------------- */
+@keyframes metaAiSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes metaAiPulse {
+  0%, 100% { opacity: 0.85; filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.6)); }
+  50% { opacity: 1; filter: drop-shadow(0 0 18px rgba(168, 85, 247, 0.9)); }
+}
+
+.meta-ai-ring {
+  background: conic-gradient(from 180deg at 50% 50%, #00d2ff 0deg, #3b82f6 90deg, #a855f7 180deg, #ec4899 270deg, #00d2ff 360deg);
+  border-radius: 50%;
+  animation: metaAiPulse 3s ease-in-out infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.meta-ai-ring-inner {
+  background: #0b1120;
+  border-radius: 50%;
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.meta-ai-msg-bubble {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 27, 75, 0.85) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.meta-ai-msg-bubble::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #00d2ff, #3b82f6, #a855f7, #ec4899);
+}
+
+.meta-ai-chip {
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+.meta-ai-chip:hover {
+  border-color: rgba(168, 85, 247, 0.5);
+  background: rgba(88, 28, 135, 0.25);
+  transform: translateY(-1px);
+}
+
+.meta-ai-chip.active {
+  border-color: #a855f7;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.4) 0%, rgba(147, 51, 234, 0.4) 100%);
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
+}
+
+/* Collapsible HTML in Markdown for Quizzes */
+details summary {
+  cursor: pointer;
+  outline: none;
+  transition: color 0.15s ease;
+}
+details summary:hover {
+  color: #c084fc;
+}
+details[open] summary {
+  margin-bottom: 0.5rem;
+}

@@ -50,10 +50,19 @@
    - Isolated log storage directories partitioned by user Gmail/email in `storage/logs/users/{user_email}/`.
    - Tracks previous session work snapshots at each login, continuous session activity streams, and cloud sync readiness for Google Cloud Storage (`gs://eduidentity-user-logs/...`).
 
-6. **EduMentor Co-Pilot & Verified Peer Study Hive**:
-   - AI-driven study thread summarization powered by RAG vector embeddings.
-   - Interactive study quiz generation, submission, and instant scoring.
-   - Trust-tiered verified peer study channels requiring institutional verification and role-based access.
+6. **EduMentor Meta AI in WhatsApp-Style Chat (8 Educational Criteria)**:
+   - Iconic Meta AI glowing iridescent ring UI integrated into Personal, Private, and Global Agora chat categories.
+   - **8 Core Educational Criteria Grounding**:
+     1. `POLICY_REGULATION`: Institutional Regulations & Credit Policy (RAG grounded on 75% attendance rule and 20% SWAYAM/NPTEL credits).
+     2. `CONCEPT_TUTORING`: Pedagogical concept breakdowns with analogies, step-by-step algorithms, and Big-O complexity analysis.
+     3. `QUIZ_GENERATION`: Interactive 4-option MCQs with pedagogical hints and expandable `<details>` answer reveals.
+     4. `THREAD_SUMMARIZATION`: Intelligent study synthesis of channel discussions and lecture notes into bulleted takeaways.
+     5. `ACADEMIC_INTEGRITY`: IEEE / APA 7th edition citation generator and plagiarism avoidance standards.
+     6. `CAREER_PATHWAY`: Semester project milestones, placement preparation, and technical interview roadmaps.
+     7. `EXAM_REVISION`: High-yield exam cheat sheets, core formulas, and viva voce question preparation.
+     8. `CODE_LAB_ASSIST`: Line-by-line code explanation, debugging guidance, and time/space complexity optimization.
+   - Dual-engine intelligence: Powered by **Google Gemini 3.8 Flash** with zero-downtime deterministic local fallback for air-gapped/offline resilience.
+   - Available as a dedicated 1-on-1 contact (`@edumentor_ai`) and in-channel mentions (`@ai` or `@meta`) in any group or campus agora.
 
 ---
 
@@ -68,29 +77,43 @@ Authentication_Record_Guidance_System/
 │   │   ├── middleware/             # RateLimiterMiddleware with testclient bypass
 │   │   └── routes/
 │   │       ├── auth_routes.py      # Auth, user profile, work logs, biometrics, OTP
+│   │       ├── chat_routes.py      # Unified 3-Category Chat (Personal, Private, Global) & Meta AI
+│   │       ├── community_chat_routes.py # Campus clubs, study groups, and verified peer hives
+│   │       ├── db_admin_routes.py  # Polyglot 7-database federation administration
 │   │       ├── student_routes.py   # Student CRUD, academic records, guidance engine
 │   │       ├── rag_router.py       # Knowledge base RAG search endpoint
 │   │       └── ws_router.py        # Real-time WebSocket telemetry stream
 │   ├── core/
-│   │   └── config.py               # Pydantic/Environment settings, Cloud Storage config
+│   │   └── config.py               # Pydantic settings & polyglot domain DB paths
 │   ├── models/
-│   │   ├── student.py              # SQLAlchemy models & Pydantic schemas
+│   │   ├── student.py              # SQLAlchemy models & Pydantic schemas (Unified Chat & 3NF)
 │   │   └── sample_students.json    # Sample student data and RAG knowledge base
 │   ├── services/
-│   │   ├── db.py                   # SQLAlchemy engine, session maker, declarative base
+│   │   ├── db.py                   # Primary SQLAlchemy session and engine
+│   │   ├── db_federation.py        # Polyglot 7-Database domain federation manager
+│   │   ├── edumentor_ai_service.py # EduMentor Meta AI (Gemini 3.8 Flash & 8 Criteria)
 │   │   └── user_work_logger.py     # Partitioned user work logging & cloud sync adapter
 │   ├── tests/
-│   │   └── test_api.py             # 10 comprehensive unit & integration tests
+│   │   ├── test_api.py             # Unit & integration tests
+│   │   └── test_three_category_chat.py # 10 comprehensive tests for chat & Meta AI criteria
 │   └── requirements.txt            # Python dependencies with cross-platform markers
+├── databases/                      # Polyglot Domain-Isolated Database Storage
+│   ├── auth_iam.db                 # Domain 1: Authentication, IAM, & credentials
+│   ├── academic_sis.db             # Domain 2: Student information system & records
+│   ├── family_heritage.db          # Domain 3: Parent-ward linkages & socio-economic data
+│   ├── institutions_governance.db  # Domain 4: Organization accreditation & tenant oversight
+│   ├── security_audit.db           # Domain 5: Security audit stream & tamper detection
+│   ├── career_pathways.db          # Domain 6: Technical skill roadmaps & placements
+│   └── notifications_events.db     # Domain 7: Real-time alerts & notice broadcasts
 ├── dependencies/                   # Offline wheel cache, AI model weights, & node cache
 │   ├── README.md                   # Offline air-gapped installation guide
 │   ├── python_wheels/              # Pre-downloaded Python wheel binaries
 │   ├── ai_weights/                 # Pre-trained neural model weights
 │   └── node_cache/                 # Offline npm package cache
 ├── frontend/                       # Lit & Alpine.js Web Application
-│   ├── index.html                  # Cyber-glassmorphism portal UI & components
+│   ├── index.html                  # Cyber-glassmorphism portal UI, Meta AI ring & chat
 │   ├── js/app.js                   # Alpine.js state store & API communications
-│   ├── css/style.css               # Styling definitions and animations
+│   ├── css/style.css               # Styling definitions, Meta AI animations & badges
 │   └── package.json                # Frontend dependencies (lit, alpinejs, vite)
 ├── ai_engine/                      # Biometrics & Vector Store Engine
 │   └── pipelines/
@@ -104,11 +127,14 @@ Authentication_Record_Guidance_System/
 │       │   └── activity_stream.jsonl # Real-time session action telemetry
 ├── infrastructure/                 # Containerized Infrastructure Services
 │   └── docker-compose.yml          # PostgreSQL 15 & Valkey 7.2 container definitions
-├── n_defined/                      # System Specifications & Roadmaps
-│   ├── current_definitions.md      # End-to-end connectivity matrix
-│   ├── internet_deployment_phases.md # Phased Render.com cloud deployment roadmap
-│   ├── pending_definitions.md      # Future enterprise scope & neural GPU scaling
-│   └── project_improvements.md     # Security, RAG, and cloud lake enhancement roadmap
+├── n_defined/                      # System Specifications, Roadmaps & Role Definitions
+│   ├── current_definitions.md      # End-to-end connectivity trace matrix
+│   ├── database_development_plan.md # 7-database federation & unified chat schema
+│   ├── detailed_master_future_plan.md # Master future engineering execution roadmap
+│   ├── hierarchical_scaling_blueprint.md # Institution, state & country scaling
+│   ├── pending_definitions.md      # Implemented status vs future enterprise scope
+│   ├── project_improvements.md     # Security, RAG & cloud lake enhancement guide
+│   └── roles/                      # Fine-grained RBAC specifications (student, faculty, admin, etc.)
 ├── eduidentity.db                  # Default SQLite database file
 ├── start_system.bat                # Windows startup script (Backend + Frontend)
 └── start_system.sh                 # Linux/macOS startup script (Containers + App)

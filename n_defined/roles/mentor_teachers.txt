@@ -1,29 +1,42 @@
 # Mentor Teachers / Faculty Role (mentor_teachers.txt) — Minute Functional Specifications
 
-> Detailed technical breakdown of every function, route, and UI feature associated with the **Mentor Teachers / Faculty** (`faculty`) role in EduIdentityAI.
+> Detailed technical breakdown of every function, route, database mechanism, and UI feature associated with the **Mentor Teachers / Faculty** (`faculty`) role in EduIdentityAI.
 
 ---
 
-## 1. Mentorship Roster Management
-* **Function Purpose**: Viewing and filtering assigned student mentees across academic departments, semesters, CGPA, and attendance metrics.
+## 1. Mentorship Roster & Academic Monitoring (Implemented)
+* **Function Purpose**: Viewing and filtering assigned student mentees across academic departments, semesters, CGPA, backlogs, and attendance metrics.
 * **API Endpoints**:
   * `GET /api/students`: Retrieves all student records for faculty review.
-* **Frontend UI**: Mentorship Roster tabular view (`faculty_roster` tab) with search and sorting.
+  * `POST /api/students`: Updates academic metrics and attendance records.
+* **Frontend UI**: Mentorship Roster tabular view (`faculty_roster` tab) with department filtering and student profile inspection.
 
-## 2. At-Risk Student Early Warning & Counseling Notices
+## 2. At-Risk Student Early Warning & Counseling Notices (Implemented)
 * **Function Purpose**: Identifying students falling below the mandatory 75% attendance threshold or carrying active backlogs, and dispatching remediation alerts.
 * **Algorithmic Threshold**: `parseFloat(student.attendance_percentage) < 75 || student.backlogs > 0`.
-* **Frontend UI**: At-Risk Students tab (`faculty_at_risk`) with one-click **"Send Counseling Notice"** button generating automated remediation logs.
+* **Frontend UI**: At-Risk Students tab (`faculty_at_risk`) with one-click **"Send Counseling Notice"** button generating automated remediation logs and notifications.
 
-## 3. Mentor-Student Direct Chat System
-* **Function Purpose**: Secure, real-time messaging between specific faculty mentors and their assigned student mentees.
+## 3. Unified 3-Category Chat & Faculty Mentorship Communication (Implemented)
+* **Function Purpose**: Omnichannel faculty communication across personal, private, and global streams:
+  * **PERSONAL (Direct Mentee Messaging)**: Direct confidential guidance with assigned students (`recipient_username`).
+  * **PRIVATE (Faculty Councils & Clubs)**: Restricted academic board discussions and faculty committee coordination.
+  * **GLOBAL (Campus Agora)**: Department-wide announcements, symposium notices, and academic reminders.
 * **API Endpoints**:
-  * `GET /api/chat/messages/{student_id}?mentor_username=faculty`: Loads chronological conversation history.
-  * `POST /api/chat/messages`: Sends a direct message with `sender_role: "faculty"`.
-* **Persistence**: Stored in the `mentor_chats` relational table.
-* **Frontend UI**: Faculty Mentorship Chat tab with dropdown selector for assigned student mentees, auto-updating chat bubbles, and input controls.
+  * `GET /api/chat/category/{category}`: Loads messages for the specified channel/peer.
+  * `POST /api/chat/send`: Dispatches faculty communications with `sender_role: "faculty"`.
+  * `GET /api/chat/messages/{student_id}`: Backward-compatible legacy mentor chat endpoint.
+* **Frontend UI**: Unified Chat Room and dedicated Faculty Mentorship Chat tab.
 
-## 4. Research & Conference Portal Verifier
+## 4. EduMentor Meta AI Pedagogical Assistant for Faculty (Implemented)
+* **Function Purpose**: Assisting faculty in generating pedagogical resources and analyzing cohort discussions:
+  * Using **`QUIZ_GENERATION`** to generate syllabus-aligned 4-option practice questions for lecture check-ins.
+  * Using **`THREAD_SUMMARIZATION`** to synthesize student group discussion threads into high-yield lecture review notes.
+  * Using **`ACADEMIC_INTEGRITY`** to provide students with standardized IEEE/APA citation models.
+* **API Endpoints**:
+  * `GET /api/chat/ai/criteria`: Retrieves the 8 educational criteria.
+  * `POST /api/chat/ai/ask`: Generates structured pedagogical outputs.
+
+## 5. Research & Conference Portal Verifier (Implemented)
 * **Function Purpose**: Validating academic journals, conference submission websites, and grant portals before faculty recommend them to mentees.
 * **API Endpoints**:
   * `POST /api/security/check-url`: Evaluates domain heuristic trust scores.

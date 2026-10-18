@@ -117,6 +117,53 @@ def send_community_message(
         timestamp=datetime.now(timezone.utc)
     )
     db.add(msg)
+
+    # Cross-sync to UnifiedChatMessageModel under PRIVATE category
+    try:
+        from backend.models.student import UnifiedChatMessageModel
+        unified_msg = UnifiedChatMessageModel(
+            id=f"cmsg_priv_{uuid.uuid4().hex[:10]}",
+            category="PRIVATE",
+            channel_id=group_id,
+            sender_username=current_user.username,
+            sender_name=current_user.full_name or current_user.username,
+            sender_role=current_user.role,
+            recipient_username=None,
+            message=msg_in.message,
+            timestamp=datetime.now(timezone.utc),
+            is_read=True
+        )
+        db.add(unified_msg)
+    except Exception:
+        pass
+
     db.commit()
     db.refresh(msg)
+
+    # In-club Meta AI Assistant trigger
+    try:
+        from backend.services.edumentor_ai_service import EduMentorAIService
+        ai_resp = EduMentorAIService.process_and_reply(
+            db=db,
+            current_user=current_user,
+            raw_message=msg_in.message,
+            category="PRIVATE",
+            channel_id=group_id,
+            recipient_username=None
+        )
+        if ai_resp:
+            ai_comm = CommunityMessageModel(
+                id=f"cmsg_{uuid.uuid4().hex[:10]}",
+                group_id=group_id,
+                sender_username=EduMentorAIService.AI_USERNAME,
+                sender_name=EduMentorAIService.AI_DISPLAY_NAME,
+                sender_role=EduMentorAIService.AI_ROLE,
+                message=ai_resp.message,
+                timestamp=datetime.now(timezone.utc)
+            )
+            db.add(ai_comm)
+            db.commit()
+    except Exception as e:
+        print(f"[COMMUNITY AI NOTICE] {e}")
+
     return msg

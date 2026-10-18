@@ -1,44 +1,61 @@
 # Student Role (student.txt) — Minute Functional Specifications & Roadmap
 
-> Detailed technical breakdown of every function, route, and UI feature associated with the **Student** (`student`) role in EduIdentityAI, including implemented status vs. future roadmap.
+> Detailed technical breakdown of every function, route, database mechanism, and UI feature associated with the **Student** (`student`) role in EduIdentityAI.
 
 ---
 
-## 1. AI Guidance & RAG Chat Advisor (Implemented)
-* **Function Purpose**: Answering student inquiries regarding academic policies, credit transfer rules (SWAYAM/NPTEL up to 20%), and attendance thresholds.
+## 1. Unified 3-Category Chat System (Implemented)
+* **Function Purpose**: Omnichannel communication partitioned across 3 distinct security envelopes:
+  * **PERSONAL (1-on-1 Direct)**: Direct messaging with faculty mentors, parents, and the EduMentor Meta AI copilot.
+  * **PRIVATE (Enclosed Clubs & Study Groups)**: Collaborative discussion in restricted student clubs, project teams, and hackathon cohorts.
+  * **GLOBAL (Campus Agora)**: Campus-wide broadcast agora, official institutional notices, and cross-department open discussions.
 * **API Endpoints**:
-  * `POST /rag_query`: Qwen3 embedding similarity search over institutional knowledge base (`sample_students.json`).
-* **Frontend UI**: AI Guidance RAG chat interface with interactive message bubbles and citation cards.
+  * `GET /api/chat/categories`: Returns metadata, active channels, and unread message counters.
+  * `GET /api/chat/category/{category}`: Loads chronological messages filtered by category and channel/peer.
+  * `POST /api/chat/send`: Dispatches new messages and cross-syncs with legacy tables.
+* **Frontend UI**: Integrated Unified Campus Agora & Chat Room (`unified_chat` tab) with category pill switcher.
 
-## 2. Multimodal Biometrics & 2FA (Implemented)
-* **Function Purpose**: Verifying student identity via facial recognition, document OCR, voice biometrics, and 6-digit OTP passcodes.
+## 2. EduMentor Meta AI in WhatsApp-Style Chat (Implemented)
+* **Function Purpose**: 24/7 educational AI copilot grounded in **8 Core Educational Criteria**:
+  1. `POLICY_REGULATION`: Institutional attendance requirements (75% threshold) and credit transfers (20% SWAYAM/NPTEL).
+  2. `CONCEPT_TUTORING`: Step-by-step concept tutoring, analogies, and Big-O complexity analysis.
+  3. `QUIZ_GENERATION`: Interactive 4-option practice MCQs with hints and expandable answer/explanation reveals.
+  4. `THREAD_SUMMARIZATION`: Synthesis of study group messages and lecture threads into structured study notes.
+  5. `ACADEMIC_INTEGRITY`: IEEE and APA 7th edition reference formatting and ethical AI research conduct.
+  6. `CAREER_PATHWAY`: Semester milestones, placement preparation, and technical interview roadmaps.
+  7. `EXAM_REVISION`: High-yield formula cheat sheets, common exam traps, and probable viva questions.
+  8. `CODE_LAB_ASSIST`: Line-by-line algorithmic walkthroughs, debugging hints, and complexity optimization.
+* **Invocation Mechanisms**:
+  * **Dedicated 1-on-1 AI Contact**: Click `@edumentor_ai` with the glowing iridescent Meta AI ring avatar.
+  * **In-Channel Mentions**: Tag `@ai` or `@meta` in any Global Agora or Private Club conversation.
+  * **Criteria Quick-Action Bar**: Tap any of the 8 criteria pill chips above the input bar.
+* **Dual-Engine Architecture**: Powered by Google Gemini 3.8 Flash (`models/gemini-3.8-flash:generateContent`) with zero-downtime 3s fallback to the local RAG vector store.
+* **API Endpoints**:
+  * `GET /api/chat/ai/criteria`: Returns complete criteria catalog with sample prompts and color badges.
+  * `POST /api/chat/ai/ask`: Standalone endpoint for direct educational queries.
+
+## 3. Academic Records, RAG Guidance & DigiLocker Auto-Fill (Implemented)
+* **Function Purpose**: Accessing personal academic transcript metrics (CGPA, attendance, credits, backlogs) and auto-populating registration details from DigiLocker.
+* **API Endpoints**:
+  * `GET /api/students/{id}`
+  * `POST /rag_query`: Semantic vector similarity search over academic regulations.
+  * `POST /api/auth/digilocker-auto-fill`: Extracts certified name, roll number, department, and semester from verified credentials.
+* **Frontend UI**: Academic Guidance Advisor tab and DigiLocker Permission Modal.
+
+## 4. Multimodal Biometrics & Multi-Factor Authentication (Implemented)
+* **Function Purpose**: Multi-layered biometric verification via Face, Voice, OCR, and Multimodal Fusion alongside 6-digit Email and Mobile OTP passcodes.
 * **API Endpoints**:
   * `POST /api/auth/biometric-verify`
   * `POST /api/auth/otp/send`, `POST /api/auth/otp/verify`
+  * `POST /api/auth/otp/mobile/send`, `POST /api/auth/otp/mobile/verify`
 * **Frontend UI**: Biometrics & 2FA verification card grid.
 
-## 3. National Credentials & DigiLocker Integration (Implemented)
-* **Function Purpose**: Validating permanent academic account registry (APAAR ID) and fetching verified digital degree certificates and marksheets.
+## 5. Opportunity Scam Shield & URL Verifier (Implemented)
+* **Function Purpose**: Scanning external scholarship, internship, and competition URLs to protect students from academic phishing and financial aid scams.
 * **API Endpoints**:
-  * `POST /api/auth/apaar-verify`, `POST /api/auth/digilocker-fetch`
-* **Frontend UI**: APAAR & DigiLocker sync dashboard.
+  * `POST /api/security/check-url`: Analyzes URL heuristics, TLD risks, and calculates domain trust scores.
+* **Frontend UI**: Opportunity Scam Shield tab with risk gauge and AI safety advice.
 
-## 4. Opportunity Scam Shield (Implemented)
-* **Function Purpose**: Scanning scholarship, internship, and admissions URLs to detect phishing and financial aid fraud.
-* **API Endpoints**:
-  * `POST /api/security/check-url`
-* **Frontend UI**: Opportunity Scam Shield tab with trust score gauges and AI recommendations.
-
-## 5. Mentor-Student Direct Chat (Implemented)
-* **Function Purpose**: Direct secure messaging between student and their assigned faculty mentor.
-* **API Endpoints**:
-  * `GET /api/chat/messages/{student_id}`
-  * `POST /api/chat/messages`
-* **Frontend UI**: Mentor Chat tab with message history and real-time input dispatch.
-
-## 6. Pending / Future Scope Modules (Left)
-* **Notices & Alerts**: College news updates, timetables, and placement alerts.
-* **Library Services**: Book issue/return, OPAC search, and reservation.
-* **Hostel Management**: Leave management and hygiene/mess grievance ticketing.
-* **Bank & Fees**: NEFT bank details and institute/hostel fee payment gateway.
-* **Exam Results & Admit Card**: Detailed semester grade transcripts and downloadable exam admit cards.
+## 6. Career Pathways & Placement Intelligence (Implemented)
+* **Function Purpose**: Tracking career competencies, placement drive readiness, and technical skills portfolio connected to `databases/career_pathways.db`.
+* **Frontend UI**: Integrated career profile summary and placement cell timeline.

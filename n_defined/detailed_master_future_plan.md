@@ -87,7 +87,23 @@ CREATE TABLE students (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 4. Audit & Session Telemetry Partition Tables
+-- 4. Unified 3-Category Chat Table (Personal, Private, Global)
+CREATE TABLE unified_chat_messages (
+    id VARCHAR(64) PRIMARY KEY,
+    category VARCHAR(32) NOT NULL,             -- 'PERSONAL', 'PRIVATE', 'GLOBAL'
+    channel_id VARCHAR(128) NOT NULL,          -- 'campus_global', 'direct_u1_u2', 'grp_ai_club'
+    sender_username VARCHAR(64) NOT NULL,
+    sender_name VARCHAR(128) NOT NULL,
+    sender_role VARCHAR(32) NOT NULL,
+    recipient_username VARCHAR(64),            -- Present for PERSONAL 1-on-1 direct messages
+    message TEXT NOT NULL,
+    criteria VARCHAR(64),                      -- Active Educational Criterion ID
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    is_read BOOLEAN DEFAULT FALSE
+);
+CREATE INDEX idx_unified_chat_cat_channel ON unified_chat_messages(category, channel_id);
+
+-- 5. Audit & Session Telemetry Partition Tables
 CREATE TABLE user_work_logs (
     log_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_email VARCHAR(255) NOT NULL,
@@ -105,36 +121,44 @@ CREATE INDEX idx_user_work_logs_email_created ON user_work_logs(user_email, crea
 ## 3. Minute AI/ML Pipeline Specifications by Role
 
 ### 3.1 Student Role (`student.txt`)
-* **Agentic Study Planner (LangGraph)**:
-  * *Workflow*: Ingests student syllabus JSON $\rightarrow$ Queries vector store for credit policies $\rightarrow$ Generates 14-week milestone graph $\rightarrow$ Exports calendar `.ics` file.
-  * *Prompt Engineering Constraint*: Enforces institutional credit limits (max 20% via SWAYAM/NPTEL).
+* **EduMentor Meta AI Copilot (8 Grounded Educational Criteria)**:
+  * *Dual-Engine Intelligence*: Google Gemini 3.8 Flash (`models/gemini-3.8-flash:generateContent`) with 3s deterministic local RAG vector store fallback.
+  * *8 Criteria*: `POLICY_REGULATION`, `CONCEPT_TUTORING`, `QUIZ_GENERATION`, `THREAD_SUMMARIZATION`, `ACADEMIC_INTEGRITY`, `CAREER_PATHWAY`, `EXAM_REVISION`, `CODE_LAB_ASSIST`.
+  * *In-Chat Invocations*: Direct 1-on-1 `@edumentor_ai` chat and in-channel `@ai` mentions across Campus Global Agora and Private Club channels.
+* **National Credential & DigiLocker Auto-Fill**:
+  * *Workflow*: Ingests certified DigiLocker degree certificates and APAAR ID registry to automatically verify student identity and pre-fill institutional registration profiles.
 * **CGPA Trajectory Predictor**:
   * *Model*: Gradient Boosted Trees (XGBoost) trained on features: `attendance_percentage`, `credits_earned`, `backlogs`, `past_semester_cgpa`.
   * *Output*: Expected final CGPA confidence interval `[8.2 - 8.6]` with automated remediation triggers if projected CGPA $< 6.0$.
 
 ### 3.2 Mentor Teachers / Faculty Role (`mentor_teachers.txt`)
-* **Voice-to-Text Counseling Scribe**:
-  * *Pipeline*: Audio chunk (`.wav`/`.mp3`) $\rightarrow$ Whisper-large-v3 ONNX model $\rightarrow$ Tokenized transcript $\rightarrow$ DistilBART summarization pipeline $\rightarrow$ Structured JSON action items (`action_items`, `sentiment_score`, `follow_up_date`).
+* **Unified Faculty Mentorship Communication**:
+  * *Channels*: 1-on-1 confidential direct mentee messaging (`PERSONAL`), Private Faculty Councils (`PRIVATE`), and campus-wide research symposia announcements (`GLOBAL`).
+* **AI Quiz & Discussion Synthesis**:
+  * *Pipeline*: Faculty triggers `@ai quiz` or `@ai summarize` to generate syllabus check-ins and synthesize cohort lecture discussions into structured takeaways.
 * **At-Risk Early Warning System**:
   * *Feature Vector*: `[attendance_drop_rate, library_access_frequency, failed_quiz_count, assignment_delay_hours]`.
   * *Inference*: Random Forest classifier running asynchronously every night at 02:00 UTC, automatically populating the faculty at-risk dashboard.
 
 ### 3.3 Institute / Institution Role (`institute.txt`)
+* **Campus-Wide Broadcast Agora**:
+  * *Governance*: Official institutional broadcasting in `#academic_bulletin` and `#campus_global` with verification badge badges.
 * **Graph Neural Networks for Credential Fraud Detection**:
   * *Graph Representation*: Nodes = `{Institution, Student, DigiLockerHash, CertificateID}`; Edges = `{ISSUED_TO, VERIFIED_BY, MATCHES_HASH}`.
   * *Algorithm*: GraphSAGE embedding aggregation to compute anomaly scores for certificate authenticity. If anomaly score $> 0.85$, flag for manual administrative audit.
 
 ### 3.4 Parent / Guardian Role (`parent.txt`)
-* **Multilingual Guardian Copilot (SeamlessM4T)**:
-  * *Voice-to-Text & Translation*: Converts spoken parent queries in regional languages into English RAG queries, executes retrieval, and synthesizes natural audio response in the parent's native language.
+* **Direct Mentor Advisory & Ward Telemetry**:
+  * *Two-Way Messaging*: Direct, confidential communication with the ward's assigned faculty mentor and AI explanation of academic regulations (75% attendance rule and credit transfer limits).
 * **Proactive Safety & Scam Alert Engine**:
   * *Heuristic + ML*: Combines URL lexical analysis (`backend/api/middleware/rate_limiter.py`) with deep learning text classification to instantly broadcast scam warnings to parents when suspicious scholarship or internship URLs are accessed.
 
 ### 3.5 Administrator Role (`admin.txt`)
-* **Zero-Trust AI Security Watchdog**:
-  * *Real-Time Inspection*: Scans WebSocket payloads and API request bodies using a quantized BERT sequence classification model trained on OWASP Top 10 LLM prompt injections and SQL injection patterns.
-* **Container Self-Healing Agent**:
-  * *Prometheus Integration*: Monitors `container_cpu_usage_seconds_total` and `http_request_duration_seconds_bucket`. When 5xx error rate exceeds 2% over 60 seconds, triggers automated container restart and Redis queue flush.
+* **Polyglot 7-Database Domain Federation**:
+  * *Domains*: `auth_iam`, `academic_sis`, `family_heritage`, `institutions_governance`, `security_audit`, `career_pathways`, `notifications_events`.
+  * *Monitoring*: `/api/admin/db/federation-health` and cross-database synchronization orchestration.
+* **Master Developer Account Immunity**:
+  * *Security*: Immutable trigger `prevent_delete_msrch` and ORM lifecycle listeners protecting master developer account `msrch`.
 
 ---
 
@@ -172,7 +196,7 @@ To ensure high availability and minimal bandwidth cost across multi-region deplo
 
 | Milestone | Target Date | Deliverables & Technical Scope |
 | :--- | :--- | :--- |
-| **Milestone 1** | Q4 2026 | Core FastAPI REST API, SQLite/PostgreSQL 3NF schema, Alpine.js cyber-glassmorphism portal, RAG Q&A chatbot, and local user work logging. *(Current Baseline)* |
-| **Milestone 2** | Q1-Q2 2027 | Alembic database migration automation, Redis token blacklisting, Whisper voice counseling transcription, and XGBoost at-risk student classification. |
+| **Milestone 1** | Q4 2026 | Core FastAPI REST API, Polyglot 7-Database Domain Federation (`databases/*.db`), Unified 3-Category Chat (Personal, Private, Global), EduMentor Meta AI in WhatsApp (8 Educational Criteria via Gemini 3.8 Flash & RAG fallback), Alpine.js/Lit cyber-glassmorphism portal, and Gmail-partitioned user logging. *(Operational)* |
+| **Milestone 2** | Q1-Q2 2027 | Alembic database migration automation, Redis distributed token blacklisting, Whisper voice counseling transcription, and XGBoost at-risk student classification. |
 | **Milestone 3** | Q3-Q4 2027 | GraphSAGE credential fraud detection pipeline, GCS/S3 multi-cloud log sync adapters, and multilingual parent copilot (SeamlessM4T). |
 | **Milestone 4** | 2028+ | Autonomous agentic study workflows (LangGraph), Kubernetes self-healing operators, Zero-Trust LLM security watchdog, and GPU-accelerated tensor serving. |

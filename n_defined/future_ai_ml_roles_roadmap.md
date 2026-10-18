@@ -2,91 +2,185 @@
 
 > **Platform**: EduIdentityAI  
 > **Date**: October 2026  
-> **Objective**: Outline the next-generation Artificial Intelligence (AI) and Machine Learning (ML) implementation strategies for each system role as state-of-the-art models and neural architectures evolve.
+> **Status**: Phase I (Active & Implemented) | Phase II (Near-Term 2027) | Phase III (Enterprise Horizon 2028+)  
+> **Objective**: Outline the active present implementation and next-generation Artificial Intelligence (AI) and Machine Learning (ML) strategies across all institutional roles as neural architectures evolve.
 
 ---
 
-## 🚀 Executive Summary
+## 🚀 Executive Summary & Architecture Overview
 
-As artificial intelligence and machine learning advance—moving toward autonomous reasoning agents, high-parameter multimodal SLMs (Small/Large Language Models), and graph neural networks (GNNs)—EduIdentityAI will evolve from an AI-assisted guidance portal into an **autonomous cognitive campus operating system**. 
+EduIdentityAI has evolved from a basic rule-based student record portal into an **AI-augmented educational operating system**. 
 
-This document defines the future AI/ML feature roadmap across all five core system roles (`admin`, `institute`, `mentor_teachers`, `parent`, `student`).
+The platform currently features an active **WhatsApp-style EduMentor Meta AI** running Google Gemini 3.8 Flash (`models/gemini-3.8-flash:generateContent`) with sub-3-second circuit breakers and localized RAG fallback. It operates across an asynchronous **3-Category Unified Chat** (`PEER_STUDENT`, `FACULTY_MENTOR`, `ADMIN_SUPPORT`) and a **Polyglot 7-Database Domain Federation**.
+
+```
+                  ┌────────────────────────────────────────────────────────┐
+                  │              EduIdentityAI Client Layer                │
+                  │  (WhatsApp Meta AI Ring, Interactive Cards, Chips)     │
+                  └───────────────────────────┬────────────────────────────┘
+                                              │ HTTP / WebSocket (Port 8000)
+                                              ▼
+                  ┌────────────────────────────────────────────────────────┐
+                  │                 FastAPI Gateway Core                   │
+                  │  (/api/chat/ai/ask, /api/chat/send, /api/chat/history) │
+                  └──────┬────────────────────┬────────────────────┬───────┘
+                         │                    │                    │
+        ┌────────────────▼────────┐  ┌────────▼────────┐  ┌────────▼────────────────┐
+        │  EduMentor AI Service   │  │ Unified Chat Hub │  │ 7-Database Federation   │
+        │  - Gemini 3.8 Flash     │  │ - Peer, Faculty, │  │ - auth_iam.db           │
+        │  - 3.0s Fallback Engine │  │   Admin Support  │  │ - academic_sis.db       │
+        │  - 8 Educational Chips  │  │ - In-Chat Mentions│ │ - security_audit.db etc. │
+        └─────────────────────────┘  └──────────────────┘  └─────────────────────────┘
+```
 
 ---
 
-## 1. 🎓 Student Role (`student.txt`)
-### *Next-Gen AI/ML Advancements: Autonomous Study Agents, Predictive GPA Modeling, & Conversational Voice Tutors*
+## 🏛️ Present AI Implementation (Active in Production)
 
-* **Autonomous AI Study Companion (Agentic RAG)**:
-  * *New Capability*: Transitioning from a static RAG Q&A bot to an autonomous agent that drafts personalized semester study plans, schedules practice quizzes based on weak syllabus topics, and synchronizes with student calendar feeds.
-  * *ML/AI Implementation*: Multi-agent LLM workflows (LangGraph / AutoGen) backed by localized Qwen3-32B or Llama-3.1-70B models running on quantized ONNX runtimes.
-* **Predictive Academic Trajectory & Career Matcher**:
-  * *New Capability*: Predicting end-of-semester CGPA fluctuations and recommending elective courses or industry skill tracks based on historical placement data.
-  * *ML/AI Implementation*: Tabular machine learning classifiers (XGBoost / LightGBM) trained on historical student cohorts combined with vector embedding matching of student skills against live job descriptions.
-* **Real-Time Multimodal Biometric Emotion & Attention Analysis**:
-  * *New Capability*: Assessing student engagement during online lectures or proctored assessments via non-intrusive facial expression and gaze tracking.
-  * *ML/AI Implementation*: Vision Transformer (ViT) models fine-tuned for micro-expression analysis and attention scoring, running locally via WebAssembly / ONNX Runtime Web.
+### 1. EduMentor Meta AI Service (`backend/services/edumentor_ai_service.py`)
+* **Primary LLM Engine**: Google Gemini 3.8 Flash (`models/gemini-3.8-flash:generateContent`) invoked over REST with TLS 1.3 encryption.
+* **Resilience Circuit Breaker**: Strict 3.0-second network timeout. If the external Gemini API is unreachable, rate-limited, or exceeds latency limits, the request automatically falls back to an internal **Deterministic Knowledge RAG & Rule Engine**, ensuring 100% educational continuity.
+* **8 Standardized Educational Criteria**:
+  1. `POLICY_REGULATION`: Institutional attendance thresholds (75% mandatory norm), examination registration deadlines, fee refund policies, code of conduct, and academic integrity regulations.
+  2. `CONCEPT_TUTORING`: Interactive Socratic explanations, break-downs of complex algorithms, step-by-step problem-solving, and conceptual analogies.
+  3. `QUIZ_GENERATION`: Automated 3-question diagnostic assessments with formatted multiple-choice options, answer keys, and pedagogical rationales.
+  4. `THREAD_SUMMARIZATION`: Distilling long peer or faculty discussions into actionable study notes, key deadlines, and agreed-upon deliverables.
+  5. `ACADEMIC_INTEGRITY`: Guidance on ethical research practices, proper APA/IEEE citation standards, and anti-plagiarism verification.
+  6. `CAREER_PATHWAY`: Skill gap mapping from current student CGPA and department to target industry positions, technical certifications, and open-source projects.
+  7. `EXAM_REVISION`: High-yield flashcard memory anchors, key formula summaries, and exam-week high-probability question frameworks.
+  8. `CODE_LAB_ASSIST`: Syntactic debugging, code optimization, algorithmic time/space complexity analysis (Big-O notation), and unit test scaffolds.
+
+### 2. Conversational UX: WhatsApp Meta AI Parity (`frontend/`)
+* **Visual Identity**: Iridescent rotating neon-ring trigger button (`meta-ai-trigger`) inspired by WhatsApp Meta AI.
+* **Criteria Chips Interface**: Quick-selection chips above the input box that immediately focus student intent into one of the 8 academic criteria.
+* **Interactive Chat Cards**: Rendered collapsible quiz cards (questions with selectable answers and hidden rationale toggles) and structured bulleted summary cards.
+* **In-Channel `@AI` Mentions**: Users can ping `@AI` within peer study groups or faculty consultation channels to summon instant contextual clarification.
 
 ---
 
-## 2. 👩‍🏫 Mentor Teachers / Faculty Role (`mentor_teachers.txt`)
-### *Next-Gen AI/ML Advancements: Automated Counseling Note Generation, Predictive At-Risk Early Warning, & Autonomous Grading Assistants*
+## 🔮 Role-by-Role AI/ML Evolution Roadmap
 
+### 1. 🎓 Student Role (`student.txt`)
+
+#### Present Implementation (Active)
+* Gemini 3.8 Flash study queries across 8 criteria.
+* Direct AI integration within Peer and Faculty chat streams.
+* Instant formula sheet generation, quiz generation, and code review.
+* DigiLocker academic credential auto-fill with cryptographic checksum verification.
+
+#### Phase II: Near-Term Horizon (2027)
+* **Agentic Study Planner (LangGraph RAG)**:
+  * Autonomous agent that ingests the course syllabus, parses assignment deadlines from the academic calendar, identifies student weak spots from past test scores, and auto-schedules daily 45-minute study sprints into Google Calendar / iCal.
+  * *Tech Stack*: LangGraph, quantized Llama-3.3-8B / Qwen-2.5-Coder running on ONNX Runtime, Redis Vector Memory.
+* **Predictive CGPA & Course Matcher**:
+  * Predicts end-of-semester CGPA deviations using multi-variant regression (attendance percentage, assignment submission latencies, mid-term scores).
+  * Recommends elective subjects optimized for the student's learning pace and historical performance trends.
+  * *Tech Stack*: LightGBM / XGBoost Regressor deployed via Triton Inference Server.
+
+#### Phase III: Enterprise Horizon (2028+)
+* **Multimodal Edge Socratic Tutor**:
+  * Real-time conversational voice avatar running directly in the browser via WebAssembly (Wasm) and WebGPU.
+  * Visual handwriting recognition for solving mathematical proofs and circuit diagrams drawn on tablet screens.
+  * *Tech Stack*: Whisper-tiny WebAssembly, Gemma-2-2B Quantized, MediaPipe Vision.
+
+---
+
+### 2. 👩‍🏫 Mentor Teachers / Faculty Role (`mentor_teachers.txt`)
+
+#### Present Implementation (Active)
+* Unified Faculty-Mentor communication hub (`FACULTY_MENTOR` category).
+* AI-assisted chat summarization (`THREAD_SUMMARIZATION`) to consolidate parent/student consultations.
+* Institutional policy guidance engine (`POLICY_REGULATION`) answering grading standards and leave protocols.
+
+#### Phase II: Near-Term Horizon (2027)
 * **Conversational Voice-to-Text Counseling Scribe**:
-  * *New Capability*: Faculty can dictate student mentoring session notes verbally; the system automatically transcribes, summarizes psychological/academic sentiment, extracts action items, and logs them into student records.
-  * *ML/AI Implementation*: Whisper-large-v3 speech-to-text pipeline coupled with parameter-efficient fine-tuned summarization transformers (LoRA adapters on Qwen/Mistral).
+  * Voice dictation pipeline allowing mentors to record verbal counseling notes post-meeting.
+  * Automatically removes sensitive PII, performs psychological sentiment extraction, highlights student stress indicators, and auto-populates the student's mentoring profile in `academic_sis.db`.
+  * *Tech Stack*: Whisper-large-v3, LoRA fine-tuned Mistral-7B for clinical counseling summaries.
 * **Early Warning Neural At-Risk Classifier**:
-  * *New Capability*: Proactively predicting student dropout risks, mental burnout, or exam failure weeks before thresholds are breached, using multi-modal behavioral signals (attendance trends, library logins, submission latencies).
-  * *ML/AI Implementation*: Recurrent Neural Networks (LSTM / GRU) or Temporal Graph Networks analyzing longitudinal student time-series data.
+  * Evaluates multi-modal behavioral signals (attendance dips below 75%, unread LMS notices, declining library checkouts) to flag students at risk of dropout or exam failure 4 weeks before semester finals.
+  * *Tech Stack*: Temporal Graph Networks (TGN) / Bi-directional LSTM analyzing longitudinal time-series vectors.
+
+#### Phase III: Enterprise Horizon (2028+)
 * **Autonomous Assignment & Rubric Grading Copilot**:
-  * *New Capability*: Assisting faculty in grading open-ended subjective assignments and coding submissions with consistent, bias-corrected rubric feedback.
-  * *ML/AI Implementation*: CodeLlama / StarCoder instruction-tuned models paired with semantic similarity grading rubrics.
+  * Semi-autonomous grading assistant for subjective essays, engineering lab reports, and GitHub repositories.
+  * Evaluates code quality, cyclomatic complexity, test coverage, and documentation against standard ABET rubrics, offering suggested scores and constructive feedback for faculty approval.
+  * *Tech Stack*: CodeLlama-70B / DeepSeek-Coder-V2, Semantic Similarity Rubric Matcher.
 
 ---
 
-## 3. 🏛️ Institute / Institution Role (`institute.txt`)
-### *Next-Gen AI/ML Advancements: Institutional Credential Fraud Detection, Predictive Enrollment Forecasting, & Resource Optimization*
+### 3. 🏛️ Institute / Institution Role (`institute.txt`)
 
-* **Graph Neural Networks (GNNs) for Credential & Certificate Fraud Detection**:
-  * *New Capability*: Automatically detecting forged degree certificates, fraudulent transcripts, or syndicate identity tampering by analyzing relational graphs of issuing universities, student hashes, and DigiLocker metadata.
-  * *ML/AI Implementation*: Graph Convolutional Networks (GCN) or GraphSAGE trained on transaction and document verification graphs.
-* **Institutional Resource & Energy Demand Forecasting**:
-  * *New Capability*: Predicting hostel occupancy, lab utilization, and campus energy consumption peaks using weather and academic calendar inputs.
-  * *ML/AI Implementation*: Time-series transformer models (PatchTST / Informer) for multi-variate forecasting.
+#### Present Implementation (Active)
+* Multi-tenant domain isolation via `institutions_governance.db`.
+* Institutional policy RAG repository grounding AI responses in official campus bylaws.
+* Verified accreditation and registration approval workflows (`admin_institutions`).
+
+#### Phase II: Near-Term Horizon (2027)
+* **Graph Neural Networks (GNNs) for Credential Fraud Detection**:
+  * Real-time relational graph analysis correlating issuing universities, student National Academic Depository (NAD) hashes, and DigiLocker transaction histories.
+  * Detects fraudulent degree mills, doctored marksheet hashes, and syndicated identity impersonation.
+  * *Tech Stack*: PyTorch Geometric (PyG), GraphSAGE, Neo4j Graph Database.
+* **Campus Resource & Energy Demand Forecasting**:
+  * Predictive models forecasting hostel room allocations, dining hall supply needs, and computer lab power consumption based on semester schedules and weather feeds.
+  * *Tech Stack*: PatchTST / Informer multivariate time-series transformers.
+
+#### Phase III: Enterprise Horizon (2028+)
+* **Autonomous Institutional Accreditation & Compliance Auditor**:
+  * Continuous compliance engine scanning faculty-to-student ratios, research publications, library asset turnover, and curriculum updates against NAAC, NIRF, and ABET accreditation metrics.
+  * Auto-generates Self-Study Reports (SSR) with complete cryptographic evidence trails.
 
 ---
 
-## 4. 👨‍👩‍👦 Parent / Guardian Role (`parent.txt`)
-### *Next-Gen AI/ML Advancements: Natural Language Parent-Teacher Copilot & Multilingual Financial/Academic Digest Generator*
+### 4. 👨‍👩‍👦 Parent / Guardian Role (`parent.txt`)
 
+#### Present Implementation (Active)
+* Family heritage and kinship relationship mapping in `family_heritage.db`.
+* Access to academic policy guidance and student performance baselines.
+
+#### Phase II: Near-Term Horizon (2027)
 * **Multilingual Conversational Guardian Copilot**:
-  * *New Capability*: Parents can query their child's attendance, fee deadlines, and academic performance in their native regional language (Hindi, Spanish, French, etc.) via voice or text.
-  * *ML/AI Implementation*: Multilingual speech translation models (SeamlessM4T) combined with RAG pipelines constrained to authorized student records.
+  * Real-time multilingual voice and text interface allowing parents to query their ward's academic standing, fee dues, and attendance status in native regional languages (Hindi, Tamil, Telugu, Marathi, Spanish, etc.).
+  * *Tech Stack*: Meta SeamlessM4T v2, Indic-Trans2, constrained RAG pipeline with role-scoped zero-knowledge proofs.
 * **Proactive Anomaly & Safety Alert Engine**:
-  * *New Capability*: Automated push notifications flagged by anomaly detection when a student exhibits unusual behavioral shifts (e.g., sudden drop in attendance or suspicious online scam link clicks).
-  * *ML/AI Implementation*: Isolation Forest / Autoencoder anomaly detection algorithms monitoring student event streams.
+  * Machine learning anomaly detector that triggers automated SMS and WhatsApp push alerts if a student exhibits sudden behavioral shifts (e.g., unexcused multi-day absenteeism or sudden fee default risks).
+  * *Tech Stack*: Isolation Forest, Autoencoder anomaly scoring over Kafka event streams.
+
+#### Phase III: Enterprise Horizon (2028+)
+* **Holistic Student Well-Being Predictive Compass**:
+  * AI-powered holistic advisory predicting career readiness and recommending parental encouragement strategies based on student emotional valence, extracurricular participation, and project milestones.
 
 ---
 
-## 5. 🌹 Administrator Role (`admin.txt`)
-### *New Capability & Next-Gen AI/ML Advancements: Autonomous Infrastructure Self-Healing, Zero-Trust AI Security Watchdog, & Cost FinOps Optimizer*
+### 5. 🌹 Administrator Role (`admin.txt`)
 
-* **Zero-Trust AI Security & Phishing Watchdog**:
-  * *New Capability*: Continuously scanning inbound webhook integrations, URL submissions, and user activity logs to detect zero-day phishing attempts, prompt injection attacks, and unauthorized data exfiltration.
-  * *ML/AI Implementation*: Fine-tuned BERT classifiers for prompt injection detection combined with transformer-based URL lexical feature analyzers.
-* **Autonomous Kubernetes & Container Self-Healing Agents**:
-  * *New Capability*: AI agents that diagnose container memory leaks, database connection pool saturation, or API latency spikes and automatically execute safe remediation runbooks (scaling replicas, flushing Redis caches).
-  * *ML/AI Implementation*: Reinforcement Learning from System Telemetry (RLST) agents acting on Prometheus and OpenTelemetry metrics.
-* **Cloud FinOps Predictive Budgeting**:
-  * *New Capability*: Forecasting monthly cloud object storage and GPU inference expenditures and auto-tiering historical log files to archival cold storage before cost thresholds are exceeded.
-  * *ML/AI Implementation*: Linear regression and gradient boosting models trained on cloud usage accounting metrics.
+#### Present Implementation (Active)
+* Real-time audit log streaming via WebSocket (`/ws/audit-logs`) and security event logging in `security_audit.db`.
+* Partitioned user activity streams (`storage/logs/users/{email}/`) with SHA-256 tamper-evident integrity hashes.
+* Role-based access control (RBAC) enforcement across all 7 federated databases.
+
+#### Phase II: Near-Term Horizon (2027)
+* **Zero-Trust AI Security & Prompt Injection Watchdog**:
+  * Real-time semantic inspection of all incoming chat prompts and API payloads to detect prompt injection, jailbreaks, data exfiltration attempts, and PII leakage.
+  * *Tech Stack*: DeBERTa-v3 adversarial classifier, Llama-Guard-3 security scanner.
+* **Automated Cloud FinOps & Storage Lifecycle Tiering**:
+  * Dynamic cost prediction forecasting monthly LLM token consumption and cloud object storage costs.
+  * Automatically schedules cold-tier archival migrations for logs older than 30 days.
+  * *Tech Stack*: Scikit-learn Linear Models + AWS/GCP Cost Explorer API integrations.
+
+#### Phase III: Enterprise Horizon (2028+)
+* **Autonomous Infrastructure Self-Healing Orchestrator**:
+  * Reinforcement learning agents acting on OpenTelemetry and Prometheus traces.
+  * Automatically detects database connection pool exhaustion, memory leaks, or DDoS spikes, executing isolated pod restarts, cache invalidation, and rate-limiting updates without human intervention.
+  * *Tech Stack*: KEDA, Cilium Service Mesh, RL agents trained on simulated chaos engineering environments.
 
 ---
 
-## 🛠️ Implementation Phases & Architecture Roadmap
+## 🛠️ Multi-Phase Implementation Roadmap Matrix
 
-| Phase | Horizon | Focus Area | Target AI/ML Technologies |
-| :--- | :--- | :--- | :--- |
-| **Phase I (Current)** | 2026 (Active) | Lightweight RAG, Simulated Biometrics, Rule-based Guidance | Qdrant vector search, SQLAlchemy, Alpine.js, Local heuristics |
-| **Phase II (Near-Term)** | 2027 | Voice Transcription, Predictive At-Risk Scoring, Multilingual Copilots | Whisper-large-v3, XGBoost, SeamlessM4T, FastAPI async workers |
-| **Phase III (Future)** | 2028+ | Agentic Workflows, GNN Fraud Detection, Autonomous Infrastructure | LangGraph, GraphSAGE, ONNX Runtime GPU (TensorRT), Kubernetes AI Operators |
+| Milestone | Target Horizon | Core AI/ML Focus | Model Architecture | Infrastructure & Storage |
+| :--- | :--- | :--- | :--- | :--- |
+| **Phase I (Active)** | **2026** *(Present)* | EduMentor Meta AI (8 Criteria), Unified 3-Category Chat, Local RAG Fallback | Google Gemini 3.8 Flash + Local Deterministic Engine | Polyglot 7 SQLite DBs, Local Partitioned JSONL, FastAPI Async |
+| **Phase II (Near-Term)** | **2027** | Voice Counseling Scribe, Predictive At-Risk Scoring, Multilingual Guardian Copilot | Whisper-large-v3, XGBoost, SeamlessM4T v2, Mistral-7B LoRA | PostgreSQL 16 Cluster, Redis Vector Store, GCS/S3 Log Sync |
+| **Phase III (Future)** | **2028+** | Multi-Agent Campus Mesh, GNN Credential Fraud Detection, Edge WASM Avatars | LangGraph Agents, GraphSAGE, Gemma-2-2B (WASM/WebGPU) | Kubernetes (EKS/GKE), vLLM / TensorRT GPU Nodes, Kafka Streams |
+

@@ -1,0 +1,34 @@
+{
+  "session_id": "sess_375d3af2433a",
+  "user_id": "usr_inst_demo",
+  "username": "institute_admin",
+  "email": "director@glbitm.ac.in",
+  "role": "institute",
+  "storage_location": "D:\\git\\mini_project\\Authentication_Record_Guidance_System\\storage\\logs\\users\\director@glbitm.ac.in",
+  "cloud_storage_uri": "gs://eduidentity-user-logs/users/director@glbitm.ac.in/last_work.json",
+  "login_timestamp": "2026-10-18T18:41:27.479143+00:00",
+  "client_ip": "testclient",
+  "user_agent": "testclient",
+  "previous_login": "2026-10-18T18:28:58.587553+00:00",
+  "previous_work": {
+    "status": "ACTIVE_SESSION",
+    "session_started_at": "2026-10-18T18:28:58.587553+00:00",
+    "summary": "Session initiated by institute_admin (institute)",
+    "actions_count": 0,
+    "recent_actions": []
+  },
+  "current_work": {
+    "status": "ACTIVE_SESSION",
+    "session_started_at": "2026-10-18T18:41:27.479143+00:00",
+    "summary": "Session initiated by institute_admin (institute)",
+    "actions_count": 0,
+    "recent_actions": []
+  },
+  "cloud_storage_metadata": {
+    "provider": "google_cloud_storage",
+    "bucket": "eduidentity-user-logs",
+    "sync_ready": true,
+    "last_synced_at": null,
+    "sync_status": "LOCAL_STAGED"
+  }
+}

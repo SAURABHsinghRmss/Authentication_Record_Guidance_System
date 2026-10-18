@@ -25,10 +25,9 @@ sleep 3
 
 # 3. Start Backend REST API
 echo "[BACKEND] Starting FastAPI server..."
-cd backend || exit
-uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload &
+export PYTHONPATH="$(pwd)"
+uvicorn backend.api.main:app --host 0.0.0.0 --port 8000 --reload &
 BACKEND_PID=$!
-cd ..
 
 # 4. Start Frontend Web Portal
 echo "[FRONTEND] Serving Lit/Alpine.js UI Portal..."

@@ -18,6 +18,9 @@ JWT_SECRET=generate_a_very_strong_random_secret_key_here_2026
 VALKEY_HOST=redis_cluster_host
 VALKEY_PORT=6379
 
+# Generative AI & Copilot Engine (EduMentor Meta AI)
+GEMINI_API_KEY=your_google_gemini_api_key_here
+
 # Vector Knowledge Base
 QDRANT_HOST=qdrant_cluster_host
 QDRANT_PORT=6333

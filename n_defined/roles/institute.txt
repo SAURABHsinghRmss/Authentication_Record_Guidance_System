@@ -4,13 +4,27 @@
 
 ---
 
-## 1. Institutional Governance & Tenant Oversight
+## 1. Institutional Governance & Tenant Oversight (Implemented)
 * **Function Purpose**: Oversight of institutional departments, affiliated faculty, and enrolled student bodies.
-* **API Integration**: Connects with institutional authentication middleware to verify that user email domains match authorized college registries (e.g., `@uni.edu`).
+* **API Integration**: Connects with institutional authentication middleware to verify that user email domains match authorized college registries (e.g., `@uni.edu` or accredited college domains).
 * **Compliance & Accreditation**: Ensures institutional data integrity against national academic depository standards (NAD / APAAR ID registry).
+* **Database Isolation**: Tenant governance policies maintained within `databases/institutions_governance.db`.
 
-## 2. Institution Registration & Status Management
-* **Function Purpose**: Submitting institutional accreditation details during organization onboarding.
+## 2. Institution Registration & Status Management (Implemented)
+* **Function Purpose**: Submitting institutional accreditation details (AICTE, UGC, NAAC, Autonomous College) during organization onboarding.
 * **API Endpoints**:
-  * `POST /api/auth/register`: Submits organization name, admin email, and credentials.
+  * `POST /api/auth/register`: Submits organization name, accreditation number, mission scope, admin email, and credentials.
   * Status Tracking: Monitors whether the institution status is `PENDING_REVIEW` or `VERIFIED` by system administrators.
+* **Frontend UI**: Institute registration form and institutional governance dashboard tab (`institute_overview`).
+
+## 3. Campus-Wide Agora Broadcasting & Academic Bulletins (Implemented)
+* **Function Purpose**: Publishing official statutory notices, semester deadline advisories, and symposium announcements to all students and faculty in `#academic_bulletin` and `#campus_global`.
+* **API Endpoints**:
+  * `POST /api/chat/send`: Dispatches official institutional broadcasts under the GLOBAL category.
+* **Frontend UI**: Unified Chat Agora interface with broadcast badge indicators.
+
+## 4. Statutory Regulations & AI Grounding (Implemented)
+* **Function Purpose**: Establishing grounding rules for the EduMentor Meta AI copilot under `POLICY_REGULATION`:
+  * Mandatory 75% attendance rule for semester examination eligibility.
+  * Credit transfer caps permitting up to 20% credits (up to 32 of 160 credits) via approved SWAYAM/NPTEL MOOCs.
+  * Verification of academic transcripts via DigiLocker.

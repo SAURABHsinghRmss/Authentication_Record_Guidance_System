@@ -26,15 +26,16 @@ EduIdentityAI is architected around a **modular, multi-tenant microservices foun
 At the individual campus or university level (e.g., GL Bajaj Institute of Technology), EduIdentityAI functions as an **AI-augmented academic guidance and secure communication hub**.
 
 * **Core Functions Active**:
-  * Student Record 3NF Database CRUD (`students` table).
-  * Mentor-Student Direct Chat (`mentor_chats`).
-  * Role-Tailored Communities, Clubs & Group Chat (`community_groups`).
+  * Polyglot 7-Database Domain Federation (`databases/auth_iam.db`, `academic_sis.db`, `family_heritage.db`, `institutions_governance.db`, `security_audit.db`, `career_pathways.db`, `notifications_events.db`).
+  * Unified 3-Category Chat System across Personal (1-on-1), Private (enclosed clubs & councils), and Global (campus agora) channels (`unified_chat_messages`).
+  * EduMentor Meta AI in WhatsApp-style chat grounded in 8 Educational Criteria with Gemini 3.8 Flash & offline RAG fallback.
+  * Role-Tailored Communities, Clubs & Verified Peer Hives (`community_groups`).
   * At-Risk Early Warning & Counseling Notices (`counseling_notices`).
   * Local Qdrant RAG Advisor for institutional rulebooks and credit transfer policies.
 * **Infrastructure**:
-  * Single PostgreSQL database instance with Read Replicas.
+  * Domain-isolated SQLite/PostgreSQL instances coordinated via `DatabaseFederationManager`.
   * Local Valkey caching for JWT session token blacklisting and rate limiting.
-  * Local file storage partitioned by user email (`storage/logs/users/`).
+  * Local file storage partitioned by user email (`storage/logs/users/`) with cloud lake staging.
 
 ---
 

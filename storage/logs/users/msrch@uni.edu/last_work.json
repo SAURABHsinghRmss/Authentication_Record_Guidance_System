@@ -1,0 +1,34 @@
+{
+  "session_id": "sess_264979318b37",
+  "user_id": "usr_msrch_universal",
+  "username": "msrch",
+  "email": "msrch@uni.edu",
+  "role": "admin",
+  "storage_location": "D:\\git\\mini_project\\Authentication_Record_Guidance_System\\storage\\logs\\users\\msrch@uni.edu",
+  "cloud_storage_uri": "gs://eduidentity-user-logs/users/msrch@uni.edu/last_work.json",
+  "login_timestamp": "2026-10-16T05:44:02.272033+00:00",
+  "client_ip": "testclient",
+  "user_agent": "testclient",
+  "previous_login": "2026-10-16T05:26:41.584364+00:00",
+  "previous_work": {
+    "status": "ACTIVE_SESSION",
+    "session_started_at": "2026-10-16T05:26:41.584364+00:00",
+    "summary": "Session initiated by msrch (admin)",
+    "actions_count": 0,
+    "recent_actions": []
+  },
+  "current_work": {
+    "status": "ACTIVE_SESSION",
+    "session_started_at": "2026-10-16T05:44:02.272033+00:00",
+    "summary": "Session initiated by msrch (admin)",
+    "actions_count": 0,
+    "recent_actions": []
+  },
+  "cloud_storage_metadata": {
+    "provider": "google_cloud_storage",
+    "bucket": "eduidentity-user-logs",
+    "sync_ready": true,
+    "last_synced_at": null,
+    "sync_status": "LOCAL_STAGED"
+  }
+}
