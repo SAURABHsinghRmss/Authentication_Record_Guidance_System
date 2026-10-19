@@ -849,7 +849,7 @@ def register_student(payload: StudentRoleRegisterRequest, request: Request, db: 
         (func.lower(StudentModel.name) == payload.name.strip().lower())
     ).first()
     if not existing_stu:
-        roll = f"CS-2026-{random.randint(100, 999)}"
+        roll = f"CS-2026-{uuid.uuid4().hex[:6].upper()}"
         new_stu_rec = StudentModel(
             id=f"stu_{uuid.uuid4().hex[:8]}",
             roll_no=roll,

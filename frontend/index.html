@@ -430,13 +430,11 @@
             <div>
               <label class="block text-xs text-slate-400 mb-1 font-medium">Institution Type</label>
               <select x-model="instituteRegisterForm.institution_type" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
+                <option value="College">College</option>
+                <option value="School">School</option>
                 <option value="University">University</option>
-                <option value="Autonomous College">Autonomous College</option>
-                <option value="Polytechnic">Polytechnic / Technical Institute</option>
-                <option value="School (K-12)">School (K-12 / Secondary)</option>
-                <option value="EdTech / Coaching">Coaching / EdTech Center</option>
-                <option value="Research Institute">Research Institute</option>
-                <option value="Virtual University">Virtual University</option>
+                <option value="Company">Company</option>
+                <option value="Start-up">Start-up</option>
               </select>
             </div>
             <div>
@@ -604,6 +602,10 @@
                 <button @click="activeTab = 'guidance'" :class="activeTab === 'guidance' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
                   <i class="fa-solid fa-brain w-5"></i><span>AI Guidance RAG</span>
                 </button>
+                <button @click="activeTab = 'enrolled_institutions'; if(!selectedEnrolledInstitution && enrolledInstitutions.length === 0) fetchEnrolledInstitutions();" :class="activeTab === 'enrolled_institutions' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
+                  <i class="fa-solid fa-building-columns w-5 text-emerald-400"></i><span>Enrolled Institutions</span>
+                  <span class="ml-auto text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-mono font-bold" x-text="enrolledInstitutions.length ? enrolledInstitutions.length + ' Enrolled' : '3 Enrolled'"></span>
+                </button>
                 <button @click="activeTab = 'biometrics'" :class="activeTab === 'biometrics' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
                   <i class="fa-solid fa-fingerprint w-5"></i><span>Biometrics & 2FA</span>
                 </button>
@@ -618,6 +620,10 @@
                 </button>
                 <button @click="activeTab = 'communities'; setChatCategory('PRIVATE')" :class="activeTab === 'communities' && activeChatCategory !== 'PERSONAL' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
                   <i class="fa-solid fa-users-rectangle w-5"></i><span>Clubs & Campus Agora</span>
+                </button>
+                <button @click="activeTab = 'developer_templates'; fetchDeveloperPresets()" :class="activeTab === 'developer_templates' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
+                  <i class="fa-solid fa-code w-5 text-purple-400"></i><span>Dev Mode & Templates</span>
+                  <span class="ml-auto text-[9px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full font-mono font-bold">5 Types</span>
                 </button>
               </div>
             </template>
@@ -676,6 +682,10 @@
                 <button @click="activeTab = 'communities'; setChatCategory('GLOBAL')" :class="activeTab === 'communities' ? 'bg-teal-600 text-white shadow-lg shadow-teal-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
                   <i class="fa-solid fa-users-rectangle w-5"></i><span>Campus Agora & Boards</span>
                 </button>
+                <button @click="activeTab = 'developer_templates'; fetchDeveloperPresets()" :class="activeTab === 'developer_templates' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
+                  <i class="fa-solid fa-code w-5 text-purple-400"></i><span>Developer Mode & Templates</span>
+                  <span class="ml-auto text-[9px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full font-mono font-bold">5 Types</span>
+                </button>
               </div>
             </template>
 
@@ -684,6 +694,10 @@
               <div class="space-y-1.5">
                 <button @click="activeTab = 'admin_crud'" :class="activeTab === 'admin_crud' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
                   <i class="fa-solid fa-database w-5"></i><span>Student Database CRUD</span>
+                </button>
+                <button @click="activeTab = 'developer_templates'; fetchDeveloperPresets()" :class="activeTab === 'developer_templates' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
+                  <i class="fa-solid fa-code w-5 text-purple-400"></i><span>Institution Developer Mode</span>
+                  <span class="ml-auto text-[9px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full font-mono font-bold">Dev Studio</span>
                 </button>
                 <button @click="activeTab = 'admin_institutions'" :class="activeTab === 'admin_institutions' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="w-full text-left px-4 py-2.5 rounded-xl transition flex items-center space-x-3">
                   <i class="fa-solid fa-building-columns w-5"></i><span>Institution Requests</span>
@@ -717,16 +731,1220 @@
         <template x-if="currentUserRole === 'student'">
           <div class="space-y-8">
             <!-- Student Selector & Metrics -->
-            <div class="flex items-center justify-between bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+            <div class="flex flex-wrap items-center justify-between gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
               <div class="flex items-center space-x-3">
                 <span class="text-xs text-slate-400">Select Profile:</span>
-                <select x-model="selectedStudentId" @change="loadStudentData()" class="bg-slate-800 text-slate-200 text-sm rounded-lg px-3 py-1.5 border border-slate-700">
+                <select x-model="selectedStudentId" @change="loadStudentData(); fetchEnrolledInstitutions()" class="bg-slate-800 text-slate-200 text-sm rounded-lg px-3 py-1.5 border border-slate-700">
                   <template x-for="s in students" :key="s.id">
                     <option :value="s.id" x-text="s.name + ' (' + s.roll_no + ')'"></option>
                   </template>
                 </select>
+                <button @click="activeTab = 'enrolled_institutions'" class="text-xs px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/20 transition flex items-center space-x-1.5 font-medium">
+                  <i class="fa-solid fa-building-columns"></i>
+                  <span>My Enrolled Institutions</span>
+                  <span class="bg-emerald-500 text-slate-950 font-bold px-1.5 py-0.2 rounded-full text-[10px]" x-text="enrolledInstitutions.length || 3"></span>
+                </button>
+                <button @click="activeTab = 'developer_templates'; fetchDeveloperPresets()" class="text-xs px-3 py-1.5 rounded-lg bg-purple-500/10 text-purple-300 border border-purple-500/30 hover:bg-purple-500/20 transition flex items-center space-x-1.5 font-medium">
+                  <i class="fa-solid fa-code text-purple-400"></i>
+                  <span>Dev Mode Studio</span>
+                  <span class="bg-purple-500 text-white font-bold px-1.5 py-0.2 rounded-full text-[10px]">5 Types</span>
+                </button>
               </div>
               <span class="text-xs text-emerald-400 font-mono"><i class="fa-solid fa-shield-check mr-1"></i> Verified Student Identity</span>
+            </div>
+
+            <!-- ============================================================= -->
+            <!-- TAB: ENROLLED INSTITUTIONS & INSTITUTIONAL PORTAL HUB         -->
+            <!-- ============================================================= -->
+            <div x-show="activeTab === 'enrolled_institutions'" class="space-y-6">
+
+              <!-- VIEW A: ALL ENROLLED INSTITUTIONS LIST / GRID -->
+              <div x-show="!selectedEnrolledInstitution" class="space-y-6">
+                <!-- Header Banner -->
+                <div class="glass-card p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-l-4 border-emerald-500 bg-gradient-to-r from-emerald-950/30 via-slate-900 to-slate-900">
+                  <div>
+                    <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold uppercase tracking-wider mb-2">
+                      <i class="fa-solid fa-graduation-cap"></i>
+                      <span>Multi-Institution Academic Registry</span>
+                    </div>
+                    <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+                      <span>My Enrolled Institutions</span>
+                      <span class="text-xs px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 font-mono font-normal" x-text="(enrolledInstitutions.length || 3) + ' Affiliated'"></span>
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                      Unified view of all schools, universities, and virtual academies to which you are enrolled. Click on any institution to open its dedicated portal covering courses, timetable, attendance, fee management, hostel, administration, library, and campus services.
+                    </p>
+                  </div>
+                  <div class="flex items-center space-x-3">
+                    <button @click="showEnrollNewModal = true" class="btn-primary px-4 py-2.5 rounded-xl text-xs flex items-center space-x-2 whitespace-nowrap">
+                      <i class="fa-solid fa-plus"></i>
+                      <span>Link Another Institution</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Enrolled Institutions Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <template x-for="inst in (enrolledInstitutions.length ? enrolledInstitutions : [
+                    { id: 'inst_glbitm', name: 'GL Bajaj Institute of Technology and Management', type: 'College', type_category: 'COLLEGE', badge: 'Active Enrolled • Primary', affiliation: 'Dr. A.P.J. Abdul Kalam Technical University (AKTU) & AICTE', program: 'Bachelor of Technology (B.Tech)', department: 'Computer Science & Engineering', current_semester: '6th Semester', roll_no: 'CS-2022-04', enrollment_number: '2201920100045', batch: '2022 - 2026', status: 'ACTIVE', location: 'Greater Noida, Uttar Pradesh, India', is_primary: true, attendance_percentage: '86.5%', cgpa: '8.42', icon: 'fa-building-columns', accent_color: 'blue' },
+                    { id: 'inst_dps_rkp', name: 'Delhi Public School (DPS), R.K. Puram', type: 'School', type_category: 'SCHOOL', badge: 'Alumnus • Completed', affiliation: 'Central Board of Secondary Education (CBSE National Board)', program: 'Senior Secondary Certificate (Class XI - XII)', department: 'Science Stream (PCM & CS)', current_semester: 'Graduated Class of 2022', roll_no: 'DPS-2022-9841', enrollment_number: 'CBSE-DEL-1094821', batch: '2020 - 2022', status: 'COMPLETED', location: 'R.K. Puram, New Delhi, India', is_primary: false, attendance_percentage: '94.2%', cgpa: '95.6% (CBSE Boards)', icon: 'fa-school', accent_color: 'emerald' },
+                    { id: 'inst_aktu', name: 'Dr. A.P.J. Abdul Kalam Technical University (AKTU)', type: 'University', type_category: 'UNIVERSITY', badge: 'State Affiliating Body', affiliation: 'University Grants Commission (UGC) & AICTE', program: 'Degree Granting & State Academic Depository', department: 'Faculty of Engineering & Research', current_semester: 'Academic Session 2025–26', roll_no: 'AKTU-REG-2022-045', enrollment_number: 'AKTU-UP-992144', batch: '2022 - 2026', status: 'ACTIVE', location: 'Lucknow, Uttar Pradesh', is_primary: false, attendance_percentage: '88.0%', cgpa: '8.50', icon: 'fa-graduation-cap', accent_color: 'indigo' },
+                    { id: 'inst_tcs_corp', name: 'Tata Consultancy Services (TCS) Innovation Lab', type: 'Company', type_category: 'COMPANY', badge: 'Industry Apprenticeship', affiliation: 'TCS Enterprise Research & Campus Hiring Partner', program: 'AI & Cloud Engineering Internship', department: 'Enterprise AI & Cloud Platforms Division', current_semester: 'Q1 2026 Sprint', roll_no: 'EMP-TCS-INT-9921', enrollment_number: 'TCS-IND-2026-X8', batch: '2025 - 2026', status: 'ACTIVE', location: 'Noida Special Economic Zone (NSEZ)', is_primary: false, attendance_percentage: '96.0%', cgpa: 'Stipend Active', icon: 'fa-building', accent_color: 'amber' },
+                    { id: 'inst_ai_startup', name: 'NeuroGrid AI (DeepTech & Agentic AI Incubator)', type: 'Start-up', type_category: 'STARTUP', badge: 'Seed Stage Incubatee', affiliation: 'Department of Science & Technology (DST) Startup India', program: 'Founder-in-Residence Pre-Incubation', department: 'Autonomous Multi-Agent Systems & LLM Infra', current_semester: 'Cohort 4', roll_no: 'FOUND-FELLOW-014', enrollment_number: 'STARTUP-IND-NG-77', batch: '2025 - Present', status: 'ACTIVE', location: 'IIT Delhi Innovation Park', is_primary: false, attendance_percentage: '92.5%', cgpa: 'Grant Funded', icon: 'fa-rocket', accent_color: 'rose' }
+                  ])" :key="inst.id">
+                    <div class="glass-card p-6 flex flex-col justify-between hover:border-slate-600 transition-all duration-300 relative group shadow-xl">
+                      
+                      <!-- Top row: Icon & Type -->
+                      <div>
+                        <div class="flex items-start justify-between gap-3 mb-4">
+                          <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-lg" :class="inst.type_category === 'SCHOOL' ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/30' : inst.type_category === 'UNIVERSITY' ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30' : inst.type_category === 'COMPANY' ? 'bg-amber-600/20 text-amber-400 border border-amber-500/30' : (inst.type_category === 'STARTUP' || inst.type === 'Start-up') ? 'bg-rose-600/20 text-rose-400 border border-rose-500/30' : 'bg-blue-600/20 text-blue-400 border border-blue-500/30'">
+                            <i class="fa-solid" :class="inst.icon || 'fa-building-columns'"></i>
+                          </div>
+                          <div class="text-right">
+                            <span class="inline-block text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full mb-1" :class="inst.is_primary ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40' : inst.status === 'COMPLETED' ? 'bg-slate-700 text-slate-300' : inst.type_category === 'STARTUP' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' : inst.type_category === 'COMPANY' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'" x-text="inst.badge || inst.type"></span>
+                            <span class="block text-[11px] text-slate-400 font-mono" x-text="inst.type"></span>
+                            <span x-show="inst.developer_mode_enabled || inst.active_template" class="inline-flex items-center gap-1 text-[9px] font-mono font-bold text-purple-300 bg-purple-500/20 border border-purple-500/30 px-1.5 py-0.5 rounded mt-1">
+                              <i class="fa-solid fa-code text-[8px]"></i>
+                              <span>Dev Custom</span>
+                            </span>
+                          </div>
+                        </div>
+
+                        <!-- Name & Affiliation -->
+                        <h3 class="text-base font-bold text-white group-hover:text-blue-300 transition" x-text="inst.name"></h3>
+                        <p class="text-xs text-slate-400 mt-1 line-clamp-1" x-text="inst.affiliation"></p>
+
+                        <!-- Academic Details Pills -->
+                        <div class="mt-4 pt-4 border-t border-slate-800 space-y-2 text-xs">
+                          <div class="flex justify-between items-center text-slate-300">
+                            <span class="text-slate-400">Program / Class:</span>
+                            <span class="font-semibold text-slate-200" x-text="inst.program"></span>
+                          </div>
+                          <div class="flex justify-between items-center text-slate-300">
+                            <span class="text-slate-400">Department / Stream:</span>
+                            <span class="font-medium text-slate-200" x-text="inst.department"></span>
+                          </div>
+                          <div class="flex justify-between items-center text-slate-300">
+                            <span class="text-slate-400">Roll / Enrollment No:</span>
+                            <span class="font-mono font-semibold text-emerald-400" x-text="inst.roll_no"></span>
+                          </div>
+                          <div class="flex justify-between items-center text-slate-300">
+                            <span class="text-slate-400">Status / Semester:</span>
+                            <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-medium" x-text="inst.current_semester"></span>
+                          </div>
+                          <div class="flex justify-between items-center text-slate-300">
+                            <span class="text-slate-400">Attendance / Score:</span>
+                            <span class="font-bold text-white" x-text="inst.attendance_percentage + ' (' + inst.cgpa + ')'"></span>
+                          </div>
+                          <template x-if="inst.active_template">
+                            <div class="flex justify-between items-center text-purple-300 bg-purple-950/20 p-1.5 rounded-lg border border-purple-500/20">
+                              <span class="text-[10px] font-mono">Template:</span>
+                              <span class="text-[11px] font-semibold truncate max-w-[160px]" x-text="inst.active_template.template_name"></span>
+                            </div>
+                          </template>
+                        </div>
+                      </div>
+
+                      <!-- Bottom Action Buttons -->
+                      <div class="mt-6 pt-4 border-t border-slate-800/80 space-y-2">
+                        <button @click="selectEnrolledInstitution(inst)" class="w-full py-2.5 rounded-xl font-semibold text-xs text-white transition flex items-center justify-center space-x-2 shadow-lg" :class="inst.type_category === 'SCHOOL' ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/20' : inst.type_category === 'UNIVERSITY' ? 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/20' : inst.type_category === 'COMPANY' ? 'bg-amber-600 hover:bg-amber-500 shadow-amber-600/20' : (inst.type_category === 'STARTUP' || inst.type === 'Start-up') ? 'bg-rose-600 hover:bg-rose-500 shadow-rose-600/20' : 'bg-blue-600 hover:bg-blue-500 shadow-blue-600/20'">
+                          <span>Open Institutional Portal & Details</span>
+                          <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                        <button @click.stop="activeTab = 'developer_templates'; selectDevInstitutionType(inst.type)" class="w-full py-1.5 rounded-xl font-mono text-[11px] bg-slate-900/90 hover:bg-purple-950/60 text-purple-300 hover:text-purple-200 border border-slate-800 hover:border-purple-500/40 transition flex items-center justify-center space-x-1.5">
+                          <i class="fa-solid fa-code text-[10px]"></i>
+                          <span>Customize in Developer Studio</span>
+                        </button>
+                      </div>
+
+                    </div>
+                  </template>
+                </div>
+
+                <!-- Portability & Credit Bank Footer Banner -->
+                <div class="glass-card p-4 rounded-xl border border-slate-800 bg-slate-950/40 flex items-center justify-between text-xs text-slate-400">
+                  <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-link text-emerald-400 text-base"></i>
+                    <span><strong>Academic Bank of Credits (ABC) & DigiLocker:</strong> All credentials automatically synchronized via National Academic Depository (NAD).</span>
+                  </div>
+                  <span class="text-emerald-400 font-mono font-bold"><i class="fa-solid fa-check-double mr-1"></i> Synchronized</span>
+                </div>
+              </div>
+
+
+              <!-- VIEW B: FULL INSTITUTIONAL PORTAL DETAIL VIEW -->
+              <div x-show="selectedEnrolledInstitution" class="space-y-6">
+
+                <!-- Institutional Portal Top Navigation Header -->
+                <div class="glass-card p-6 border-l-4 border-blue-500 bg-gradient-to-r from-blue-950/40 via-slate-900 to-slate-900 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                  <div class="space-y-1">
+                    <div class="flex items-center space-x-3">
+                      <button @click="selectedEnrolledInstitution = null" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition flex items-center space-x-1.5 border border-slate-700">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>All Institutions</span>
+                      </button>
+                      <span class="text-xs text-slate-500">/</span>
+                      <span class="text-xs font-semibold px-2 py-0.5 rounded-full" :class="selectedEnrolledInstitution && selectedEnrolledInstitution.institution && (selectedEnrolledInstitution.institution.type === 'School' || selectedEnrolledInstitution.institution.is_school) ? 'bg-emerald-500/20 text-emerald-300' : selectedEnrolledInstitution && selectedEnrolledInstitution.institution && (selectedEnrolledInstitution.institution.type === 'University' || selectedEnrolledInstitution.institution.is_university) ? 'bg-indigo-500/20 text-indigo-300' : selectedEnrolledInstitution && selectedEnrolledInstitution.institution && (selectedEnrolledInstitution.institution.type === 'Company' || selectedEnrolledInstitution.institution.is_company) ? 'bg-amber-500/20 text-amber-300' : selectedEnrolledInstitution && selectedEnrolledInstitution.institution && (selectedEnrolledInstitution.institution.type === 'Start-up' || selectedEnrolledInstitution.institution.is_startup) ? 'bg-rose-500/20 text-rose-300' : 'bg-blue-500/20 text-blue-300'" x-text="selectedEnrolledInstitution && selectedEnrolledInstitution.institution ? selectedEnrolledInstitution.institution.type : 'College'"></span>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white mt-1" x-text="selectedEnrolledInstitution && selectedEnrolledInstitution.institution ? selectedEnrolledInstitution.institution.name : ''"></h2>
+                    <p class="text-xs text-slate-400 flex items-center space-x-4">
+                      <span><i class="fa-solid fa-id-badge text-blue-400 mr-1"></i> Roll No: <strong class="text-slate-200 font-mono" x-text="selectedEnrolledInstitution && selectedEnrolledInstitution.institution ? selectedEnrolledInstitution.institution.roll_no : ''"></strong></span>
+                      <span><i class="fa-solid fa-graduation-cap text-purple-400 mr-1"></i> Dept: <span class="text-slate-300" x-text="selectedEnrolledInstitution && selectedEnrolledInstitution.institution ? selectedEnrolledInstitution.institution.department : ''"></span></span>
+                    </p>
+                  </div>
+
+                  <!-- Quick Stats in Header -->
+                  <div class="flex items-center space-x-2 self-stretch md:self-auto justify-end">
+                    <div class="px-4 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-center">
+                      <span class="block text-[10px] text-slate-400 uppercase font-mono">Attendance</span>
+                      <span class="text-sm font-bold text-emerald-400">86.5%</span>
+                    </div>
+                    <div class="px-4 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-center">
+                      <span class="block text-[10px] text-slate-400 uppercase font-mono">Fee Due</span>
+                      <span class="text-sm font-bold text-amber-400" x-text="selectedEnrolledInstitution && selectedEnrolledInstitution.fee ? '₹' + selectedEnrolledInstitution.fee.dues.total_due.toLocaleString() : '₹0'"></span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Developer Mode Active Alert Banner -->
+                <div x-show="selectedEnrolledInstitution && selectedEnrolledInstitution.developer_mode_enabled" class="p-4 rounded-2xl bg-gradient-to-r from-purple-950/60 via-slate-900 to-slate-900 border border-purple-500/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400 text-lg flex-shrink-0">
+                      <i class="fa-solid fa-code"></i>
+                    </div>
+                    <div>
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xs font-bold text-white">Developer Mode Custom Template Active:</span>
+                        <span class="text-xs font-mono text-purple-300 font-semibold" x-text="selectedEnrolledInstitution.template ? selectedEnrolledInstitution.template.template_name : 'Custom Blueprint'"></span>
+                        <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-200 border border-purple-500/40" x-text="'v' + (selectedEnrolledInstitution.template ? selectedEnrolledInstitution.template.version : '1.0.0')"></span>
+                        <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">Live for Students</span>
+                      </div>
+                      <p class="text-xs text-slate-400 mt-0.5" x-text="selectedEnrolledInstitution.template ? selectedEnrolledInstitution.template.description : 'This institution publishes custom course structures, timetables, and financial specs via Developer Mode.'"></p>
+                    </div>
+                  </div>
+                  <div class="flex items-center space-x-2 flex-shrink-0">
+                    <button @click="setInstitutionSection('template_spec')" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center space-x-1.5">
+                      <i class="fa-solid fa-file-code text-purple-400"></i>
+                      <span>Inspect Spec</span>
+                    </button>
+                    <button @click="activeTab = 'developer_templates'; selectDevInstitutionType(selectedEnrolledInstitution.institution ? selectedEnrolledInstitution.institution.type : 'College')" class="text-xs px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-semibold transition flex items-center space-x-1.5 shadow-md shadow-purple-600/30">
+                      <i class="fa-solid fa-sliders"></i>
+                      <span>Edit in Studio</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 12-Module Sub-Navigation Tab Bar -->
+                <div class="overflow-x-auto pb-1">
+                  <div class="flex space-x-2 min-w-max p-1 bg-slate-900/80 rounded-2xl border border-slate-800 text-xs font-semibold">
+                    
+                    <button @click="setInstitutionSection('courses')" :class="institutionActiveSection === 'courses' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="px-3.5 py-2 rounded-xl transition flex items-center space-x-2">
+                      <i class="fa-solid fa-book-open"></i><span>Courses & Attendance</span>
+                    </button>
+
+                    <button @click="setInstitutionSection('profile')" :class="institutionActiveSection === 'profile' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="px-3.5 py-2 rounded-xl transition flex items-center space-x-2">
+                      <i class="fa-solid fa-id-card-clip"></i><span>Profile</span>
+                    </button>
+
+                    <button @click="setInstitutionSection('timetable')" :class="institutionActiveSection === 'timetable' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="px-3.5 py-2 rounded-xl transition flex items-center space-x-2">
+                      <i class="fa-solid fa-clock"></i><span>Time Table</span>
+                    </button>
+
+                    <button @click="setInstitutionSection('calendar')" :class="institutionActiveSection === 'calendar' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="px-3.5 py-2 rounded-xl transition flex items-center space-x-2">
+                      <i class="fa-solid fa-calendar-days"></i><span>Calendar</span>
+                    </button>
+
+                    <button @click="setInstitutionSection('fee')" :class="institutionActiveSection === 'fee' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="px-3.5 py-2 rounded-xl transition flex items-center space-x-2">
+                      <i class="fa-solid fa-wallet"></i><span>Fee & Payments</span>
+                      <span x-show="selectedEnrolledInstitution && selectedEnrolledInstitution.fee && selectedEnrolledInstitution.fee.dues.total_due > 0" class="w-2 h-2 rounded-full bg-amber-400"></span>
+                    </button>
+
+                    <button @click="setInstitutionSection('assignments')" :class="institutionActiveSection === 'assignments' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="px-3.5 py-2 rounded-xl transition flex items-center space-x-2">
+                      <i class="fa-solid fa-list-check"></i><span>Assignments</span>
+                    </button>
+
+                    <button @click="setInstitutionSection('leaves')" :class="institutionActiveSection === 'leaves' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="px-3.5 py-2 rounded-xl transition flex items-center space-x-2">
+                      <i class="fa-solid fa-plane-departure"></i><span>Student Leaves</span>
+                    </button>
+
+                    <button @click="setInstitutionSection('hostel')" :class="institutionActiveSection === 'hostel' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="px-3.5 py-2 rounded-xl transition flex items-center space-x-2">
+                      <i class="fa-solid fa-hotel"></i><span>Hostel & Mess</span>
+                    </button>
+
+                    <button @click="setInstitutionSection('administration')" :class="institutionActiveSection === 'administration' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="px-3.5 py-2 rounded-xl transition flex items-center space-x-2">
+                      <i class="fa-solid fa-landmark"></i><span>Administration</span>
+                    </button>
+
+                    <button @click="setInstitutionSection('library')" :class="institutionActiveSection === 'library' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="px-3.5 py-2 rounded-xl transition flex items-center space-x-2">
+                      <i class="fa-solid fa-book-bookmark"></i><span>Library</span>
+                    </button>
+
+                    <button @click="setInstitutionSection('services')" :class="institutionActiveSection === 'services' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="px-3.5 py-2 rounded-xl transition flex items-center space-x-2">
+                      <i class="fa-solid fa-van-shuttle"></i><span>Other Services</span>
+                    </button>
+
+                    <button @click="setInstitutionSection('template_spec')" :class="institutionActiveSection === 'template_spec' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'" class="px-3.5 py-2 rounded-xl transition flex items-center space-x-2">
+                      <i class="fa-solid fa-code text-purple-300"></i><span>Template Specs & JSON</span>
+                      <span x-show="selectedEnrolledInstitution && selectedEnrolledInstitution.developer_mode_enabled" class="w-2 h-2 rounded-full bg-purple-400"></span>
+                    </button>
+
+                  </div>
+                </div>
+
+                <!-- ======================================================== -->
+                <!-- MODULE 1: COURSES & ATTENDANCE                           -->
+                <!-- ======================================================== -->
+                <div x-show="institutionActiveSection === 'courses'" class="space-y-6">
+                  <div class="glass-card p-6 space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                      <div>
+                        <h3 class="font-bold text-lg text-white"><i class="fa-solid fa-book-open text-blue-400 mr-2"></i> Enrolled Courses & Real-Time Attendance</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Subject-wise lecture tracking against mandatory 75% university threshold.</p>
+                      </div>
+                      <span class="badge badge-success font-mono">Overall: 86.5% Compliant</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <template x-for="c in (selectedEnrolledInstitution ? selectedEnrolledInstitution.courses : [])" :key="c.course_code">
+                        <div class="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition space-y-4">
+                          <div class="flex items-start justify-between">
+                            <div>
+                              <span class="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300" x-text="c.course_code"></span>
+                              <h4 class="font-bold text-sm text-white mt-1.5" x-text="c.course_name"></h4>
+                              <p class="text-xs text-slate-400 mt-0.5"><i class="fa-solid fa-user-tie mr-1 text-slate-500"></i> <span x-text="c.instructor"></span></p>
+                              <p class="text-xs text-slate-500"><i class="fa-solid fa-location-dot mr-1"></i> <span x-text="c.room"></span></p>
+                            </div>
+                            <div class="text-right">
+                              <span class="text-2xl font-bold font-mono" :class="c.attendance_percentage >= 75 ? 'text-emerald-400' : 'text-red-400'" x-text="c.attendance_percentage + '%'"></span>
+                              <span class="block text-[10px] text-slate-400" x-text="c.classes_attended + ' / ' + c.total_classes + ' Lectures'"></span>
+                            </div>
+                          </div>
+
+                          <!-- Progress Bar -->
+                          <div class="space-y-1">
+                            <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                              <div class="h-2 rounded-full transition-all duration-500" :class="c.attendance_percentage >= 75 ? 'bg-emerald-500' : 'bg-red-500'" :style="'width: ' + c.attendance_percentage + '%'"></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] text-slate-500">
+                              <span>Min. Required: 75%</span>
+                              <span :class="c.attendance_percentage >= 75 ? 'text-emerald-400 font-semibold' : 'text-red-400 font-bold'" x-text="c.attendance_percentage >= 75 ? 'Eligible for Exams' : 'Condonation Required'"></span>
+                            </div>
+                          </div>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ======================================================== -->
+                <!-- MODULE 2: PROFILE                                        -->
+                <!-- ======================================================== -->
+                <div x-show="institutionActiveSection === 'profile'" class="space-y-6">
+                  <div class="glass-card p-6 space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                      <div>
+                        <h3 class="font-bold text-lg text-white"><i class="fa-solid fa-id-card-clip text-purple-400 mr-2"></i> Institutional Identity & Profile</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Official student credentials issued by this educational institution.</p>
+                      </div>
+                      <span class="text-xs text-emerald-400 font-mono font-bold"><i class="fa-solid fa-circle-check mr-1"></i> Digitally Verified</span>
+                    </div>
+
+                    <template x-if="selectedEnrolledInstitution && selectedEnrolledInstitution.profile">
+                      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+                          <span class="text-xs text-slate-400 block mb-1">Full Legal Name:</span>
+                          <span class="text-sm font-bold text-white" x-text="selectedEnrolledInstitution.profile.student_name"></span>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+                          <span class="text-xs text-slate-400 block mb-1">Institutional Roll Number:</span>
+                          <span class="text-sm font-bold font-mono text-emerald-400" x-text="selectedEnrolledInstitution.profile.institutional_roll_no"></span>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+                          <span class="text-xs text-slate-400 block mb-1">State / University Enrollment ID:</span>
+                          <span class="text-sm font-bold font-mono text-blue-400" x-text="selectedEnrolledInstitution.profile.enrollment_number"></span>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+                          <span class="text-xs text-slate-400 block mb-1">Department / Branch:</span>
+                          <span class="text-sm font-semibold text-slate-200" x-text="selectedEnrolledInstitution.profile.department"></span>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+                          <span class="text-xs text-slate-400 block mb-1">Academic Batch:</span>
+                          <span class="text-sm font-semibold text-slate-200" x-text="selectedEnrolledInstitution.profile.batch"></span>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+                          <span class="text-xs text-slate-400 block mb-1">Admission Date:</span>
+                          <span class="text-sm font-semibold text-slate-200" x-text="selectedEnrolledInstitution.profile.admission_date"></span>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+                          <span class="text-xs text-slate-400 block mb-1">Institutional Email:</span>
+                          <span class="text-sm font-mono text-blue-300" x-text="selectedEnrolledInstitution.profile.institutional_email"></span>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+                          <span class="text-xs text-slate-400 block mb-1">Blood Group:</span>
+                          <span class="text-sm font-bold text-rose-400" x-text="selectedEnrolledInstitution.profile.blood_group"></span>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+                          <span class="text-xs text-slate-400 block mb-1">Assigned Faculty Mentor:</span>
+                          <span class="text-sm font-semibold text-indigo-300" x-text="selectedEnrolledInstitution.profile.mentor_teacher"></span>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+                          <span class="text-xs text-slate-400 block mb-1">APAAR (EduLocker) National ID:</span>
+                          <span class="text-sm font-mono text-emerald-400" x-text="selectedEnrolledInstitution.profile.apaar_id"></span>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+                          <span class="text-xs text-slate-400 block mb-1">DigiLocker Status:</span>
+                          <span class="text-xs font-bold text-emerald-400"><i class="fa-solid fa-shield-check mr-1"></i> Verified & Synced</span>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+
+                <!-- ======================================================== -->
+                <!-- MODULE 3: TIME TABLE                                     -->
+                <!-- ======================================================== -->
+                <div x-show="institutionActiveSection === 'timetable'" class="space-y-6">
+                  <div class="glass-card p-6 space-y-6">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                      <div>
+                        <h3 class="font-bold text-lg text-white"><i class="fa-solid fa-clock text-amber-400 mr-2"></i> Weekly Class Timetable & Schedule</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Select a day of the week to view lecture periods, lab slots, and room locations.</p>
+                      </div>
+                      <!-- Day selector -->
+                      <div class="flex space-x-1.5 bg-slate-900 p-1.5 rounded-xl border border-slate-800 text-xs">
+                        <template x-for="d in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']">
+                          <button @click="timetableActiveDay = d" :class="timetableActiveDay === d ? 'bg-blue-600 text-white font-bold' : 'text-slate-400 hover:text-white'" class="px-3 py-1.5 rounded-lg transition" x-text="d"></button>
+                        </template>
+                      </div>
+                    </div>
+
+                    <!-- Timetable Day Slots List -->
+                    <template x-if="selectedEnrolledInstitution && selectedEnrolledInstitution.timetable">
+                      <div class="space-y-3">
+                        <template x-for="dayObj in selectedEnrolledInstitution.timetable.filter(x => x.day === timetableActiveDay)">
+                          <div class="space-y-3">
+                            <template x-for="slot in dayObj.slots">
+                              <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 hover:border-slate-700 transition">
+                                <div class="flex items-center space-x-4">
+                                  <div class="px-3 py-2 rounded-xl bg-amber-500/10 text-amber-300 font-mono text-xs font-bold border border-amber-500/20 whitespace-nowrap">
+                                    <i class="fa-regular fa-clock mr-1"></i>
+                                    <span x-text="slot.time"></span>
+                                  </div>
+                                  <div>
+                                    <h4 class="font-bold text-sm text-white" x-text="slot.subject"></h4>
+                                    <p class="text-xs text-slate-400"><i class="fa-solid fa-user-tie mr-1"></i> <span x-text="slot.faculty"></span> • Code: <span class="font-mono text-slate-300" x-text="slot.code"></span></p>
+                                  </div>
+                                </div>
+                                <div class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 text-xs font-medium self-end md:self-auto">
+                                  <i class="fa-solid fa-door-open text-blue-400 mr-1.5"></i>
+                                  <span x-text="slot.room"></span>
+                                </div>
+                              </div>
+                            </template>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+
+                <!-- ======================================================== -->
+                <!-- MODULE 4: CALENDAR                                       -->
+                <!-- ======================================================== -->
+                <div x-show="institutionActiveSection === 'calendar'" class="space-y-6">
+                  <div class="glass-card p-6 space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                      <div>
+                        <h3 class="font-bold text-lg text-white"><i class="fa-solid fa-calendar-days text-indigo-400 mr-2"></i> Institutional Academic Calendar</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Semester examination dates, submission deadlines, and statutory campus holidays.</p>
+                      </div>
+                      <span class="text-xs font-mono text-slate-400">Academic Year 2025–2026</span>
+                    </div>
+
+                    <div class="space-y-3">
+                      <template x-for="evt in (selectedEnrolledInstitution ? selectedEnrolledInstitution.calendar : [])" :key="evt.date">
+                        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between gap-4">
+                          <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold" :class="evt.type === 'EXAM' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : evt.type === 'HOLIDAY' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : evt.type === 'EVENT' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'">
+                              <i class="fa-solid" :class="evt.type === 'EXAM' ? 'fa-file-lines' : evt.type === 'HOLIDAY' ? 'fa-umbrella-beach' : evt.type === 'EVENT' ? 'fa-trophy' : 'fa-calendar-check'"></i>
+                            </div>
+                            <div>
+                              <h4 class="font-bold text-sm text-white" x-text="evt.event"></h4>
+                              <span class="text-xs font-mono text-slate-400" x-text="evt.date"></span>
+                            </div>
+                          </div>
+                          <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full font-mono" :class="evt.type === 'EXAM' ? 'bg-red-500/10 text-red-300 border border-red-500/30' : evt.type === 'HOLIDAY' ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-300'" x-text="evt.type"></span>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ======================================================== -->
+                <!-- MODULE 5: FEE MANAGEMENT (STRUCTURE, DUES, PAYMENTS, ETC)-->
+                <!-- ======================================================== -->
+                <div x-show="institutionActiveSection === 'fee'" class="space-y-6">
+                  
+                  <!-- Top 4 Metrics -->
+                  <template x-if="selectedEnrolledInstitution && selectedEnrolledInstitution.fee">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+                        <span class="text-xs text-slate-400">Total Billed (Annual):</span>
+                        <div class="text-xl font-bold font-mono text-white mt-1" x-text="'₹' + selectedEnrolledInstitution.fee.structure.total_billed.toLocaleString()"></div>
+                        <span class="text-[11px] text-slate-500">Academic Session 2025-26</span>
+                      </div>
+                      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+                        <span class="text-xs text-slate-400">Total Paid to Date:</span>
+                        <div class="text-xl font-bold font-mono text-emerald-400 mt-1" x-text="'₹' + selectedEnrolledInstitution.fee.balance.total_paid.toLocaleString()"></div>
+                        <span class="text-[11px] text-emerald-500"><i class="fa-solid fa-circle-check mr-1"></i> Receipts Cleared</span>
+                      </div>
+                      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800" :class="selectedEnrolledInstitution.fee.dues.total_due > 0 ? 'border-amber-500/30 bg-amber-500/5' : ''">
+                        <span class="text-xs text-slate-400">Outstanding Balance Due:</span>
+                        <div class="text-xl font-bold font-mono text-amber-400 mt-1" x-text="'₹' + selectedEnrolledInstitution.fee.dues.total_due.toLocaleString()"></div>
+                        <span class="text-[11px] text-amber-300" x-text="'Due Date: ' + selectedEnrolledInstitution.fee.dues.due_date"></span>
+                      </div>
+                      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+                        <span class="text-xs text-slate-400">Scholarship & Relaxations:</span>
+                        <div class="text-xl font-bold font-mono text-purple-400 mt-1" x-text="'₹' + (selectedEnrolledInstitution.fee.scholarship.amount + selectedEnrolledInstitution.fee.fee_relaxation.concession_amount).toLocaleString()"></div>
+                        <span class="text-[11px] text-purple-300">Merit + Heritage Rebate</span>
+                      </div>
+                    </div>
+
+                    <!-- Dynamic Stipend / Fellowship Payout Card (for Company/Research) -->
+                    <template x-if="selectedEnrolledInstitution && selectedEnrolledInstitution.fee && selectedEnrolledInstitution.fee.stipend">
+                      <div class="p-4 rounded-2xl bg-gradient-to-r from-amber-950/40 via-slate-900 to-slate-900 border border-amber-500/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div class="flex items-center space-x-3">
+                          <div class="w-10 h-10 rounded-xl bg-amber-600/20 border border-amber-500/30 flex items-center justify-center text-amber-400 text-lg">
+                            <i class="fa-solid fa-money-bill-transfer"></i>
+                          </div>
+                          <div>
+                            <div class="flex items-center space-x-2">
+                              <h4 class="font-bold text-white text-sm" x-text="'Monthly Fellowship Stipend: ₹' + selectedEnrolledInstitution.fee.stipend.monthly_amount.toLocaleString()"></h4>
+                              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">FELLOWSHIP ACTIVE</span>
+                            </div>
+                            <p class="text-xs text-slate-300 mt-0.5" x-text="'Payout Schedule: ' + selectedEnrolledInstitution.fee.stipend.payout_day + ' of each month | Performance Bonus: ' + selectedEnrolledInstitution.fee.stipend.performance_bonus + ' | Tax: ' + selectedEnrolledInstitution.fee.stipend.tax_status"></p>
+                          </div>
+                        </div>
+                        <span class="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/30">Direct Deposit (Bank)</span>
+                      </div>
+                    </template>
+
+                    <!-- Dynamic Seed Grant Award Card (for Start-up Incubator) -->
+                    <template x-if="selectedEnrolledInstitution && selectedEnrolledInstitution.fee && selectedEnrolledInstitution.fee.grant">
+                      <div class="p-4 rounded-2xl bg-gradient-to-r from-rose-950/40 via-slate-900 to-slate-900 border border-rose-500/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div class="flex items-center space-x-3">
+                          <div class="w-10 h-10 rounded-xl bg-rose-600/20 border border-rose-500/30 flex items-center justify-center text-rose-400 text-lg">
+                            <i class="fa-solid fa-rocket"></i>
+                          </div>
+                          <div>
+                            <div class="flex items-center space-x-2">
+                              <h4 class="font-bold text-white text-sm" x-text="'DST Seed Stage Grant Awarded: ₹' + selectedEnrolledInstitution.fee.grant.seed_grant_amount.toLocaleString()"></h4>
+                              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold">INCUBATOR GRANT</span>
+                            </div>
+                            <p class="text-xs text-slate-300 mt-0.5" x-text="'Cloud Credits: ' + selectedEnrolledInstitution.fee.grant.cloud_credits + ' | Equity Dilution: ' + selectedEnrolledInstitution.fee.grant.equity_dilution + ' | Schedule: ' + selectedEnrolledInstitution.fee.grant.disbursement_schedule"></p>
+                          </div>
+                        </div>
+                        <span class="text-xs font-mono font-bold text-rose-300 bg-rose-500/10 px-3 py-1.5 rounded-lg border border-rose-500/30">NIDHI-EIR Compliant</span>
+                      </div>
+                    </template>
+                  </template>
+
+                  <!-- Fee Structure & Interactive Payment Grid -->
+                  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                    <!-- Column 1 & 2: Detailed Fee Breakdown & Policy -->
+                    <div class="lg:col-span-2 glass-card p-6 space-y-6">
+                      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                        <h3 class="font-bold text-base text-white"><i class="fa-solid fa-receipt text-blue-400 mr-2"></i> Official Fee Structure Breakdown</h3>
+                        <span class="text-xs font-mono text-slate-400">Statutory Regulatory Slab</span>
+                      </div>
+
+                      <template x-if="selectedEnrolledInstitution && selectedEnrolledInstitution.fee">
+                        <div class="space-y-4 text-xs">
+                          <table class="w-full text-left">
+                            <thead class="text-slate-400 border-b border-slate-800">
+                              <tr>
+                                <th class="py-2">Fee Component</th>
+                                <th class="py-2 text-right">Amount (INR)</th>
+                                <th class="py-2 text-right">Status</th>
+                              </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/60 text-slate-300 font-mono">
+                              <tr>
+                                <td class="py-3 font-sans font-medium text-white">Tuition & Academic Instructional Fee</td>
+                                <td class="py-3 text-right" x-text="'₹' + selectedEnrolledInstitution.fee.structure.tuition_fee.toLocaleString()"></td>
+                                <td class="py-3 text-right text-emerald-400 font-bold">PAID</td>
+                              </tr>
+                              <tr>
+                                <td class="py-3 font-sans font-medium text-white">Institutional Development & Infrastructure</td>
+                                <td class="py-3 text-right" x-text="'₹' + selectedEnrolledInstitution.fee.structure.development_fee.toLocaleString()"></td>
+                                <td class="py-3 text-right text-emerald-400 font-bold">PAID</td>
+                              </tr>
+                              <tr>
+                                <td class="py-3 font-sans font-medium text-white">Laboratory, Computing & Examination Fee</td>
+                                <td class="py-3 text-right" x-text="'₹' + selectedEnrolledInstitution.fee.structure.lab_examination_fee.toLocaleString()"></td>
+                                <td class="py-3 text-right font-bold" :class="selectedEnrolledInstitution.fee.dues.total_due > 0 ? 'text-amber-400' : 'text-emerald-400'" x-text="selectedEnrolledInstitution.fee.dues.total_due > 0 ? 'DUE' : 'PAID'"></td>
+                              </tr>
+                              <tr>
+                                <td class="py-3 font-sans font-medium text-white">Central Library, Sports & Student Welfare</td>
+                                <td class="py-3 text-right" x-text="'₹' + selectedEnrolledInstitution.fee.structure.library_sports_fee.toLocaleString()"></td>
+                                <td class="py-3 text-right text-emerald-400 font-bold">PAID</td>
+                              </tr>
+                              <tr class="font-bold text-white bg-slate-900/50">
+                                <td class="py-3 font-sans">Total Annual Package</td>
+                                <td class="py-3 text-right text-blue-400" x-text="'₹' + selectedEnrolledInstitution.fee.structure.total_billed.toLocaleString()"></td>
+                                <td class="py-3 text-right text-slate-400 font-normal">Semester 5-6</td>
+                              </tr>
+                            </tbody>
+                          </table>
+
+                          <!-- Scholarship, Relaxation, Refund Notes -->
+                          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                            <div class="p-4 rounded-xl bg-purple-950/20 border border-purple-500/20 space-y-1">
+                              <span class="font-bold text-purple-300 flex items-center space-x-1.5"><i class="fa-solid fa-award"></i><span x-text="selectedEnrolledInstitution.fee.scholarship.name"></span></span>
+                              <p class="text-slate-400 text-[11px]" x-text="'Granting Body: ' + selectedEnrolledInstitution.fee.scholarship.granting_body"></p>
+                              <span class="text-xs font-mono font-bold text-purple-200" x-text="'Amount: ₹' + selectedEnrolledInstitution.fee.scholarship.amount.toLocaleString() + ' (Disbursed)'"></span>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-blue-950/20 border border-blue-500/20 space-y-1">
+                              <span class="font-bold text-blue-300 flex items-center space-x-1.5"><i class="fa-solid fa-hand-holding-dollar"></i><span>Fee Relaxation & Refund</span></span>
+                              <p class="text-slate-400 text-[11px]" x-text="selectedEnrolledInstitution.fee.fee_relaxation.category + ': ' + selectedEnrolledInstitution.fee.fee_relaxation.concession_percentage + '% waiver applied.'"></p>
+                              <span class="text-xs font-mono text-slate-300" x-text="'Caution Money Escrow: ₹' + selectedEnrolledInstitution.fee.refund.caution_money_deposit.toLocaleString() + ' (100% Refundable)'"></span>
+                            </div>
+                          </div>
+                        </div>
+                      </template>
+                    </div>
+
+                    <!-- Column 3: Interactive Instant Payment Box -->
+                    <div class="glass-card p-6 flex flex-col justify-between space-y-6 border-t-4 border-amber-500">
+                      <div>
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                          <h3 class="font-bold text-base text-white"><i class="fa-solid fa-credit-card text-amber-400 mr-2"></i> Instant Fee Payment</h3>
+                          <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded font-mono font-bold">256-bit SSL</span>
+                        </div>
+
+                        <div class="space-y-4 mt-4 text-xs">
+                          <div>
+                            <label class="block text-slate-400 mb-1">Payment Amount (INR ₹):</label>
+                            <input type="number" x-model="feePaymentAmount" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white font-mono font-bold text-base focus:outline-none focus:ring-2 focus:ring-amber-500">
+                          </div>
+
+                          <div>
+                            <label class="block text-slate-400 mb-1">Select Payment Gateway Mode:</label>
+                            <select x-model="feePaymentMode" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 text-xs">
+                              <option value="UPI">UPI (Google Pay / PhonePe / Paytm / BHIM)</option>
+                              <option value="Net Banking (HDFC/SBI/ICICI)">Net Banking (HDFC, SBI, ICICI, Axis)</option>
+                              <option value="Debit / Credit Card">Debit / Credit Card (Visa, RuPay, Mastercard)</option>
+                              <option value="NEFT / RTGS Challan">NEFT / RTGS Virtual Account Challan</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label class="block text-slate-400 mb-1">Payment Remarks:</label>
+                            <input type="text" x-model="feePaymentRemarks" placeholder="Remarks" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-300 text-xs">
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="pt-4 border-t border-slate-800 space-y-3">
+                        <button @click="submitFeePayment()" :disabled="feePaymentProcessing" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 font-bold text-slate-950 text-xs transition flex items-center justify-center space-x-2 shadow-lg shadow-amber-500/20">
+                          <i class="fa-solid fa-lock"></i>
+                          <span x-text="feePaymentProcessing ? 'Processing Payment...' : 'Pay ₹' + feePaymentAmount.toLocaleString() + ' Now'"></span>
+                        </button>
+                        <p class="text-[10px] text-center text-slate-500">Official digital receipt will be recorded in your transaction ledger instantly.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Transaction Ledger Table -->
+                  <div class="glass-card p-6 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                      <h3 class="font-bold text-sm text-white"><i class="fa-solid fa-clock-rotate-left text-blue-400 mr-2"></i> Past Transactions & Fee Receipts</h3>
+                      <span class="text-xs font-mono text-slate-400">Verified Institutional Ledger</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                      <table class="w-full text-left text-xs font-mono">
+                        <thead class="text-slate-400 border-b border-slate-800">
+                          <tr>
+                            <th class="py-2 font-sans">Receipt No</th>
+                            <th class="py-2 font-sans">Date</th>
+                            <th class="py-2 font-sans">Description</th>
+                            <th class="py-2 font-sans">Payment Mode</th>
+                            <th class="py-2 font-sans">Bank Reference</th>
+                            <th class="py-2 text-right font-sans">Amount</th>
+                            <th class="py-2 text-right font-sans">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800 text-slate-300">
+                          <template x-for="tx in (selectedEnrolledInstitution && selectedEnrolledInstitution.fee ? selectedEnrolledInstitution.fee.transactions : [])" :key="tx.receipt_no">
+                            <tr>
+                              <td class="py-3 font-bold text-blue-400" x-text="tx.receipt_no"></td>
+                              <td class="py-3 text-slate-400" x-text="tx.date"></td>
+                              <td class="py-3 font-sans text-white" x-text="tx.description"></td>
+                              <td class="py-3 text-slate-400" x-text="tx.mode"></td>
+                              <td class="py-3 text-slate-500" x-text="tx.bank_ref"></td>
+                              <td class="py-3 text-right font-bold text-emerald-400" x-text="'₹' + tx.amount.toLocaleString()"></td>
+                              <td class="py-3 text-right">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">CONFIRMED</span>
+                              </td>
+                            </tr>
+                          </template>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- ======================================================== -->
+                <!-- MODULE 6: ASSIGNMENTS                                    -->
+                <!-- ======================================================== -->
+                <div x-show="institutionActiveSection === 'assignments'" class="space-y-6">
+                  <div class="glass-card p-6 space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                      <div>
+                        <h3 class="font-bold text-lg text-white"><i class="fa-solid fa-list-check text-emerald-400 mr-2"></i> Coursework & Lab Assignments</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Submit coursework, review evaluations, and check instructor remarks.</p>
+                      </div>
+                      <span class="badge badge-success font-mono">1 Pending • 1 Submitted</span>
+                    </div>
+
+                    <div class="space-y-4">
+                      <template x-for="asg in (selectedEnrolledInstitution ? selectedEnrolledInstitution.assignments : [])" :key="asg.id">
+                        <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                          <div class="space-y-1">
+                            <span class="text-[11px] font-mono text-blue-400" x-text="asg.course"></span>
+                            <h4 class="font-bold text-sm text-white" x-text="asg.title"></h4>
+                            <p class="text-xs text-slate-400" x-text="'Due: ' + asg.due_date + ' • Max Marks: ' + asg.max_marks"></p>
+                            <p x-show="asg.feedback" class="text-xs text-emerald-300 italic bg-emerald-950/20 px-3 py-1.5 rounded-lg border border-emerald-500/20" x-text="'Instructor Note: ' + asg.feedback"></p>
+                          </div>
+                          <div class="flex items-center space-x-3 self-end md:self-auto">
+                            <span class="text-xs px-3 py-1.5 rounded-xl font-bold font-mono" :class="asg.status === 'SUBMITTED' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'" x-text="asg.status === 'SUBMITTED' ? 'Score: ' + asg.score : 'Pending Submission'"></span>
+                            <button x-show="asg.status !== 'SUBMITTED'" @click="alert('Upload modal opened for ' + asg.title)" class="btn-primary px-3 py-1.5 rounded-lg text-xs">Submit Solution</button>
+                          </div>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ======================================================== -->
+                <!-- MODULE 7: STUDENT LEAVES                                 -->
+                <!-- ======================================================== -->
+                <div x-show="institutionActiveSection === 'leaves'" class="space-y-6">
+                  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                    <!-- Apply for Leave Form -->
+                    <div class="glass-card p-6 space-y-4 border-t-4 border-emerald-500">
+                      <div class="border-b border-slate-800 pb-3">
+                        <h3 class="font-bold text-base text-white"><i class="fa-solid fa-plane-departure text-emerald-400 mr-2"></i> Apply for Official Leave</h3>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Medical or duty leaves are forwarded directly to your HOD & Proctor.</p>
+                      </div>
+
+                      <div class="space-y-3 text-xs">
+                        <div>
+                          <label class="block text-slate-400 mb-1">Leave Type:</label>
+                          <select x-model="leaveForm.leave_type" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
+                            <option value="Medical Leave">Medical Leave (Requires Hospital / Doctor Slip)</option>
+                            <option value="Duty / Academic Leave">Duty / Academic Leave (Hackathon / Conference)</option>
+                            <option value="Casual / Personal Leave">Casual / Personal Emergency Leave</option>
+                          </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                          <div>
+                            <label class="block text-slate-400 mb-1">From Date:</label>
+                            <input type="date" x-model="leaveForm.from_date" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
+                          </div>
+                          <div>
+                            <label class="block text-slate-400 mb-1">To Date:</label>
+                            <input type="date" x-model="leaveForm.to_date" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
+                          </div>
+                        </div>
+                        <div>
+                          <label class="block text-slate-400 mb-1">Reason / Justification:</label>
+                          <textarea x-model="leaveForm.reason" rows="3" placeholder="Provide detailed explanation..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-slate-200"></textarea>
+                        </div>
+                        <button @click="submitLeaveRequest()" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-white text-xs transition shadow-lg shadow-emerald-600/20">
+                          <i class="fa-solid fa-paper-plane mr-1"></i> Submit Leave Request
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Leave Balances & History -->
+                    <div class="lg:col-span-2 glass-card p-6 space-y-6">
+                      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <h3 class="font-bold text-base text-white"><i class="fa-solid fa-clock-rotate-left text-blue-400 mr-2"></i> Leave Balances & Approval History</h3>
+                        <template x-if="selectedEnrolledInstitution && selectedEnrolledInstitution.student_leaves">
+                          <div class="flex space-x-2 text-xs font-mono">
+                            <span class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300" x-text="'Medical: ' + selectedEnrolledInstitution.student_leaves.balances.medical_remaining + ' Left'"></span>
+                            <span class="px-2.5 py-1 rounded-lg bg-blue-500/20 text-blue-300" x-text="'Duty: ' + selectedEnrolledInstitution.student_leaves.balances.duty_remaining + ' Left'"></span>
+                          </div>
+                        </template>
+                      </div>
+
+                      <div class="space-y-3">
+                        <template x-for="lev in (selectedEnrolledInstitution && selectedEnrolledInstitution.student_leaves ? selectedEnrolledInstitution.student_leaves.history : [])" :key="lev.id">
+                          <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between gap-4">
+                            <div>
+                              <div class="flex items-center space-x-2">
+                                <span class="font-bold text-sm text-white" x-text="lev.leave_type"></span>
+                                <span class="text-xs font-mono text-slate-400" x-text="'(' + lev.from_date + ' to ' + lev.to_date + ')'"></span>
+                              </div>
+                              <p class="text-xs text-slate-300 mt-1" x-text="lev.reason"></p>
+                              <span class="text-[10px] text-slate-500 font-mono" x-text="'Reviewer: ' + (lev.approved_by || 'HOD')"></span>
+                            </div>
+                            <span class="text-xs px-3 py-1 rounded-full font-mono font-bold" :class="lev.status.includes('APPROVED') ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'" x-text="lev.status"></span>
+                          </div>
+                        </template>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <!-- ======================================================== -->
+                <!-- MODULE 8: HOSTEL & MESS                                  -->
+                <!-- ======================================================== -->
+                <div x-show="institutionActiveSection === 'hostel'" class="space-y-6">
+                  <template x-if="selectedEnrolledInstitution && selectedEnrolledInstitution.hostel">
+                    <div class="space-y-6">
+                      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        
+                        <!-- Room Details -->
+                        <div class="glass-card p-6 space-y-4 border-l-4 border-blue-500">
+                          <h4 class="font-bold text-base text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-bed text-blue-400"></i>
+                            <span>Hostel Room Allotment</span>
+                          </h4>
+                          <div class="space-y-2 text-xs text-slate-300">
+                            <div class="flex justify-between border-b border-slate-800 pb-1.5"><span class="text-slate-400">Block:</span><strong class="text-white" x-text="selectedEnrolledInstitution.hostel.block"></strong></div>
+                            <div class="flex justify-between border-b border-slate-800 pb-1.5"><span class="text-slate-400">Room Number:</span><strong class="font-mono text-emerald-400" x-text="selectedEnrolledInstitution.hostel.room_no"></strong></div>
+                            <div class="flex justify-between border-b border-slate-800 pb-1.5"><span class="text-slate-400">Bed Allotment:</span><strong class="text-slate-200" x-text="selectedEnrolledInstitution.hostel.bed_no"></strong></div>
+                            <div class="flex justify-between border-b border-slate-800 pb-1.5"><span class="text-slate-400">Chief Warden:</span><span class="text-slate-200" x-text="selectedEnrolledInstitution.hostel.warden_name"></span></div>
+                            <div class="flex justify-between"><span class="text-slate-400">Warden Phone:</span><span class="text-blue-300 font-mono" x-text="selectedEnrolledInstitution.hostel.warden_contact"></span></div>
+                          </div>
+                        </div>
+
+                        <!-- Mess Timings & Today's Menu -->
+                        <div class="md:col-span-2 glass-card p-6 space-y-4">
+                          <h4 class="font-bold text-base text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-utensils text-amber-400"></i>
+                            <span>Mess Schedule & Dining Menu</span>
+                          </h4>
+                          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+                              <span class="font-bold text-amber-300 flex items-center space-x-1.5"><i class="fa-solid fa-sun"></i><span>Breakfast</span></span>
+                              <p class="text-slate-300" x-text="selectedEnrolledInstitution.hostel.mess.breakfast"></p>
+                            </div>
+                            <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+                              <span class="font-bold text-amber-300 flex items-center space-x-1.5"><i class="fa-solid fa-bowl-food"></i><span>Lunch</span></span>
+                              <p class="text-slate-300" x-text="selectedEnrolledInstitution.hostel.mess.lunch"></p>
+                            </div>
+                            <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+                              <span class="font-bold text-amber-300 flex items-center space-x-1.5"><i class="fa-solid fa-mug-hot"></i><span>Evening Snacks</span></span>
+                              <p class="text-slate-300" x-text="selectedEnrolledInstitution.hostel.mess.snacks"></p>
+                            </div>
+                            <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+                              <span class="font-bold text-amber-300 flex items-center space-x-1.5"><i class="fa-solid fa-moon"></i><span>Dinner</span></span>
+                              <p class="text-slate-300" x-text="selectedEnrolledInstitution.hostel.mess.dinner"></p>
+                            </div>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </template>
+                </div>
+
+                <!-- ======================================================== -->
+                <!-- MODULE 9: ADMINISTRATION (DOCUMENTS, GRIEVANCES, ETC)    -->
+                <!-- ======================================================== -->
+                <div x-show="institutionActiveSection === 'administration'" class="space-y-6">
+                  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                    <!-- Official Officials & Helpdesk -->
+                    <div class="glass-card p-6 space-y-4">
+                      <h4 class="font-bold text-base text-white border-b border-slate-800 pb-3 flex items-center space-x-2">
+                        <i class="fa-solid fa-users-gear text-purple-400"></i>
+                        <span>Institutional Officials</span>
+                      </h4>
+                      <template x-if="selectedEnrolledInstitution && selectedEnrolledInstitution.administration">
+                        <div class="space-y-3 text-xs">
+                          <template x-for="off in selectedEnrolledInstitution.administration.officials" :key="off.designation">
+                            <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
+                              <span class="text-[10px] font-bold text-purple-400 uppercase tracking-wider block" x-text="off.designation"></span>
+                              <strong class="text-sm text-white block mt-0.5" x-text="off.name"></strong>
+                              <span class="text-slate-400 font-mono text-[11px]" x-text="off.email"></span>
+                            </div>
+                          </template>
+                        </div>
+                      </template>
+                    </div>
+
+                    <!-- Document Request & Status -->
+                    <div class="glass-card p-6 space-y-4">
+                      <h4 class="font-bold text-base text-white border-b border-slate-800 pb-3 flex items-center space-x-2">
+                        <i class="fa-solid fa-file-signature text-blue-400"></i>
+                        <span>Request Official Documents</span>
+                      </h4>
+                      <div class="space-y-3 text-xs">
+                        <div>
+                          <label class="block text-slate-400 mb-1">Document Type:</label>
+                          <select x-model="docForm.document_type" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
+                            <option value="Bonafide Certificate">Bonafide Certificate (Passport / Bank / Bus Pass)</option>
+                            <option value="Official Academic Transcripts">Official Transcripts (Semesters 1-5)</option>
+                            <option value="Character Certificate">Character & Conduct Certificate</option>
+                            <option value="Medium of Instruction Certificate">Medium of Instruction (English)</option>
+                            <option value="Recommendation Letter (LOR)">Letter of Recommendation (Academic / Master's)</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label class="block text-slate-400 mb-1">Purpose of Request:</label>
+                          <input type="text" x-model="docForm.purpose" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
+                        </div>
+                        <button @click="submitDocumentRequest()" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold text-white transition text-xs shadow-lg shadow-blue-600/20">
+                          Submit Document Request
+                        </button>
+
+                        <div class="pt-3 border-t border-slate-800 space-y-2">
+                          <span class="text-[11px] font-bold text-slate-400 block">Current Documentation Status:</span>
+                          <div class="space-y-1 text-[11px] text-slate-300">
+                            <div class="flex justify-between"><span>Campus ID Card:</span><span class="text-emerald-400 font-bold">ACTIVE</span></div>
+                            <div class="flex justify-between"><span>Bonafide Certificate:</span><span class="text-emerald-400 font-bold">READY</span></div>
+                            <div class="flex justify-between"><span>Migration Record:</span><span class="text-emerald-400 font-bold">VERIFIED</span></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Grievance & Helpdesk Ticket -->
+                    <div class="glass-card p-6 space-y-4">
+                      <h4 class="font-bold text-base text-white border-b border-slate-800 pb-3 flex items-center space-x-2">
+                        <i class="fa-solid fa-headset text-rose-400"></i>
+                        <span>Grievance & Help Desk</span>
+                      </h4>
+                      <div class="space-y-3 text-xs">
+                        <div>
+                          <label class="block text-slate-400 mb-1">Grievance Category:</label>
+                          <select x-model="grievanceForm.category" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
+                            <option value="Academic">Academic / Grading / Syllabus</option>
+                            <option value="Administrative">Administrative / Fee / ID Card</option>
+                            <option value="Hostel & Mess">Hostel & Mess Services</option>
+                            <option value="IT Infrastructure">IT, Wi-Fi & Computing Labs</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label class="block text-slate-400 mb-1">Subject:</label>
+                          <input type="text" x-model="grievanceForm.subject" placeholder="Summary of issue" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
+                        </div>
+                        <div>
+                          <label class="block text-slate-400 mb-1">Details:</label>
+                          <textarea x-model="grievanceForm.description" rows="2" placeholder="Explain your grievance..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-slate-200"></textarea>
+                        </div>
+                        <button @click="submitGrievanceTicket()" class="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 font-bold text-white transition text-xs shadow-lg shadow-rose-600/20">
+                          File Grievance Ticket
+                        </button>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <!-- ======================================================== -->
+                <!-- MODULE 10: LIBRARY                                       -->
+                <!-- ======================================================== -->
+                <div x-show="institutionActiveSection === 'library'" class="space-y-6">
+                  <div class="glass-card p-6 space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                      <div>
+                        <h3 class="font-bold text-lg text-white"><i class="fa-solid fa-book-bookmark text-emerald-400 mr-2"></i> Central Library & Digital Book Vault</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Membership card, currently borrowed textbooks, due dates, and RFID turnstile attendance.</p>
+                      </div>
+                      <span class="text-xs px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-mono font-bold">Overdue Fine: ₹0.00</span>
+                    </div>
+
+                    <template x-if="selectedEnrolledInstitution && selectedEnrolledInstitution.library">
+                      <div class="space-y-6">
+                        <!-- Issued Books List -->
+                        <div class="space-y-3">
+                          <h4 class="font-bold text-sm text-white">Currently Borrowed Books:</h4>
+                          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <template x-for="bk in selectedEnrolledInstitution.library.issued_books" :key="bk.accession_no">
+                              <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex items-start justify-between gap-3">
+                                <div class="space-y-1">
+                                  <span class="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20" x-text="bk.accession_no"></span>
+                                  <h5 class="font-bold text-sm text-white mt-1" x-text="bk.title"></h5>
+                                  <p class="text-xs text-slate-400" x-text="'Author: ' + bk.author"></p>
+                                  <p class="text-xs text-amber-300 font-mono" x-text="'Return Due Date: ' + bk.due_date"></p>
+                                </div>
+                                <button @click="renewLibraryBook(bk.accession_no)" class="btn-secondary px-3 py-1.5 rounded-lg text-xs whitespace-nowrap self-center">
+                                  <i class="fa-solid fa-rotate mr-1"></i> Renew 30 Days
+                                </button>
+                              </div>
+                            </template>
+                          </div>
+                        </div>
+
+                        <!-- Library RFID Attendance Log -->
+                        <div class="pt-4 border-t border-slate-800 space-y-3">
+                          <h4 class="font-bold text-sm text-white">Recent Library Turnstile Entry Logs:</h4>
+                          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs font-mono">
+                            <template x-for="att in selectedEnrolledInstitution.library.attendance">
+                              <div class="p-3 rounded-lg bg-slate-900/60 border border-slate-800 flex justify-between items-center text-slate-300">
+                                <span><i class="fa-solid fa-barcode text-blue-400 mr-2"></i> Date: <strong class="text-white" x-text="att.date"></strong></span>
+                                <span class="text-slate-400" x-text="att.entry_time + ' - ' + att.exit_time"></span>
+                                <span class="text-emerald-400" x-text="att.gate"></span>
+                              </div>
+                            </template>
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+
+                <!-- ======================================================== -->
+                <!-- MODULE 11: OTHER SERVICES (TRANSPORT, MAP, PASS, NOTICE) -->
+                <!-- ======================================================== -->
+                <div x-show="institutionActiveSection === 'services'" class="space-y-6">
+                  <template x-if="selectedEnrolledInstitution && selectedEnrolledInstitution.other_services">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                      <!-- Transport Service Card -->
+                      <div class="glass-card p-6 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                          <h4 class="font-bold text-sm text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-van-shuttle text-amber-400"></i>
+                            <span>Campus Transport & Bus Pass</span>
+                          </h4>
+                          <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-mono font-bold">ACTIVE PASS</span>
+                        </div>
+                        <div class="space-y-2 text-xs text-slate-300">
+                          <div class="flex justify-between"><span class="text-slate-400">Bus Route:</span><strong class="text-white" x-text="selectedEnrolledInstitution.other_services.transport.route_no"></strong></div>
+                          <div class="flex justify-between"><span class="text-slate-400">Pickup Stop:</span><span class="text-slate-200" x-text="selectedEnrolledInstitution.other_services.transport.pickup_stop"></span></div>
+                          <div class="flex justify-between"><span class="text-slate-400">Bus Number:</span><span class="font-mono text-amber-300" x-text="selectedEnrolledInstitution.other_services.transport.bus_number"></span></div>
+                          <div class="flex justify-between"><span class="text-slate-400">Driver Contact:</span><span class="text-blue-300 font-mono" x-text="selectedEnrolledInstitution.other_services.transport.driver_mobile"></span></div>
+                          <div class="pt-2 text-center bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                            <i class="fa-solid fa-qrcode text-3xl text-emerald-400 my-1"></i>
+                            <span class="block text-[10px] font-mono text-slate-400" x-text="selectedEnrolledInstitution.other_services.transport.qr_pass_code"></span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Sibling Information -->
+                      <div class="glass-card p-6 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                          <h4 class="font-bold text-sm text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-children text-purple-400"></i>
+                            <span>Linked Siblings</span>
+                          </h4>
+                          <span class="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded font-mono font-bold">FAMILY LINK</span>
+                        </div>
+                        <template x-for="sib in selectedEnrolledInstitution.other_services.siblings">
+                          <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs space-y-1.5">
+                            <div class="flex justify-between"><strong class="text-white font-bold" x-text="sib.name"></strong><span class="text-purple-300" x-text="sib.relationship"></span></div>
+                            <p class="text-slate-400 text-[11px]" x-text="'Enrolled: ' + sib.enrolled_in + ' (' + sib.class_or_program + ')'"></p>
+                            <span class="inline-block text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded" x-text="sib.concession_status"></span>
+                          </div>
+                        </template>
+                      </div>
+
+                      <!-- Campus Notices -->
+                      <div class="glass-card p-6 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                          <h4 class="font-bold text-sm text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-bullhorn text-rose-400"></i>
+                            <span>Official Notice Board</span>
+                          </h4>
+                        </div>
+                        <div class="space-y-2.5 text-xs">
+                          <template x-for="nt in selectedEnrolledInstitution.other_services.notices">
+                            <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+                              <div class="flex justify-between items-center">
+                                <span class="text-[10px] font-mono text-slate-400" x-text="nt.date"></span>
+                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded" :class="nt.priority === 'HIGH' ? 'bg-red-500/20 text-red-300' : 'bg-slate-700 text-slate-300'" x-text="nt.priority"></span>
+                              </div>
+                              <p class="text-slate-200 font-semibold text-xs leading-snug" x-text="nt.title"></p>
+                            </div>
+                          </template>
+                        </div>
+                      </div>
+
+                    </div>
+                  </template>
+                </div>
+
+                <!-- ======================================================== -->
+                <!-- MODULE 12: TEMPLATE SPECIFICATION & DEVELOPER MODE VIEW   -->
+                <!-- ======================================================== -->
+                <div x-show="institutionActiveSection === 'template_spec'" class="space-y-6">
+                  <!-- Template Header Info Card -->
+                  <div class="glass-card p-6 border-l-4 border-purple-500 bg-gradient-to-r from-purple-950/40 via-slate-900 to-slate-900 space-y-4">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                      <div class="flex items-center space-x-4">
+                        <div class="w-14 h-14 rounded-2xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400 text-2xl">
+                          <i class="fa-solid fa-code"></i>
+                        </div>
+                        <div>
+                          <div class="flex items-center space-x-2">
+                            <span class="text-xs font-mono px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold" x-text="'Institution Type: ' + (selectedEnrolledInstitution.institution ? selectedEnrolledInstitution.institution.type : 'College')"></span>
+                            <span class="text-xs font-mono font-bold px-2 py-0.5 rounded" :class="selectedEnrolledInstitution.developer_mode_enabled ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-400 bg-slate-800'" x-text="selectedEnrolledInstitution.developer_mode_enabled ? '✓ Developer Mode ACTIVE' : 'Standard Preset Active'"></span>
+                          </div>
+                          <h3 class="text-xl font-bold text-white mt-1" x-text="selectedEnrolledInstitution.template ? selectedEnrolledInstitution.template.template_name : 'Standard Institution Template'"></h3>
+                          <p class="text-xs text-slate-400 mt-0.5" x-text="selectedEnrolledInstitution.template ? selectedEnrolledInstitution.template.description : 'Standard academic and operational schema.'"></p>
+                        </div>
+                      </div>
+                      <div class="flex items-center space-x-3">
+                        <button @click="activeTab = 'developer_templates'; selectDevInstitutionType(selectedEnrolledInstitution.institution ? selectedEnrolledInstitution.institution.type : 'College')" class="btn-primary px-4 py-2.5 rounded-xl text-xs flex items-center space-x-2 bg-purple-600 hover:bg-purple-500 border-purple-500">
+                          <i class="fa-solid fa-sliders"></i>
+                          <span>Open in Developer Studio</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Dynamic Template Modules & Highlights -->
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Active Modules -->
+                    <div class="glass-card p-6 space-y-4">
+                      <h4 class="font-bold text-sm text-white flex items-center space-x-2 border-b border-slate-800 pb-3">
+                        <i class="fa-solid fa-cubes text-purple-400"></i>
+                        <span>Active Template Features</span>
+                      </h4>
+                      <div class="space-y-2 text-xs">
+                        <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1.5">
+                          <div class="flex justify-between items-center"><span class="text-slate-400">Target Role Visibility:</span><span class="text-emerald-400 font-mono font-bold">Students, Mentors, Parents</span></div>
+                          <div class="flex justify-between items-center"><span class="text-slate-400">Custom Courses:</span><span class="text-white font-mono font-bold" x-text="(selectedEnrolledInstitution.courses ? selectedEnrolledInstitution.courses.length : 0) + ' Registered'"></span></div>
+                          <div class="flex justify-between items-center"><span class="text-slate-400">Timetable Days:</span><span class="text-white font-mono font-bold" x-text="(selectedEnrolledInstitution.timetable ? selectedEnrolledInstitution.timetable.length : 0) + ' Days Active'"></span></div>
+                          <div class="flex justify-between items-center"><span class="text-slate-400">Dynamic Documents:</span><span class="text-white font-mono font-bold" x-text="(selectedEnrolledInstitution.documents ? selectedEnrolledInstitution.documents.length : 0) + ' Types'"></span></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Template Branding & Meta -->
+                    <div class="glass-card p-6 space-y-4">
+                      <h4 class="font-bold text-sm text-white flex items-center space-x-2 border-b border-slate-800 pb-3">
+                        <i class="fa-solid fa-palette text-blue-400"></i>
+                        <span>Branding & Appearance</span>
+                      </h4>
+                      <div class="space-y-3 text-xs">
+                        <div class="flex justify-between items-center">
+                          <span class="text-slate-400">Badge Text:</span>
+                          <span class="font-bold text-white px-2 py-0.5 rounded bg-slate-800" x-text="selectedEnrolledInstitution.template && selectedEnrolledInstitution.template.theme_config ? selectedEnrolledInstitution.template.theme_config.badge : 'Verified Institution'"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                          <span class="text-slate-400">Accent Color:</span>
+                          <div class="flex items-center space-x-2">
+                            <span class="font-mono text-purple-300 font-bold uppercase" x-text="selectedEnrolledInstitution.template && selectedEnrolledInstitution.template.theme_config ? selectedEnrolledInstitution.template.theme_config.accent_color : 'blue'"></span>
+                          </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                          <span class="text-slate-400">Template Version:</span>
+                          <span class="font-mono text-purple-300" x-text="selectedEnrolledInstitution.template ? 'v' + selectedEnrolledInstitution.template.version : 'v1.0.0'"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                          <span class="text-slate-400">Role View Title:</span>
+                          <span class="text-slate-200" x-text="selectedEnrolledInstitution.institution ? selectedEnrolledInstitution.institution.program : 'Active Member'"></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Template Financial / Stipend Model -->
+                    <div class="glass-card p-6 space-y-4">
+                      <h4 class="font-bold text-sm text-white flex items-center space-x-2 border-b border-slate-800 pb-3">
+                        <i class="fa-solid fa-coins text-amber-400"></i>
+                        <span>Financial Model Status</span>
+                      </h4>
+                      <div class="space-y-3 text-xs">
+                        <template x-if="selectedEnrolledInstitution.fee && selectedEnrolledInstitution.fee.stipend">
+                          <div class="space-y-2">
+                            <div class="flex justify-between items-center"><span class="text-slate-400">Model Type:</span><span class="text-amber-300 font-bold">Fellowship Stipend</span></div>
+                            <div class="flex justify-between items-center"><span class="text-slate-400">Monthly Compensation:</span><span class="text-amber-400 font-mono font-bold" x-text="'₹' + selectedEnrolledInstitution.fee.stipend.monthly_amount.toLocaleString()"></span></div>
+                            <div class="flex justify-between items-center"><span class="text-slate-400">Bonus:</span><span class="text-slate-200" x-text="selectedEnrolledInstitution.fee.stipend.performance_bonus"></span></div>
+                          </div>
+                        </template>
+                        <template x-if="selectedEnrolledInstitution.fee && selectedEnrolledInstitution.fee.grant">
+                          <div class="space-y-2">
+                            <div class="flex justify-between items-center"><span class="text-slate-400">Model Type:</span><span class="text-rose-300 font-bold">DST Seed Incubator Grant</span></div>
+                            <div class="flex justify-between items-center"><span class="text-slate-400">Awarded Amount:</span><span class="text-rose-400 font-mono font-bold" x-text="'₹' + selectedEnrolledInstitution.fee.grant.seed_grant_amount.toLocaleString()"></span></div>
+                            <div class="flex justify-between items-center"><span class="text-slate-400">Cloud Credits:</span><span class="text-slate-200" x-text="selectedEnrolledInstitution.fee.grant.cloud_credits"></span></div>
+                          </div>
+                        </template>
+                        <template x-if="selectedEnrolledInstitution.fee && !selectedEnrolledInstitution.fee.stipend && !selectedEnrolledInstitution.fee.grant">
+                          <div class="space-y-2">
+                            <div class="flex justify-between items-center"><span class="text-slate-400">Model Type:</span><span class="text-emerald-300 font-bold">Standard Academic Tuition Fee</span></div>
+                            <div class="flex justify-between items-center"><span class="text-slate-400">Annual Package:</span><span class="text-emerald-400 font-mono font-bold" x-text="'₹' + (selectedEnrolledInstitution.fee.structure ? selectedEnrolledInstitution.fee.structure.total_billed.toLocaleString() : '0')"></span></div>
+                            <div class="flex justify-between items-center"><span class="text-slate-400">Outstanding:</span><span class="text-amber-400 font-mono font-bold" x-text="'₹' + (selectedEnrolledInstitution.fee.dues ? selectedEnrolledInstitution.fee.dues.total_due.toLocaleString() : '0')"></span></div>
+                          </div>
+                        </template>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Raw Template JSON Viewer -->
+                  <div class="glass-card p-6 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                      <h4 class="font-bold text-sm text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-file-code text-emerald-400"></i>
+                        <span>Live Template Specification JSON</span>
+                      </h4>
+                      <span class="text-[10px] font-mono text-slate-400">Active Schema Rendered for this Role</span>
+                    </div>
+                    <pre class="p-4 bg-slate-950 rounded-xl border border-slate-800 text-xs font-mono text-emerald-300 overflow-x-auto max-h-96" x-text="JSON.stringify(selectedEnrolledInstitution.template || { message: 'Using standard preset' }, null, 2)"></pre>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- MODAL: LINK / ENROLL NEW INSTITUTION -->
+            <div x-show="showEnrollNewModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+              <div @click.away="showEnrollNewModal = false" class="glass-card p-6 w-full max-w-md space-y-4 border border-slate-700 shadow-2xl">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h3 class="font-bold text-base text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-school-flag text-emerald-400"></i>
+                    <span>Link New School or College</span>
+                  </h3>
+                  <button @click="showEnrollNewModal = false" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <div class="space-y-3 text-xs">
+                  <div>
+                    <label class="block text-slate-400 mb-1">Institution Name:</label>
+                    <input type="text" x-model="newEnrollmentForm.name" placeholder="e.g. Modern School, Barakhamba / IIT Delhi" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                  </div>
+                  <div>
+                    <label class="block text-slate-400 mb-1">Institution Type:</label>
+                    <select x-model="newEnrollmentForm.type" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
+                      <option value="School">School</option>
+                      <option value="College">College</option>
+                      <option value="University">University</option>
+                      <option value="Company">Company</option>
+                      <option value="Start-up">Start-up</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-slate-400 mb-1">Affiliation / Board:</label>
+                    <input type="text" x-model="newEnrollmentForm.affiliation" placeholder="e.g. CBSE / State Board / UGC" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                  </div>
+                  <div>
+                    <label class="block text-slate-400 mb-1">Program / Degree / Class:</label>
+                    <input type="text" x-model="newEnrollmentForm.program" placeholder="e.g. Class XII Science / B.Tech / Diploma" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                  </div>
+                  <div>
+                    <label class="block text-slate-400 mb-1">Roll / Student ID Number:</label>
+                    <input type="text" x-model="newEnrollmentForm.roll_no" placeholder="e.g. SCH-2022-8812" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono">
+                  </div>
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-3 border-t border-slate-800">
+                  <button @click="showEnrollNewModal = false" class="btn-secondary px-4 py-2 rounded-xl text-xs">Cancel</button>
+                  <button @click="enrollNewInstitution()" class="btn-primary px-4 py-2 rounded-xl text-xs">Save & Link Institution</button>
+                </div>
+              </div>
             </div>
 
             <!-- Tab 1: AI Guidance RAG -->
@@ -1659,6 +2877,483 @@
             </div>
           </div>
         </template>
+        <!-- ========================================================================= -->
+        <!-- SHARED TAB: INSTITUTION DEVELOPER MODE & CUSTOM TEMPLATE STUDIO           -->
+        <!-- Supported Types: School, College, University, Company, Start-up           -->
+        <!-- ========================================================================= -->
+        <div x-show="activeTab === 'developer_templates'" class="space-y-6">
+
+          <!-- Studio Header & Master Dev Mode Switch -->
+          <div class="glass-card p-6 border-l-4 border-purple-500 bg-gradient-to-r from-purple-950/40 via-slate-900 to-slate-900 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xl">
+            <div class="space-y-1">
+              <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/30 text-xs font-semibold uppercase tracking-wider mb-1">
+                <i class="fa-solid fa-code"></i>
+                <span>Institutional Extensibility Studio</span>
+              </div>
+              <h2 class="text-2xl font-bold text-white flex items-center space-x-3">
+                <span>Developer Mode & Custom Templates</span>
+                <span class="text-xs px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono font-semibold" x-text="activeDevInstitutionType"></span>
+              </h2>
+              <p class="text-xs text-slate-300 max-w-2xl leading-relaxed">
+                Empowers each institution type (School, College, University, Company, Start-up) to enable Developer Mode and author custom curriculum, timetable schedules, and financial/stipend blueprints. Customizations are dynamically compiled and rendered live to students, faculty mentors, and parents.
+              </p>
+            </div>
+
+            <!-- Master Developer Mode Toggle Button -->
+            <div class="flex flex-col sm:flex-row items-end sm:items-center gap-3">
+              <div class="bg-slate-950/80 p-2.5 rounded-2xl border border-slate-800 flex items-center space-x-3 shadow-inner">
+                <div class="text-right">
+                  <span class="block text-[10px] uppercase font-mono text-slate-400">Developer Mode</span>
+                  <span class="text-xs font-bold" :class="devModeActive ? 'text-emerald-400' : 'text-slate-400'" x-text="devModeActive ? 'ENABLED (Custom Active)' : 'DISABLED (Default Preset)'"></span>
+                </div>
+                <button @click="toggleDevMode(!devModeActive)" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 shadow-lg" :class="devModeActive ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30' : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'">
+                  <i class="fa-solid" :class="devModeActive ? 'fa-toggle-on text-base' : 'fa-toggle-off text-base'"></i>
+                  <span x-text="devModeActive ? 'Dev Mode ON' : 'Dev Mode OFF'"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alert Toast Message -->
+          <template x-if="devSaveAlert">
+            <div class="p-4 rounded-xl border flex items-center justify-between transition-all duration-300 text-xs" :class="devSaveAlert.type === 'success' ? 'bg-emerald-950/50 border-emerald-500/40 text-emerald-200' : 'bg-rose-950/50 border-rose-500/40 text-rose-200'">
+              <div class="flex items-center space-x-2">
+                <i class="fa-solid" :class="devSaveAlert.type === 'success' ? 'fa-circle-check text-emerald-400' : 'fa-circle-exclamation text-rose-400'"></i>
+                <span class="font-medium" x-text="devSaveAlert.message"></span>
+              </div>
+              <button @click="devSaveAlert = null" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+          </template>
+
+          <!-- 5 Canonical Institution Type Switcher Tabs -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            <!-- 1. School -->
+            <button @click="selectDevInstitutionType('School')" :class="activeDevInstitutionType === 'School' ? 'bg-emerald-600/20 border-emerald-500 text-white ring-2 ring-emerald-500/30 shadow-lg shadow-emerald-600/10' : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:bg-slate-800/80 hover:text-slate-200'" class="p-4 rounded-2xl border text-left transition space-y-2 group">
+              <div class="flex items-center justify-between">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg border border-emerald-500/20 group-hover:scale-105 transition">
+                  <i class="fa-solid fa-school"></i>
+                </div>
+                <span class="text-[9px] font-mono px-2 py-0.5 rounded-full" :class="activeDevInstitutionType === 'School' ? 'bg-emerald-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-400'">K-12</span>
+              </div>
+              <div>
+                <h4 class="font-bold text-sm text-white">School</h4>
+                <p class="text-[11px] text-slate-400">CBSE / ICSE / Senior Secondary</p>
+              </div>
+            </button>
+
+            <!-- 2. College -->
+            <button @click="selectDevInstitutionType('College')" :class="activeDevInstitutionType === 'College' ? 'bg-blue-600/20 border-blue-500 text-white ring-2 ring-blue-500/30 shadow-lg shadow-blue-600/10' : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:bg-slate-800/80 hover:text-slate-200'" class="p-4 rounded-2xl border text-left transition space-y-2 group">
+              <div class="flex items-center justify-between">
+                <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-lg border border-blue-500/20 group-hover:scale-105 transition">
+                  <i class="fa-solid fa-building-columns"></i>
+                </div>
+                <span class="text-[9px] font-mono px-2 py-0.5 rounded-full" :class="activeDevInstitutionType === 'College' ? 'bg-blue-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-400'">UG/Tech</span>
+              </div>
+              <div>
+                <h4 class="font-bold text-sm text-white">College</h4>
+                <p class="text-[11px] text-slate-400">Autonomous Engineering & B.Tech</p>
+              </div>
+            </button>
+
+            <!-- 3. University -->
+            <button @click="selectDevInstitutionType('University')" :class="activeDevInstitutionType === 'University' ? 'bg-indigo-600/20 border-indigo-500 text-white ring-2 ring-indigo-500/30 shadow-lg shadow-indigo-600/10' : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:bg-slate-800/80 hover:text-slate-200'" class="p-4 rounded-2xl border text-left transition space-y-2 group">
+              <div class="flex items-center justify-between">
+                <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-lg border border-indigo-500/20 group-hover:scale-105 transition">
+                  <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <span class="text-[9px] font-mono px-2 py-0.5 rounded-full" :class="activeDevInstitutionType === 'University' ? 'bg-indigo-500 text-white font-bold' : 'bg-slate-800 text-slate-400'">PG/Ph.D.</span>
+              </div>
+              <div>
+                <h4 class="font-bold text-sm text-white">University</h4>
+                <p class="text-[11px] text-slate-400">Postgraduate & Doctoral Research</p>
+              </div>
+            </button>
+
+            <!-- 4. Company -->
+            <button @click="selectDevInstitutionType('Company')" :class="activeDevInstitutionType === 'Company' ? 'bg-amber-600/20 border-amber-500 text-white ring-2 ring-amber-500/30 shadow-lg shadow-amber-600/10' : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:bg-slate-800/80 hover:text-slate-200'" class="p-4 rounded-2xl border text-left transition space-y-2 group">
+              <div class="flex items-center justify-between">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-lg border border-amber-500/20 group-hover:scale-105 transition">
+                  <i class="fa-solid fa-building"></i>
+                </div>
+                <span class="text-[9px] font-mono px-2 py-0.5 rounded-full" :class="activeDevInstitutionType === 'Company' ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-400'">Corporate</span>
+              </div>
+              <div>
+                <h4 class="font-bold text-sm text-white">Company</h4>
+                <p class="text-[11px] text-slate-400">Apprenticeship & Paid Fellowships</p>
+              </div>
+            </button>
+
+            <!-- 5. Start-up -->
+            <button @click="selectDevInstitutionType('Start-up')" :class="activeDevInstitutionType === 'Start-up' ? 'bg-rose-600/20 border-rose-500 text-white ring-2 ring-rose-500/30 shadow-lg shadow-rose-600/10' : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:bg-slate-800/80 hover:text-slate-200'" class="p-4 rounded-2xl border text-left transition space-y-2 group">
+              <div class="flex items-center justify-between">
+                <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-lg border border-rose-500/20 group-hover:scale-105 transition">
+                  <i class="fa-solid fa-rocket"></i>
+                </div>
+                <span class="text-[9px] font-mono px-2 py-0.5 rounded-full" :class="activeDevInstitutionType === 'Start-up' ? 'bg-rose-500 text-white font-bold' : 'bg-slate-800 text-slate-400'">Seed/Grant</span>
+              </div>
+              <div>
+                <h4 class="font-bold text-sm text-white">Start-up</h4>
+                <p class="text-[11px] text-slate-400">DeepTech Incubator & Venture Lab</p>
+              </div>
+            </button>
+          </div>
+
+          <!-- Studio Toolbar: Format Switcher & Actions -->
+          <div class="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/90 border border-slate-800">
+            <div class="flex items-center space-x-2">
+              <span class="text-xs text-slate-400 mr-1 font-medium">Editor Format:</span>
+              <button @click="devEditFormat = 'visual'; syncVisualFromDevJson()" :class="devEditFormat === 'visual' ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30' : 'bg-slate-800 text-slate-400 hover:text-white'" class="px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5">
+                <i class="fa-solid fa-table-cells"></i>
+                <span>Visual Builder</span>
+              </button>
+              <button @click="devEditFormat = 'json'; syncDevJsonFromVisual()" :class="devEditFormat === 'json' ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30' : 'bg-slate-800 text-slate-400 hover:text-white'" class="px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5">
+                <i class="fa-solid fa-code"></i>
+                <span>Raw JSON Schema</span>
+              </button>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              <button @click="resetDeveloperTemplate()" class="px-3.5 py-2 rounded-xl text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition flex items-center space-x-1.5 border border-slate-700">
+                <i class="fa-solid fa-rotate-left"></i>
+                <span>Reset to Standard Preset</span>
+              </button>
+              <button @click="saveDeveloperTemplate()" :disabled="devSaving" class="btn-primary px-5 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 bg-purple-600 hover:bg-purple-500 border-purple-500 shadow-lg shadow-purple-600/30 cursor-pointer">
+                <i class="fa-solid" :class="devSaving ? 'fa-spinner fa-spin' : 'fa-cloud-arrow-up'"></i>
+                <span x-text="devSaving ? 'Publishing...' : 'Save & Publish Live Template'"></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Split Workspace: Left Side Editor, Right Side Live Role Simulator -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- ============================================================= -->
+            <!-- LEFT COLUMN: TEMPLATE EDITOR (VISUAL OR JSON)                 -->
+            <!-- ============================================================= -->
+            <div class="lg:col-span-7 space-y-6">
+
+              <!-- FORMAT 1: VISUAL BUILDER -->
+              <div x-show="devEditFormat === 'visual'" class="space-y-6">
+
+                <!-- 1. General & Branding Identity -->
+                <div class="glass-card p-6 space-y-4">
+                  <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="font-bold text-sm text-white flex items-center space-x-2">
+                      <i class="fa-solid fa-palette text-purple-400"></i>
+                      <span>Template Identity & Branding</span>
+                    </h3>
+                    <span class="text-[10px] font-mono text-slate-400" x-text="'Type: ' + activeDevInstitutionType"></span>
+                  </div>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <div>
+                      <label class="block text-slate-400 mb-1">Template Title:</label>
+                      <input type="text" x-model="currentDevTemplate.template_name" @input="syncDevJsonFromVisual()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                    </div>
+                    <div>
+                      <label class="block text-slate-400 mb-1">Version String:</label>
+                      <input type="text" x-model="currentDevTemplate.version" @input="syncDevJsonFromVisual()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono">
+                    </div>
+                    <div>
+                      <label class="block text-slate-400 mb-1">Badge Label (Shown on Cards):</label>
+                      <input type="text" x-model="currentDevTemplate.badge" @input="syncDevJsonFromVisual()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                    </div>
+                    <div>
+                      <label class="block text-slate-400 mb-1">Theme Accent Color:</label>
+                      <select x-model="currentDevTemplate.accent_color" @change="syncDevJsonFromVisual()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
+                        <option value="emerald">Emerald Green (School / Sustainability)</option>
+                        <option value="blue">Sapphire Blue (College / Tech)</option>
+                        <option value="indigo">Deep Indigo (University / Academic)</option>
+                        <option value="amber">Warm Amber (Corporate / Enterprise)</option>
+                        <option value="rose">Vibrant Rose (Start-up / Incubator)</option>
+                        <option value="purple">Royal Purple (Custom Studio)</option>
+                      </select>
+                    </div>
+                    <div class="sm:col-span-2">
+                      <label class="block text-slate-400 mb-1">Program / Degree / Track Name:</label>
+                      <input type="text" x-model="currentDevTemplate.program" @input="syncDevJsonFromVisual()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                    </div>
+                    <div class="sm:col-span-2">
+                      <label class="block text-slate-400 mb-1">Department / Stream / Cohort:</label>
+                      <input type="text" x-model="currentDevTemplate.department" @input="syncDevJsonFromVisual()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                    </div>
+                    <div class="sm:col-span-2">
+                      <label class="block text-slate-400 mb-1">Institutional Notice / Banner Announcement:</label>
+                      <textarea x-model="currentDevTemplate.banner_notice" @input="syncDevJsonFromVisual()" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white resize-none"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 2. Custom Courses / Subjects Builder -->
+                <div class="glass-card p-6 space-y-4">
+                  <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div>
+                      <h3 class="font-bold text-sm text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-book-open text-blue-400"></i>
+                        <span>Curriculum Course Builder</span>
+                      </h3>
+                      <p class="text-[11px] text-slate-400">Define course codes, credits, and faculty seen by students.</p>
+                    </div>
+                    <button @click="addDevCourse()" class="px-3 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 text-xs font-semibold flex items-center space-x-1.5 transition">
+                      <i class="fa-solid fa-plus text-xs"></i>
+                      <span>Add Course</span>
+                    </button>
+                  </div>
+
+                  <div class="space-y-3">
+                    <template x-for="(crs, cIdx) in (currentDevTemplate.courses || [])" :key="cIdx">
+                      <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2 text-xs">
+                        <div class="flex items-center justify-between gap-2">
+                          <span class="text-[10px] font-mono text-purple-400 font-bold" x-text="'Course #' + (cIdx + 1)"></span>
+                          <button @click="removeDevCourse(cIdx)" class="text-rose-400 hover:text-rose-300 text-xs"><i class="fa-solid fa-trash-can mr-1"></i>Delete</button>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                          <div>
+                            <label class="block text-[10px] text-slate-400">Code:</label>
+                            <input type="text" x-model="crs.course_code" @input="syncDevJsonFromVisual()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-white font-mono">
+                          </div>
+                          <div class="sm:col-span-2">
+                            <label class="block text-[10px] text-slate-400">Course / Module Title:</label>
+                            <input type="text" x-model="crs.course_name" @input="syncDevJsonFromVisual()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-white font-semibold">
+                          </div>
+                          <div>
+                            <label class="block text-[10px] text-slate-400">Credits / Units:</label>
+                            <input type="number" x-model.number="crs.credits" @input="syncDevJsonFromVisual()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-white">
+                          </div>
+                          <div>
+                            <label class="block text-[10px] text-slate-400">Instructor / Lead:</label>
+                            <input type="text" x-model="crs.instructor" @input="syncDevJsonFromVisual()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-slate-300">
+                          </div>
+                          <div>
+                            <label class="block text-[10px] text-slate-400">Attendance %:</label>
+                            <input type="number" step="0.5" x-model.number="crs.attendance_percentage" @input="syncDevJsonFromVisual()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-emerald-400 font-mono font-bold">
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+
+                <!-- 3. Financial & Stipend Compensation Model -->
+                <div class="glass-card p-6 space-y-4">
+                  <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="font-bold text-sm text-white flex items-center space-x-2">
+                      <i class="fa-solid fa-coins text-amber-400"></i>
+                      <span>Financial & Stipend Structure</span>
+                    </h3>
+                    <span class="text-[10px] font-mono text-amber-300" x-text="currentDevTemplate.financial_label || 'Financial Model'"></span>
+                  </div>
+
+                  <div class="space-y-4 text-xs">
+                    <div>
+                      <label class="block text-slate-400 mb-1">Financial Module Display Title:</label>
+                      <input type="text" x-model="currentDevTemplate.financial_label" @input="syncDevJsonFromVisual()" placeholder="e.g. Semester Tuition Dues / Monthly Fellowship Stipend" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                    </div>
+
+                    <!-- Dynamic Fields depending on Institution Type -->
+                    <!-- A. School / College / University Fee -->
+                    <template x-if="activeDevInstitutionType === 'School' || activeDevInstitutionType === 'College' || activeDevInstitutionType === 'University'">
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                        <div>
+                          <label class="block text-[11px] text-slate-400 mb-1">Tuition / Academic Fee (₹):</label>
+                          <input type="number" x-model.number="currentDevTemplate.fee_or_stipend.tuition_fee" @input="syncDevJsonFromVisual()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white font-mono">
+                        </div>
+                        <div>
+                          <label class="block text-[11px] text-slate-400 mb-1">Development / Campus Fee (₹):</label>
+                          <input type="number" x-model.number="currentDevTemplate.fee_or_stipend.development_fee" @input="syncDevJsonFromVisual()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white font-mono">
+                        </div>
+                        <div>
+                          <label class="block text-[11px] text-slate-400 mb-1">Laboratory & Exam Fee (₹):</label>
+                          <input type="number" x-model.number="currentDevTemplate.fee_or_stipend.lab_examination_fee" @input="syncDevJsonFromVisual()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white font-mono">
+                        </div>
+                        <div>
+                          <label class="block text-[11px] text-slate-400 mb-1">Outstanding Due Amount (₹):</label>
+                          <input type="number" x-model.number="currentDevTemplate.fee_or_stipend.total_due" @input="syncDevJsonFromVisual()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-amber-400 font-mono font-bold">
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- B. Company Fellowship Stipend -->
+                    <template x-if="activeDevInstitutionType === 'Company'">
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-xl bg-amber-950/20 border border-amber-500/20">
+                        <div>
+                          <label class="block text-[11px] text-amber-300 mb-1">Monthly Stipend (INR ₹):</label>
+                          <input type="number" x-model.number="currentDevTemplate.fee_or_stipend.monthly_stipend" @input="syncDevJsonFromVisual()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-amber-400 font-mono font-bold">
+                        </div>
+                        <div>
+                          <label class="block text-[11px] text-amber-300 mb-1">Performance Bonus Structure:</label>
+                          <input type="text" x-model="currentDevTemplate.fee_or_stipend.performance_bonus" @input="syncDevJsonFromVisual()" placeholder="e.g. ₹25,000 on delivery" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
+                        </div>
+                        <div>
+                          <label class="block text-[11px] text-slate-400 mb-1">Monthly Payout Day:</label>
+                          <input type="text" x-model="currentDevTemplate.fee_or_stipend.payout_day" @input="syncDevJsonFromVisual()" placeholder="e.g. 1st or 28th" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
+                        </div>
+                        <div>
+                          <label class="block text-[11px] text-slate-400 mb-1">Tax / TDS Status:</label>
+                          <input type="text" x-model="currentDevTemplate.fee_or_stipend.tax_status" @input="syncDevJsonFromVisual()" placeholder="e.g. Tax-exempt Fellowship" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- C. Start-up Seed Grant -->
+                    <template x-if="activeDevInstitutionType === 'Start-up'">
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-xl bg-rose-950/20 border border-rose-500/20">
+                        <div>
+                          <label class="block text-[11px] text-rose-300 mb-1">Seed Grant Amount (INR ₹):</label>
+                          <input type="number" x-model.number="currentDevTemplate.fee_or_stipend.seed_grant_amount" @input="syncDevJsonFromVisual()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-rose-400 font-mono font-bold">
+                        </div>
+                        <div>
+                          <label class="block text-[11px] text-rose-300 mb-1">Cloud Infrastructure Credits:</label>
+                          <input type="text" x-model="currentDevTemplate.fee_or_stipend.cloud_credits" @input="syncDevJsonFromVisual()" placeholder="e.g. $10,000 GCP Credits" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
+                        </div>
+                        <div>
+                          <label class="block text-[11px] text-slate-400 mb-1">Equity Dilution:</label>
+                          <input type="text" x-model="currentDevTemplate.fee_or_stipend.equity_dilution" @input="syncDevJsonFromVisual()" placeholder="e.g. 0% Non-Dilutive Grant" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
+                        </div>
+                        <div>
+                          <label class="block text-[11px] text-slate-400 mb-1">Disbursement Schedule:</label>
+                          <input type="text" x-model="currentDevTemplate.fee_or_stipend.disbursement_schedule" @input="syncDevJsonFromVisual()" placeholder="e.g. 3 Milestone Tranches" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- FORMAT 2: RAW JSON SCHEMA EDITOR -->
+              <div x-show="devEditFormat === 'json'" class="glass-card p-6 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div>
+                    <h3 class="font-bold text-sm text-white flex items-center space-x-2">
+                      <i class="fa-solid fa-code text-purple-400"></i>
+                      <span>Raw Template JSON Specification</span>
+                    </h3>
+                    <p class="text-[11px] text-slate-400">Directly modify the blueprint schema or copy it to other institutions.</p>
+                  </div>
+                  <div class="flex space-x-2">
+                    <button @click="syncVisualFromDevJson()" class="px-3 py-1.5 rounded-lg bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/40 text-xs font-semibold">
+                      Validate & Parse
+                    </button>
+                    <button @click="syncDevJsonFromVisual()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs">
+                      Reload from Visual
+                    </button>
+                  </div>
+                </div>
+
+                <textarea x-model="devRawJson" rows="22" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-xs font-mono text-emerald-300 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-y"></textarea>
+              </div>
+
+            </div>
+
+            <!-- ============================================================= -->
+            <!-- RIGHT COLUMN: LIVE ROLE SIMULATOR ("HOW OTHERS SEE THIS")     -->
+            <!-- ============================================================= -->
+            <div class="lg:col-span-5 space-y-6">
+
+              <!-- Role Preview Switcher Card -->
+              <div class="glass-card p-6 space-y-4 border-t-4" :class="activeDevInstitutionType === 'School' ? 'border-emerald-500' : activeDevInstitutionType === 'University' ? 'border-indigo-500' : activeDevInstitutionType === 'Company' ? 'border-amber-500' : activeDevInstitutionType === 'Start-up' ? 'border-rose-500' : 'border-blue-500'">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div>
+                    <h3 class="font-bold text-sm text-white flex items-center space-x-2">
+                      <i class="fa-solid fa-eye text-emerald-400"></i>
+                      <span>Live Role Simulator</span>
+                    </h3>
+                    <p class="text-[11px] text-slate-400">See how this template renders for different stakeholders.</p>
+                  </div>
+                  <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">REAL-TIME</span>
+                </div>
+
+                <!-- Role Selector Tabs -->
+                <div class="grid grid-cols-3 gap-2 text-xs">
+                  <button @click="devRolePreview = 'student'" :class="devRolePreview === 'student' ? 'bg-blue-600 text-white font-bold' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'" class="py-2 rounded-xl transition flex items-center justify-center space-x-1.5">
+                    <i class="fa-solid fa-user-graduate"></i>
+                    <span>Student</span>
+                  </button>
+                  <button @click="devRolePreview = 'faculty'" :class="devRolePreview === 'faculty' ? 'bg-indigo-600 text-white font-bold' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'" class="py-2 rounded-xl transition flex items-center justify-center space-x-1.5">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                    <span>Faculty</span>
+                  </button>
+                  <button @click="devRolePreview = 'parent'" :class="devRolePreview === 'parent' ? 'bg-amber-600 text-white font-bold' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'" class="py-2 rounded-xl transition flex items-center justify-center space-x-1.5">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>Parent</span>
+                  </button>
+                </div>
+
+                <!-- Simulated Institution Card for Selected Role -->
+                <div class="p-5 rounded-2xl bg-slate-950/90 border border-slate-800 space-y-4 shadow-xl">
+                  
+                  <!-- Top Banner in Simulated Card -->
+                  <div class="flex items-start justify-between gap-3">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl" :class="activeDevInstitutionType === 'School' ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/30' : activeDevInstitutionType === 'University' ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30' : activeDevInstitutionType === 'Company' ? 'bg-amber-600/20 text-amber-400 border border-amber-500/30' : activeDevInstitutionType === 'Start-up' ? 'bg-rose-600/20 text-rose-400 border border-rose-500/30' : 'bg-blue-600/20 text-blue-400 border border-blue-500/30'">
+                      <i class="fa-solid" :class="activeDevInstitutionType === 'School' ? 'fa-school' : activeDevInstitutionType === 'University' ? 'fa-graduation-cap' : activeDevInstitutionType === 'Company' ? 'fa-building' : activeDevInstitutionType === 'Start-up' ? 'fa-rocket' : 'fa-building-columns'"></i>
+                    </div>
+                    <div class="text-right">
+                      <span class="inline-block text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full mb-1" :class="activeDevInstitutionType === 'School' ? 'bg-emerald-500/20 text-emerald-300' : activeDevInstitutionType === 'University' ? 'bg-indigo-500/20 text-indigo-300' : activeDevInstitutionType === 'Company' ? 'bg-amber-500/20 text-amber-300' : activeDevInstitutionType === 'Start-up' ? 'bg-rose-500/20 text-rose-300' : 'bg-blue-500/20 text-blue-300'" x-text="currentDevTemplate.badge || activeDevInstitutionType"></span>
+                      <div class="flex items-center justify-end space-x-1">
+                        <span class="text-[9px] font-mono font-bold text-purple-300 bg-purple-500/20 px-1.5 py-0.5 rounded border border-purple-500/30"><i class="fa-solid fa-code mr-1"></i>Dev Custom Template</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Name and Program -->
+                  <div>
+                    <h4 class="text-base font-bold text-white" x-text="currentDevTemplate.template_name"></h4>
+                    <p class="text-xs text-slate-400 mt-0.5" x-text="currentDevTemplate.program + ' • ' + currentDevTemplate.department"></p>
+                  </div>
+
+                  <!-- Role Perspective Banner -->
+                  <div class="p-3 rounded-xl text-xs space-y-1" :class="devRolePreview === 'student' ? 'bg-blue-950/40 border border-blue-500/30 text-blue-200' : devRolePreview === 'faculty' ? 'bg-indigo-950/40 border border-indigo-500/30 text-indigo-200' : 'bg-amber-950/40 border border-amber-500/30 text-amber-200'">
+                    <span class="font-bold flex items-center space-x-1.5">
+                      <i class="fa-solid" :class="devRolePreview === 'student' ? 'fa-graduation-cap' : devRolePreview === 'faculty' ? 'fa-chalkboard-user' : 'fa-user-shield'"></i>
+                      <span x-text="devRolePreview === 'student' ? 'Student View: Enrolled Member' : devRolePreview === 'faculty' ? 'Faculty View: Curriculum & Evaluation' : 'Parent View: Ward Academic Governance'"></span>
+                    </span>
+                    <p class="text-[11px] opacity-80" x-text="devRolePreview === 'student' ? 'Student accesses dynamic coursework, attendance tracking, and stipend/fee status.' : devRolePreview === 'faculty' ? 'Faculty mentor monitors batch lecture hours and academic milestones.' : 'Parent monitors accredited fee transparency and academic compliance.'"></p>
+                  </div>
+
+                  <!-- Live Courses Render -->
+                  <div class="space-y-2 text-xs">
+                    <span class="font-bold text-slate-300 flex items-center justify-between">
+                      <span>Curriculum Subjects (<span x-text="(currentDevTemplate.courses || []).length"></span>)</span>
+                      <span class="text-[10px] text-purple-300 font-mono">Custom Schema</span>
+                    </span>
+                    <div class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                      <template x-for="c in (currentDevTemplate.courses || [])" :key="c.course_code">
+                        <div class="p-2 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between text-[11px]">
+                          <div>
+                            <span class="font-mono text-purple-300 font-bold" x-text="c.course_code"></span>
+                            <span class="text-slate-200 ml-1.5 font-medium truncate inline-block max-w-[140px]" x-text="c.course_name"></span>
+                          </div>
+                          <span class="font-mono font-bold text-emerald-400" x-text="c.attendance_percentage + '%'"></span>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+
+                  <!-- Live Financial / Compensation Card -->
+                  <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1.5 text-xs">
+                    <div class="flex justify-between items-center">
+                      <span class="text-slate-400" x-text="currentDevTemplate.financial_label || 'Financial Model:'"></span>
+                      <span class="font-mono font-bold" :class="activeDevInstitutionType === 'Company' ? 'text-amber-400' : activeDevInstitutionType === 'Start-up' ? 'text-rose-400' : 'text-emerald-400'" x-text="activeDevInstitutionType === 'Company' ? '₹' + (currentDevTemplate.fee_or_stipend.monthly_stipend || 55000).toLocaleString() + ' / month' : activeDevInstitutionType === 'Start-up' ? '₹' + (currentDevTemplate.fee_or_stipend.seed_grant_amount || 500000).toLocaleString() + ' (Grant)' : '₹' + ((currentDevTemplate.fee_or_stipend.tuition_fee || 0) + (currentDevTemplate.fee_or_stipend.development_fee || 0)).toLocaleString() + ' (Total)'"></span>
+                    </div>
+                    <p class="text-[10px] text-slate-400" x-text="activeDevInstitutionType === 'Company' ? 'Disbursed directly into student stipend account on ' + (currentDevTemplate.fee_or_stipend.payout_day || '28th') : activeDevInstitutionType === 'Start-up' ? 'NIDHI-EIR Incubation fellowship with ' + (currentDevTemplate.fee_or_stipend.cloud_credits || '$10k Cloud Credits') : 'Audited and verified under National Academic Depository (NAD).'"></p>
+                  </div>
+
+                  <!-- Quick Portal Verification Button -->
+                  <button @click="activeTab = 'enrolled_institutions'; fetchEnrolledInstitutions()" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-semibold transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-xs text-emerald-400"></i>
+                    <span>Verify in Student Enrolled Institutions Hub</span>
+                  </button>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
 
         <!-- SHARED TAB: Unified 3-Category Chat System (Personal, Private, Global) -->
         <div x-show="activeTab === 'communities'" class="glass-card p-6 flex flex-col h-[740px] space-y-4">

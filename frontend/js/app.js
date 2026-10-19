@@ -69,7 +69,7 @@ function portalApp() {
     instituteRegisterForm: {
       name: '',
       location: 'Greater Noida, Uttar Pradesh, India',
-      institution_type: 'Autonomous College',
+      institution_type: 'College',
       accreditation_number: 'AICTE-UP-2026',
       accreditation_verified: false,
       educational_domain: 'Engineering, Technology & Applied AI',
@@ -205,11 +205,82 @@ function portalApp() {
       cgpa: '8.0', attendance_percentage: '85.0', credits_earned: '100', max_credits: '160', backlogs: 0, status: 'VERIFIED'
     },
 
+    // Multi-Institution Enrolled Hub State
+    enrolledInstitutions: [],
+    selectedEnrolledInstitution: null,
+    institutionActiveSection: 'courses', // courses, profile, timetable, calendar, fee, assignments, leaves, hostel, administration, library, services
+    timetableActiveDay: 'Monday',
+    feePaymentAmount: 12000,
+    feePaymentMode: 'UPI',
+    feePaymentRemarks: 'Semester 6 Balance Fee',
+    feePaymentProcessing: false,
+    feePaymentReceipt: null,
+    leaveForm: {
+      leave_type: 'Medical Leave',
+      from_date: '2026-11-02',
+      to_date: '2026-11-04',
+      reason: 'Viral fever recuperation and medical rest',
+      attachment_name: 'medical_certificate.pdf'
+    },
+    docForm: {
+      document_type: 'Bonafide Certificate',
+      purpose: 'Passport / Visa / Internship Verification',
+      delivery_mode: 'Digital Copy (DigiLocker & PDF)'
+    },
+    grievanceForm: {
+      category: 'Academic',
+      subject: 'Lab Equipment & Wi-Fi Access',
+      description: 'Network switch in CS Lab 4 needs port reconfiguration for socket programming.',
+      urgency: 'NORMAL'
+    },
+    feedbackForm: {
+      faculty_or_dept: 'Computer Science Department',
+      rating: 5,
+      comments: 'Hands-on practical mentoring in Database & Distributed Algorithms has been exceptional.'
+    },
+    showEnrollNewModal: false,
+    newEnrollmentForm: {
+      name: '',
+      type: 'College',
+      affiliation: 'State Technical University',
+      program: 'Bachelor of Technology',
+      roll_no: ''
+    },
+
     auditLogs: [
       '[2026-10-06 12:00:01] SYSTEM INITIALIZED: FastAPI core online.',
       '[2026-10-06 12:00:02] DATABASE: SQLite/PostgreSQL tables verified and seeded.',
       '[2026-10-06 12:00:03] QDRANT VECTOR STORE: Knowledge base embeddings warmed up.'
     ],
+
+    // =========================================================================
+    // Institution Developer Mode & Custom Template Studio State
+    // Supported Types: School, College, University, Company, Start-up
+    // =========================================================================
+    devModeActive: true,
+    activeDevInstitutionType: 'College', // School, College, University, Company, Start-up
+    devTemplatePresets: {},
+    currentDevTemplate: {
+      template_name: 'Autonomous Engineering & Polytechnic College Template',
+      version: '1.0.0',
+      badge: 'AICTE / AKTU Autonomous Engineering',
+      icon: 'fa-building-columns',
+      accent_color: 'blue',
+      program: 'Bachelor of Technology (B.Tech)',
+      department: 'Computer Science & Engineering',
+      banner_notice: 'Spring 2026: NBA & NAAC A+ Accredited Autonomous Curriculum with Continuous Assessment.',
+      role_badge_title: 'Student Roll & AKTU Registration',
+      financial_label: 'Semester Tuition & Laboratory Dues',
+      courses: [],
+      timetable: [],
+      fee_or_stipend: {},
+      documents: []
+    },
+    devEditFormat: 'visual', // 'visual' or 'json'
+    devRawJson: '',
+    devRolePreview: 'student', // 'student', 'faculty', 'parent'
+    devSaving: false,
+    devSaveAlert: null,
 
     async init() {
       this.generateCaptcha();
@@ -239,6 +310,8 @@ function portalApp() {
           this.activeTab = 'guidance';
         }
         await this.fetchStudents();
+        await this.fetchEnrolledInstitutions();
+        await this.fetchDeveloperPresets();
         this.initWebSocket();
         await this.fetchChatCategories();
         await this.fetchUnifiedMessages();
@@ -1575,6 +1648,682 @@ function portalApp() {
       if (!navigator.clipboard) return;
       navigator.clipboard.writeText(text);
       alert('Message content copied to clipboard!');
+    },
+
+    // -----------------------------------------------------------
+    // Enrolled Institutions & Institutional Portal Hub Methods
+    // -----------------------------------------------------------
+    async fetchEnrolledInstitutions() {
+      try {
+        const studentId = this.selectedStudentId || (this.currentStudent && this.currentStudent.id) || 'stu_001';
+        const res = await fetch(`/api/students/${studentId}/enrolled-institutions`, {
+          headers: { 'Authorization': `Bearer ${this.authToken}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          this.enrolledInstitutions = data.institutions || [];
+        } else {
+          this.loadDefaultEnrolledInstitutions();
+        }
+      } catch (e) {
+        console.error('Failed to fetch enrolled institutions:', e);
+        this.loadDefaultEnrolledInstitutions();
+      }
+    },
+
+    loadDefaultEnrolledInstitutions() {
+      this.enrolledInstitutions = [
+        {
+          id: 'inst_glbitm',
+          name: 'GL Bajaj Institute of Technology and Management',
+          type: 'College',
+          type_category: 'COLLEGE',
+          badge: 'Active Enrolled • Primary',
+          affiliation: 'Dr. A.P.J. Abdul Kalam Technical University (AKTU) & AICTE',
+          program: 'Bachelor of Technology (B.Tech)',
+          department: 'Computer Science & Engineering',
+          current_semester: '6th Semester',
+          roll_no: 'CS-2022-04',
+          enrollment_number: '2201920100045',
+          batch: '2022 - 2026',
+          joined_year: '2022',
+          status: 'ACTIVE',
+          location: 'Knowledge Park II, Greater Noida, Uttar Pradesh, India',
+          is_primary: true,
+          attendance_percentage: '86.5%',
+          cgpa: '8.42',
+          icon: 'fa-building-columns',
+          accent_color: 'blue'
+        },
+        {
+          id: 'inst_dps_rkp',
+          name: 'Delhi Public School (DPS), R.K. Puram',
+          type: 'School',
+          type_category: 'SCHOOL',
+          badge: 'Alumnus • Completed',
+          affiliation: 'Central Board of Secondary Education (CBSE National Board)',
+          program: 'Senior Secondary Certificate (Class XI - XII)',
+          department: 'Science Stream (PCM & Computer Science)',
+          current_semester: 'Graduated Class of 2022',
+          roll_no: 'DPS-2022-9841',
+          enrollment_number: 'CBSE-DEL-1094821',
+          batch: '2020 - 2022',
+          joined_year: '2020',
+          status: 'COMPLETED',
+          location: 'Sector XII, R.K. Puram, New Delhi, India',
+          is_primary: false,
+          attendance_percentage: '94.2%',
+          cgpa: '95.6% (CBSE Boards)',
+          icon: 'fa-school',
+          accent_color: 'emerald'
+        },
+        {
+          id: 'inst_aktu',
+          name: 'Dr. A.P.J. Abdul Kalam Technical University (AKTU)',
+          type: 'University',
+          type_category: 'UNIVERSITY',
+          badge: 'State Affiliating Body',
+          affiliation: 'University Grants Commission (UGC) & AICTE',
+          program: 'Degree Granting & State Academic Depository',
+          department: 'Faculty of Engineering & Technological Research',
+          current_semester: 'Academic Session 2025–26',
+          roll_no: 'AKTU-REG-2022-045',
+          enrollment_number: 'AKTU-UP-992144',
+          batch: '2022 - 2026',
+          joined_year: '2022',
+          status: 'ACTIVE',
+          location: 'Sec-11, Jankipuram Vistar, Lucknow, Uttar Pradesh',
+          is_primary: false,
+          attendance_percentage: '88.0%',
+          cgpa: '8.50 (Cumulative)',
+          icon: 'fa-graduation-cap',
+          accent_color: 'indigo'
+        },
+        {
+          id: 'inst_tcs_corp',
+          name: 'Tata Consultancy Services (TCS) Innovation Lab',
+          type: 'Company',
+          type_category: 'COMPANY',
+          badge: 'Industry Apprenticeship',
+          affiliation: 'TCS Enterprise Research & Campus Hiring Partner',
+          program: 'AI & Cloud Engineering Internship Fellowship',
+          department: 'Enterprise AI & Cloud Platforms Division',
+          current_semester: 'Q1 2026 Sprint',
+          roll_no: 'EMP-TCS-INT-9921',
+          enrollment_number: 'TCS-IND-2026-X8',
+          batch: '2025 - 2026',
+          joined_year: '2025',
+          status: 'ACTIVE',
+          location: 'Noida Special Economic Zone (NSEZ), Phase II, Noida',
+          is_primary: false,
+          attendance_percentage: '96.0%',
+          cgpa: 'Stipend Active',
+          icon: 'fa-building',
+          accent_color: 'amber'
+        },
+        {
+          id: 'inst_ai_startup',
+          name: 'NeuroGrid AI (DeepTech & Agentic AI Incubator)',
+          type: 'Start-up',
+          type_category: 'STARTUP',
+          badge: 'Seed Stage Incubatee',
+          affiliation: 'Department of Science & Technology (DST) Startup India',
+          program: 'Founder-in-Residence & Student Pre-Incubation',
+          department: 'Autonomous Multi-Agent Systems & LLM Infra',
+          current_semester: 'Cohort 4 (Pre-Series A)',
+          roll_no: 'FOUND-FELLOW-014',
+          enrollment_number: 'STARTUP-IND-NG-77',
+          batch: '2025 - Present',
+          joined_year: '2025',
+          status: 'ACTIVE',
+          location: 'IIT Delhi Innovation & Incubation Park, New Delhi',
+          is_primary: false,
+          attendance_percentage: '92.5%',
+          cgpa: 'Grant Funded',
+          icon: 'fa-rocket',
+          accent_color: 'rose'
+        }
+      ];
+    },
+
+    async selectEnrolledInstitution(inst) {
+      try {
+        const studentId = this.selectedStudentId || (this.currentStudent && this.currentStudent.id) || 'stu_001';
+        const res = await fetch(`/api/students/${studentId}/institutions/${inst.id}/details`, {
+          headers: { 'Authorization': `Bearer ${this.authToken}` }
+        });
+        if (res.ok) {
+          this.selectedEnrolledInstitution = await res.json();
+        } else {
+          this.selectedEnrolledInstitution = {
+            institution: inst,
+            courses: [
+              { course_code: 'CS-601', course_name: 'Data Structures & Deep Algorithmic Analysis', credits: 4, instructor: 'Dr. Priya Sen', room: 'Room 304, Academic Block A', attendance_percentage: 88.5, classes_attended: 39, total_classes: 44, status: 'COMPLIANT' },
+              { course_code: 'CS-602', course_name: 'Relational & Polyglot Database Systems', credits: 4, instructor: 'Prof. R.K. Verma', room: 'Lab 5, CS Complex', attendance_percentage: 92.0, classes_attended: 46, total_classes: 50, status: 'COMPLIANT' },
+              { course_code: 'CS-603', course_name: 'Computer Networks & Distributed Systems', credits: 3, instructor: 'Dr. A.K. Srivastava', room: 'Lecture Theatre 2', attendance_percentage: 78.4, classes_attended: 29, total_classes: 37, status: 'COMPLIANT' }
+            ],
+            profile: {
+              student_name: this.currentStudent.name || 'Amit Sharma',
+              institutional_roll_no: inst.roll_no,
+              enrollment_number: inst.enrollment_number,
+              department: inst.department,
+              batch: inst.batch,
+              admission_date: '2022-08-16',
+              institutional_email: 'amit@uni.edu',
+              blood_group: 'B+',
+              gender: 'Male',
+              apaar_id: 'APAAR-9988-7766-5544',
+              digilocker_verified: true,
+              mentor_teacher: 'Dr. Priya Sen'
+            },
+            timetable: [
+              { day: 'Monday', slots: [
+                { time: '09:00 - 10:00', subject: 'Data Structures & Algorithms', code: 'CS-601', faculty: 'Dr. Priya Sen', room: 'Room 304' },
+                { time: '10:00 - 11:00', subject: 'Database Systems', code: 'CS-602', faculty: 'Prof. R.K. Verma', room: 'Lab 5' }
+              ]}
+            ],
+            calendar: [
+              { date: '2026-10-12 to 2026-10-18', event: 'Mid-Term Examinations', type: 'EXAM' },
+              { date: '2026-10-24', event: 'Diwali Festival Break', type: 'HOLIDAY' }
+            ],
+            fee: {
+              structure: { tuition_fee: 65000, development_fee: 15000, lab_examination_fee: 12000, library_sports_fee: 8000, total_billed: 100000, currency: 'INR (₹)' },
+              dues: { total_due: 12000, due_date: '2026-11-15', late_fee_per_day: 100, status: 'PARTIALLY_PAID' },
+              balance: { total_paid: 88000, current_balance: 12000, last_updated: '2026-10-15T10:30:00Z' },
+              registration_fee: { amount: 2500, status: 'PAID', receipt_id: 'REG-2026-8812' },
+              scholarship: { name: 'Academic Merit Excellence Scholarship', amount: 25000, status: 'APPROVED_DISBURSED', awarded_date: '2026-08-20', granting_body: 'Higher Education Directorate' },
+              fee_relaxation: { category: 'Alumni Heritage Distinction', concession_percentage: 10, concession_amount: 10000, status: 'APPLIED' },
+              refund: { caution_money_deposit: 5000, status: 'HELD_IN_ESCROW', refundable_at: 'Degree Completion', refund_policy: 'Full 100% refund upon no-dues clearance.' },
+              transactions: [
+                { receipt_no: 'REC-GLB-2026-1049', date: '2026-08-10', amount: 50000, mode: 'Net Banking', bank_ref: 'HDFC000192837', description: 'Semester 6 - 1st Installment', status: 'SUCCESS' }
+              ]
+            },
+            assignments: [],
+            student_leaves: { balances: { medical_remaining: 5, casual_remaining: 3, duty_remaining: 4 }, history: [] },
+            hostel: { is_allotted: true, block: 'Block C (Aryabhata Hostel)', room_no: '304', bed_no: 'Bed 2', warden_name: 'Mr. S.P. Dwivedi', warden_contact: '+91 98765 43299', mess: { breakfast: '07:30 AM - 09:15 AM', lunch: '12:30 PM - 02:15 PM', dinner: '08:00 PM - 09:45 PM' }, gate_pass: { allowed_curfew: '09:30 PM' } },
+            administration: { officials: [{ designation: 'Dean of Academics', name: 'Prof. Manju Khari', email: 'dean@uni.edu' }], documentation_status: { college_id_card: 'ACTIVE', bonafide_certificate: 'READY' }, document_requests: [], grievances: [], help_desk: { helpline_phone: '+91 120 2323888' }, feedback: { status: 'COMPLETED' } },
+            library: { membership: { card_number: 'LIB-GLB-8834', valid_upto: '2026-06-30', max_books_allowed: 4 }, issued_books: [{ title: 'Introduction to Algorithms (CLRS)', accession_no: 'ACC-98214', due_date: '2026-11-05', renewals_left: 2 }], previous_log: [], fine: { amount: 0, status: 'NO_OUTSTANDING_FINES' }, attendance: [] },
+            other_services: { transport: { is_enrolled: true, route_no: 'Route 14', bus_number: 'UP-16-BT-9021', driver_name: 'Mr. Mahendra Singh', driver_mobile: '+91 98112 34567' }, map: { campus_name: inst.name, location_address: inst.location }, security: { last_password_change: '2026-09-01' }, siblings: [{ name: 'Ananya Sharma', relationship: 'Sister', class_or_program: 'Class X-B', concession_status: '10% Sibling Rebate' }], gallery: [], notices: [{ title: 'Mid-Term Lab Practical Evaluation Notice', date: '2026-10-17', priority: 'HIGH' }] }
+          };
+        }
+        if (this.selectedEnrolledInstitution) {
+          if (!this.selectedEnrolledInstitution.template && inst.active_template) {
+            this.selectedEnrolledInstitution.template = inst.active_template;
+            this.selectedEnrolledInstitution.developer_mode_enabled = inst.developer_mode_enabled !== false;
+            if (inst.active_template.template_data && inst.active_template.template_data.courses && inst.active_template.template_data.courses.length > 0) {
+              this.selectedEnrolledInstitution.courses = inst.active_template.template_data.courses;
+            }
+          }
+        }
+        this.institutionActiveSection = 'courses';
+        this.activeTab = 'enrolled_institutions';
+      } catch (e) {
+        console.error('Error selecting institution:', e);
+      }
+    },
+
+    setInstitutionSection(section) {
+      this.institutionActiveSection = section;
+    },
+
+    async submitFeePayment() {
+      if (!this.feePaymentAmount || this.feePaymentAmount <= 0) {
+        alert('Please enter a valid payment amount.');
+        return;
+      }
+      this.feePaymentProcessing = true;
+      try {
+        const studentId = this.selectedStudentId || (this.currentStudent && this.currentStudent.id) || 'stu_001';
+        const instId = (this.selectedEnrolledInstitution && this.selectedEnrolledInstitution.institution && this.selectedEnrolledInstitution.institution.id) || 'inst_glbitm';
+        const res = await fetch(`/api/students/${studentId}/institutions/${instId}/pay-fee`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.authToken}`
+          },
+          body: JSON.stringify({
+            amount: parseFloat(this.feePaymentAmount),
+            payment_mode: this.feePaymentMode,
+            remarks: this.feePaymentRemarks
+          })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          this.feePaymentReceipt = data.receipt;
+          if (this.selectedEnrolledInstitution && this.selectedEnrolledInstitution.fee) {
+            this.selectedEnrolledInstitution.fee.transactions.unshift(data.receipt);
+            const bal = this.selectedEnrolledInstitution.fee.balance;
+            bal.total_paid += parseFloat(this.feePaymentAmount);
+            bal.current_balance = Math.max(0, bal.current_balance - parseFloat(this.feePaymentAmount));
+            this.selectedEnrolledInstitution.fee.dues.total_due = bal.current_balance;
+            if (bal.current_balance === 0) {
+              this.selectedEnrolledInstitution.fee.dues.status = 'FULLY_PAID';
+            }
+          }
+          alert(`✓ Fee Payment Confirmed!\nAmount: ₹${this.feePaymentAmount}\nReceipt Number: ${data.receipt.receipt_no}\nMode: ${this.feePaymentMode}`);
+          this.auditLogs.unshift(`[${new Date().toISOString()}] FEE PAYMENT: Paid ₹${this.feePaymentAmount} via ${this.feePaymentMode} (${data.receipt.receipt_no})`);
+        }
+      } catch (e) {
+        alert('Error processing fee payment.');
+      } finally {
+        this.feePaymentProcessing = false;
+      }
+    },
+
+    async submitLeaveRequest() {
+      if (!this.leaveForm.reason.trim()) {
+        alert('Please provide a reason for the leave application.');
+        return;
+      }
+      try {
+        const studentId = this.selectedStudentId || (this.currentStudent && this.currentStudent.id) || 'stu_001';
+        const instId = (this.selectedEnrolledInstitution && this.selectedEnrolledInstitution.institution && this.selectedEnrolledInstitution.institution.id) || 'inst_glbitm';
+        const res = await fetch(`/api/students/${studentId}/institutions/${instId}/apply-leave`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.authToken}`
+          },
+          body: JSON.stringify(this.leaveForm)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (this.selectedEnrolledInstitution && this.selectedEnrolledInstitution.student_leaves) {
+            this.selectedEnrolledInstitution.student_leaves.history.unshift(data.leave);
+            if (this.leaveForm.leave_type.includes('Medical')) {
+              this.selectedEnrolledInstitution.student_leaves.balances.medical_remaining = Math.max(0, this.selectedEnrolledInstitution.student_leaves.balances.medical_remaining - 1);
+            }
+          }
+          alert(`✓ Leave Application Submitted!\nType: ${this.leaveForm.leave_type}\nDates: ${this.leaveForm.from_date} to ${this.leaveForm.to_date}\nStatus: PENDING_HOD_APPROVAL`);
+          this.leaveForm.reason = '';
+        }
+      } catch (e) {
+        alert('Error submitting leave application.');
+      }
+    },
+
+    async submitDocumentRequest() {
+      try {
+        const studentId = this.selectedStudentId || (this.currentStudent && this.currentStudent.id) || 'stu_001';
+        const instId = (this.selectedEnrolledInstitution && this.selectedEnrolledInstitution.institution && this.selectedEnrolledInstitution.institution.id) || 'inst_glbitm';
+        const res = await fetch(`/api/students/${studentId}/institutions/${instId}/request-document`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.authToken}`
+          },
+          body: JSON.stringify(this.docForm)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (this.selectedEnrolledInstitution && this.selectedEnrolledInstitution.administration) {
+            this.selectedEnrolledInstitution.administration.document_requests.unshift(data.document);
+          }
+          alert(`✓ Document Request Submitted!\n${data.message}`);
+        }
+      } catch (e) {
+        alert('Error submitting document request.');
+      }
+    },
+
+    async submitGrievanceTicket() {
+      if (!this.grievanceForm.subject.trim() || !this.grievanceForm.description.trim()) {
+        alert('Please fill out Subject and Description.');
+        return;
+      }
+      try {
+        const studentId = this.selectedStudentId || (this.currentStudent && this.currentStudent.id) || 'stu_001';
+        const instId = (this.selectedEnrolledInstitution && this.selectedEnrolledInstitution.institution && this.selectedEnrolledInstitution.institution.id) || 'inst_glbitm';
+        const res = await fetch(`/api/students/${studentId}/institutions/${instId}/submit-grievance`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.authToken}`
+          },
+          body: JSON.stringify(this.grievanceForm)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (this.selectedEnrolledInstitution && this.selectedEnrolledInstitution.administration) {
+            this.selectedEnrolledInstitution.administration.grievances.unshift(data.grievance);
+          }
+          alert(`✓ Grievance Registered!\n${data.message}`);
+          this.grievanceForm.subject = '';
+          this.grievanceForm.description = '';
+        }
+      } catch (e) {
+        alert('Error submitting grievance.');
+      }
+    },
+
+    async submitFeedback() {
+      if (!this.feedbackForm.comments.trim()) {
+        alert('Please provide feedback comments.');
+        return;
+      }
+      try {
+        const studentId = this.selectedStudentId || (this.currentStudent && this.currentStudent.id) || 'stu_001';
+        const instId = (this.selectedEnrolledInstitution && this.selectedEnrolledInstitution.institution && this.selectedEnrolledInstitution.institution.id) || 'inst_glbitm';
+        const res = await fetch(`/api/students/${studentId}/institutions/${instId}/submit-feedback`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.authToken}`
+          },
+          body: JSON.stringify(this.feedbackForm)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          alert(`✓ Feedback Submitted!\n${data.message}`);
+          this.feedbackForm.comments = '';
+        }
+      } catch (e) {
+        alert('Error recording feedback.');
+      }
+    },
+
+    async renewLibraryBook(accessionNo) {
+      try {
+        const studentId = this.selectedStudentId || (this.currentStudent && this.currentStudent.id) || 'stu_001';
+        const instId = (this.selectedEnrolledInstitution && this.selectedEnrolledInstitution.institution && this.selectedEnrolledInstitution.institution.id) || 'inst_glbitm';
+        const res = await fetch(`/api/students/${studentId}/institutions/${instId}/renew-book`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.authToken}`
+          },
+          body: JSON.stringify({ accession_no: accessionNo })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (this.selectedEnrolledInstitution && this.selectedEnrolledInstitution.library) {
+            const b = this.selectedEnrolledInstitution.library.issued_books.find(x => x.accession_no === accessionNo);
+            if (b) {
+              b.due_date = data.new_due_date;
+              b.renewals_left = Math.max(0, b.renewals_left - 1);
+            }
+          }
+          alert(`✓ Library Book Renewed!\n${data.message}`);
+        }
+      } catch (e) {
+        alert('Error renewing library book.');
+      }
+    },
+
+    enrollNewInstitution() {
+      if (!this.newEnrollmentForm.name.trim() || !this.newEnrollmentForm.roll_no.trim()) {
+        alert('Please enter Institution Name and Roll / Student ID Number.');
+        return;
+      }
+      const rawType = (this.newEnrollmentForm.type || 'College').toLowerCase();
+      let typeCategory = 'COLLEGE';
+      let typeDisplay = 'College';
+      let icon = 'fa-building-columns';
+      let accent = 'blue';
+
+      if (rawType.includes('school')) {
+        typeCategory = 'SCHOOL';
+        typeDisplay = 'School';
+        icon = 'fa-school';
+        accent = 'emerald';
+      } else if (rawType.includes('university')) {
+        typeCategory = 'UNIVERSITY';
+        typeDisplay = 'University';
+        icon = 'fa-graduation-cap';
+        accent = 'indigo';
+      } else if (rawType.includes('company')) {
+        typeCategory = 'COMPANY';
+        typeDisplay = 'Company';
+        icon = 'fa-building';
+        accent = 'amber';
+      } else if (rawType.includes('start') || rawType.includes('startup')) {
+        typeCategory = 'STARTUP';
+        typeDisplay = 'Start-up';
+        icon = 'fa-rocket';
+        accent = 'rose';
+      } else {
+        typeCategory = 'COLLEGE';
+        typeDisplay = 'College';
+        icon = 'fa-building-columns';
+        accent = 'blue';
+      }
+
+      const newInst = {
+        id: `inst_custom_${Date.now()}`,
+        name: this.newEnrollmentForm.name.trim(),
+        type: typeDisplay,
+        type_category: typeCategory,
+        badge: 'Pending Verification • Linked',
+        affiliation: this.newEnrollmentForm.affiliation || 'Educational Directorate',
+        program: this.newEnrollmentForm.program || 'Academic Program',
+        department: 'General Studies',
+        current_semester: 'Enrolled',
+        roll_no: this.newEnrollmentForm.roll_no.trim(),
+        enrollment_number: `ENR-${Date.now().toString().slice(-6)}`,
+        batch: '2025 - Present',
+        joined_year: '2025',
+        status: 'ACTIVE',
+        location: 'Verified Partner Campus',
+        is_primary: false,
+        attendance_percentage: '85.0%',
+        cgpa: 'Enrolled',
+        icon: icon,
+        accent_color: accent
+      };
+      this.enrolledInstitutions.push(newInst);
+      this.showEnrollNewModal = false;
+      this.newEnrollmentForm = { name: '', type: 'College', affiliation: '', program: '', roll_no: '' };
+      alert(`✓ Institution '${newInst.name}' (${typeDisplay}) successfully added to your enrolled list!`);
+    },
+
+    // -----------------------------------------------------------
+    // Institution Developer Mode & Custom Template Studio Methods
+    // -----------------------------------------------------------
+    async fetchDeveloperPresets() {
+      try {
+        const res = await fetch('/api/institutions/developer/presets', {
+          headers: { 'Authorization': `Bearer ${this.authToken}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          this.devTemplatePresets = data.presets || {};
+          if (!this.currentDevTemplate || !this.currentDevTemplate.courses || this.currentDevTemplate.courses.length === 0) {
+            await this.loadTemplateForDevType(this.activeDevInstitutionType);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to fetch developer presets:', e);
+      }
+    },
+
+    async selectDevInstitutionType(type) {
+      this.activeDevInstitutionType = type;
+      await this.loadTemplateForDevType(type);
+    },
+
+    async loadTemplateForDevType(type) {
+      try {
+        const res = await fetch(`/api/institutions/${encodeURIComponent(type)}/template`, {
+          headers: { 'Authorization': `Bearer ${this.authToken}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const tpl = data.template || {};
+          this.devModeActive = tpl.developer_mode_enabled !== false;
+          const theme = tpl.theme_config || {};
+          const tdata = tpl.template_data || {};
+          this.currentDevTemplate = {
+            id: tpl.id,
+            template_name: tpl.template_name || `${type} Template`,
+            version: tpl.version || '1.0.0',
+            institution_type: tpl.institution_type || type,
+            badge: theme.badge || '',
+            icon: theme.icon || 'fa-building-columns',
+            accent_color: theme.accent_color || 'blue',
+            banner_notice: theme.banner_notice || '',
+            program: tdata.program || '',
+            department: tdata.department || '',
+            role_badge_title: tdata.role_badge_title || '',
+            financial_label: tdata.financial_label || '',
+            courses: JSON.parse(JSON.stringify(tdata.courses || [])),
+            timetable: JSON.parse(JSON.stringify(tdata.timetable || [])),
+            fee_or_stipend: JSON.parse(JSON.stringify(tdata.fee_or_stipend || {})),
+            documents: JSON.parse(JSON.stringify(tdata.documents || []))
+          };
+          this.devRawJson = JSON.stringify(this.currentDevTemplate, null, 2);
+        } else if (this.devTemplatePresets && this.devTemplatePresets[type]) {
+          const p = this.devTemplatePresets[type];
+          this.currentDevTemplate = JSON.parse(JSON.stringify(p));
+          this.devRawJson = JSON.stringify(this.currentDevTemplate, null, 2);
+        }
+      } catch (e) {
+        console.error('Failed to load template:', e);
+      }
+    },
+
+    syncDevJsonFromVisual() {
+      this.devRawJson = JSON.stringify(this.currentDevTemplate, null, 2);
+    },
+
+    syncVisualFromDevJson() {
+      try {
+        const parsed = JSON.parse(this.devRawJson);
+        this.currentDevTemplate = parsed;
+        this.devSaveAlert = { type: 'success', message: 'JSON configuration parsed successfully!' };
+        setTimeout(() => { this.devSaveAlert = null; }, 3000);
+      } catch (e) {
+        this.devSaveAlert = { type: 'error', message: 'Invalid JSON format: ' + e.message };
+      }
+    },
+
+    addDevCourse() {
+      if (!this.currentDevTemplate.courses) this.currentDevTemplate.courses = [];
+      const prefix = this.activeDevInstitutionType === 'School' ? 'SCH' : this.activeDevInstitutionType === 'Company' ? 'CORP' : this.activeDevInstitutionType === 'Start-up' ? 'STUP' : 'CS';
+      const num = 100 + this.currentDevTemplate.courses.length + 1;
+      this.currentDevTemplate.courses.push({
+        course_code: `${prefix}-${num}`,
+        course_name: 'New Custom Subject / Module',
+        credits: 4,
+        instructor: 'Senior Faculty / Tech Lead',
+        room: 'Lab / Lecture Hall',
+        attendance_percentage: 90.0,
+        classes_attended: 36,
+        total_classes: 40,
+        status: 'COMPLIANT'
+      });
+      this.syncDevJsonFromVisual();
+    },
+
+    removeDevCourse(index) {
+      this.currentDevTemplate.courses.splice(index, 1);
+      this.syncDevJsonFromVisual();
+    },
+
+    async toggleDevMode(enabled) {
+      this.devModeActive = enabled;
+      try {
+        await fetch(`/api/institutions/${encodeURIComponent(this.activeDevInstitutionType)}/developer-mode/toggle`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.authToken}` },
+          body: JSON.stringify({ enabled: enabled })
+        });
+        this.devSaveAlert = {
+          type: 'success',
+          message: `Developer Mode is now ${enabled ? 'ENABLED (Custom Templates Live)' : 'DISABLED (Standard Presets)'} for ${this.activeDevInstitutionType}.`
+        };
+        setTimeout(() => { this.devSaveAlert = null; }, 4000);
+        await this.fetchEnrolledInstitutions();
+      } catch (e) {
+        console.error('Failed to toggle dev mode:', e);
+      }
+    },
+
+    async saveDeveloperTemplate() {
+      this.devSaving = true;
+      try {
+        if (this.devEditFormat === 'json') {
+          try {
+            this.currentDevTemplate = JSON.parse(this.devRawJson);
+          } catch (e) {
+            this.devSaveAlert = { type: 'error', message: 'Syntax Error in JSON: ' + e.message };
+            this.devSaving = false;
+            return;
+          }
+        }
+
+        const t = this.currentDevTemplate;
+        const payload = {
+          institution_type: this.activeDevInstitutionType,
+          institution_name: `${this.activeDevInstitutionType} Autonomous Authority`,
+          template_name: t.template_name || `${this.activeDevInstitutionType} Custom Template`,
+          template_category: 'FULL_PORTAL',
+          developer_mode_enabled: this.devModeActive,
+          is_active: true,
+          version: t.version || '1.1.0',
+          published_to_roles: 'student,faculty,parent,admin,all',
+          theme_config: {
+            badge: t.badge || `${this.activeDevInstitutionType} Custom Verified`,
+            icon: t.icon || 'fa-building-columns',
+            accent_color: t.accent_color || 'blue',
+            banner_notice: t.banner_notice || ''
+          },
+          template_data: {
+            program: t.program,
+            department: t.department,
+            role_badge_title: t.role_badge_title,
+            financial_label: t.financial_label,
+            courses: t.courses || [],
+            timetable: t.timetable || [],
+            fee_or_stipend: t.fee_or_stipend || {},
+            documents: t.documents || []
+          }
+        };
+
+        const res = await fetch(`/api/institutions/${encodeURIComponent(this.activeDevInstitutionType)}/template`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.authToken}` },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          const resData = await res.json();
+          this.devSaveAlert = {
+            type: 'success',
+            message: `✓ Custom template '${payload.template_name}' successfully published in Developer Mode! Students and other roles can now see this live template.`
+          };
+          this.syncDevJsonFromVisual();
+          await this.fetchEnrolledInstitutions();
+          if (this.selectedEnrolledInstitution) {
+            await this.selectEnrolledInstitution(this.selectedEnrolledInstitution.institution || this.selectedEnrolledInstitution);
+          }
+        } else {
+          const err = await res.json();
+          this.devSaveAlert = { type: 'error', message: err.detail || 'Failed to save template.' };
+        }
+      } catch (e) {
+        this.devSaveAlert = { type: 'error', message: 'Network error saving template: ' + e.message };
+      } finally {
+        this.devSaving = false;
+        setTimeout(() => { this.devSaveAlert = null; }, 5000);
+      }
+    },
+
+    async resetDeveloperTemplate() {
+      if (!confirm(`Are you sure you want to reset ${this.activeDevInstitutionType} to its original standard preset?`)) return;
+      try {
+        const res = await fetch(`/api/institutions/${encodeURIComponent(this.activeDevInstitutionType)}/template/reset`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${this.authToken}` }
+        });
+        if (res.ok) {
+          await this.loadTemplateForDevType(this.activeDevInstitutionType);
+          this.devSaveAlert = { type: 'success', message: `✓ ${this.activeDevInstitutionType} successfully reset to standard default preset.` };
+          await this.fetchEnrolledInstitutions();
+          setTimeout(() => { this.devSaveAlert = null; }, 4000);
+        }
+      } catch (e) {
+        console.error('Failed to reset template:', e);
+      }
     }
   };
 }

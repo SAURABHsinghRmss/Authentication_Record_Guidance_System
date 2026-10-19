@@ -628,5 +628,68 @@ class InstitutionResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class InstitutionTemplateModel(Base):
+    """
+    Template model allowing each institution type (School, College, University, Company, Start-up)
+    or specific institution to configure Developer Mode and publish custom templates
+    visible to Students and other roles.
+    """
+    __tablename__ = "institution_templates"
 
+    id = Column(String, primary_key=True, index=True)
+    institution_id = Column(String, index=True) # Specific ID e.g. 'inst_glbitm' or type-wide key e.g. 'type_school'
+    institution_type = Column(String, index=True) # 'School', 'College', 'University', 'Company', 'Start-up'
+    institution_name = Column(String, index=True)
+    template_name = Column(String)
+    template_category = Column(String, default="FULL_PORTAL") # FULL_PORTAL, CURRICULUM, TIMETABLE, FINANCIAL, CREDENTIAL
+    developer_mode_enabled = Column(Boolean, default=True)
+    is_active = Column(Boolean, default=True)
+    version = Column(String, default="1.0.0")
+    published_to_roles = Column(String, default="student,faculty,parent,admin,all")
+    theme_config = Column(Text) # JSON string: icon, accent_color, badge, banner_notice
+    template_data = Column(Text) # JSON string: courses, timetable, fee_or_stipend, profile_spec, documents, administration
+    created_by = Column(String, default="developer")
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
+class InstitutionTemplateCreate(BaseModel):
+    institution_id: Optional[str] = None
+    institution_type: str
+    institution_name: str
+    template_name: str
+    template_category: Optional[str] = "FULL_PORTAL"
+    developer_mode_enabled: bool = True
+    is_active: bool = True
+    version: Optional[str] = "1.0.0"
+    published_to_roles: Optional[str] = "student,faculty,parent,admin,all"
+    theme_config: Optional[dict] = None
+    template_data: Optional[dict] = None
+
+class InstitutionTemplateUpdate(BaseModel):
+    template_name: Optional[str] = None
+    developer_mode_enabled: Optional[bool] = None
+    is_active: Optional[bool] = None
+    version: Optional[str] = None
+    published_to_roles: Optional[str] = None
+    theme_config: Optional[dict] = None
+    template_data: Optional[dict] = None
+
+class InstitutionTemplateResponse(BaseModel):
+    id: str
+    institution_id: str
+    institution_type: str
+    institution_name: str
+    template_name: str
+    template_category: str
+    developer_mode_enabled: bool
+    is_active: bool
+    version: str
+    published_to_roles: str
+    theme_config: Optional[dict] = None
+    template_data: Optional[dict] = None
+    created_by: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True

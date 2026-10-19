@@ -217,7 +217,7 @@ def get_messages_by_category(
     category: str,
     channel_id: Optional[str] = None,
     peer_username: Optional[str] = None,
-    limit: int = 50,
+    limit: int = 200,
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user)
 ):
@@ -265,7 +265,8 @@ def get_messages_by_category(
                 )
             )
 
-    messages = query.order_by(UnifiedChatMessageModel.timestamp.asc()).limit(limit).all()
+    recent_messages = query.order_by(UnifiedChatMessageModel.timestamp.desc()).limit(limit).all()
+    messages = list(reversed(recent_messages))
 
     # Mark unread personal messages as read
     if cat_upper == "PERSONAL":

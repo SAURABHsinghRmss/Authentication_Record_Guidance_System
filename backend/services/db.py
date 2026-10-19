@@ -15,8 +15,8 @@ class Base(DeclarativeBase):
 def init_db_schema():
     """Ensure all required columns exist in sqlite/postgres tables without data loss."""
     try:
-        from backend.models.student import Base as ModelBase
-        ModelBase.metadata.create_all(bind=engine)
+        import backend.models.student  # noqa: F401 - registers models with Base
+        Base.metadata.create_all(bind=engine)
     except Exception as e:
         print(f"[DB MIGRATION WARNING] Table creation notice: {e}")
     try:
