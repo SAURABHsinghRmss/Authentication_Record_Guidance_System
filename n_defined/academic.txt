@@ -1,0 +1,23 @@
+academic:{
+time-table , calendar , course plan , assignment , attendance , student leaves , mentor counselling , class teacher(contains table of subject with their respecting subject teacher along mentor mentee chat system)} ;
+
+
+
+exam :{
+exam result , exam datasheet , exam registration , subject registration };
+
+fees:{
+fees structure , dues , payments , balance , registration fee , discount & waived , scholarship , adjustment , fee relaxation , refund , pocket money , cheque bounce info , head wise , bank neft/RTGs};
+
+hostel:{
+My Room , Room Status , Hostel Leave , Previous Registration , Mess Menu};
+
+Administration:{
+official detail , document status , document request , grievance , help desk , feedback};
+
+Library:{
+Membership , Issued Book , Previous Log , Fine , Library Attendance};
+
+other services:{
+Transport , Training and Placement , Change Password , Sibling , Gallery , Notice , Diary , Home Work , Student PTM , No Dues , Seating Plan }
+

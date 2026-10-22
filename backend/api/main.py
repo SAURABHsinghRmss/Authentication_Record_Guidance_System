@@ -12,7 +12,7 @@ from starlette.responses import Response
 from sqlalchemy import text
 from backend.services.db import engine, Base, SessionLocal
 from backend.models.student import StudentModel, UserModel, InstitutionModel
-from backend.api.routes import auth_routes, student_routes, rag_router, ws_router, chat_routes, notification_routes, community_chat_routes, copilot_chat_routes, institution_template_routes, mobile_auth_routes, admin_complaints_aicte_routes, india_dpi_routes, payment_fdr_routes, cross_role_routes
+from backend.api.routes import auth_routes, student_routes, rag_router, ws_router, chat_routes, notification_routes, community_chat_routes, copilot_chat_routes, institution_template_routes, mobile_auth_routes, admin_complaints_aicte_routes, india_dpi_routes, payment_fdr_routes, cross_role_routes, institutional_erp_routes
 from backend.api.middleware.rate_limiter import RateLimiterMiddleware
 from backend.core.config import settings
 from passlib.context import CryptContext
@@ -164,6 +164,8 @@ app.include_router(admin_complaints_aicte_routes.router, prefix=settings.API_V1_
 app.include_router(india_dpi_routes.router, prefix=settings.API_V1_STR)
 app.include_router(payment_fdr_routes.router, prefix=settings.API_V1_STR)
 app.include_router(cross_role_routes.router, prefix=settings.API_V1_STR)
+app.include_router(institutional_erp_routes.router, prefix=settings.API_V1_STR)
+app.include_router(institutional_erp_routes.router)
 app.include_router(rag_router.router)
 app.include_router(ws_router.router)
 

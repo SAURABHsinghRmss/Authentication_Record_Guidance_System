@@ -1,5 +1,10 @@
 function portalApp() {
-  return {
+  const erpState = (typeof window !== 'undefined' && typeof window.getPortalERPState === 'function')
+    ? window.getPortalERPState()
+    : {};
+
+  const appState = {
+    ...erpState,
     isLoggedIn: false,
     currentUsername: '',
     authMode: 'login',
@@ -2821,5 +2826,12 @@ function portalApp() {
       }
     }
   };
+
+  // Merge ERP state & methods ensuring all methods are cleanly bound
+  if (typeof window !== 'undefined' && typeof window.getPortalERPState === 'function') {
+    Object.assign(appState, window.getPortalERPState());
+  }
+
+  return appState;
 }
 
