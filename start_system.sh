@@ -1,48 +1,75 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # ==============================================================================
-# EduIdentityAI - Master Initialization Script
+# EduIdentityAI — Master Startup & Role Orchestrator (Linux / macOS)
 # ==============================================================================
 
-echo "[SYSTEM] Initializing Authentication, Record and Guidance System..."
-
-cleanup() {
-    echo "[SYSTEM] Shutting down all background processes..."
-    kill $BACKEND_PID 2>/dev/null
-    kill $FRONTEND_PID 2>/dev/null
-    docker-compose -f infrastructure/docker-compose.yml down
-    exit
-}
-trap cleanup SIGINT SIGTERM
-
-# 1. Install local Python dependencies
-echo "[INSTALL] Loading Python backend dependencies from local cache..."
-pip install --no-index --find-links=./dependencies/python_wheels -r backend/requirements.txt
-
-# 2. Boot Infrastructure Containers
-echo "[DOCKER] Starting PostgreSQL and Valkey containers..."
-docker-compose -f infrastructure/docker-compose.yml up -d db cache
-sleep 3
-
-# 3. Start Backend REST API
-echo "[BACKEND] Starting FastAPI server..."
 export PYTHONPATH="$(pwd)"
-uvicorn backend.api.main:app --host 0.0.0.0 --port 8000 --reload &
-BACKEND_PID=$!
 
-# 4. Start Frontend Web Portal
-echo "[FRONTEND] Serving Lit/Alpine.js UI Portal..."
-cd frontend || exit
-npm install --offline --cache ../dependencies/node_cache
-npm run dev &
-FRONTEND_PID=$!
-cd ..
+while true; do
+    clear
+    echo "=============================================================================="
+    echo "  EduIdentityAI — MASTER STARTUP & ROLE ORCHESTRATOR"
+    echo "  AI-Powered Application Validation, Documentation Authentication"
+    echo "  and Regulatory Compliance Verification via Sarvam AI"
+    echo "=============================================================================="
+    echo ""
+    echo "  Please select your startup mode:"
+    echo ""
+    echo "    [1] Standard Unified System (Gateway :8000 + Frontend :3000)"
+    echo "    [2] Multi-Role Isolated Servers (Role Ports 8001-8005 + Gateway :8000 + Frontend :3000)"
+    echo "    [3] Run Automated Test Suite (Pytest - 63 Tests)"
+    echo "    [4] Exit"
+    echo ""
+    echo "=============================================================================="
+    read -p "Enter your choice (1-4): " choice
 
-echo "======================================================================"
-echo " SYSTEM ONLINE AND OPERATIONAL"
-echo "======================================================================"
-echo " - Frontend Portal:   http://localhost:3000"
-echo " - Backend API:       http://localhost:8000/docs"
-echo " - Grafana SLA:       http://localhost:3001"
-echo " - Database Port:     5432 (PostgreSQL)"
-echo "======================================================================"
-wait
+    case $choice in
+        1)
+            echo "[1/2] Starting Unified FastAPI Backend Gateway on http://localhost:8000 ..."
+            python3 -m uvicorn backend.api.main:app --host 0.0.0.0 --port 8000 --reload &
+            GATEWAY_PID=$!
+            
+            echo "[2/2] Starting Frontend Portal Server on http://localhost:3000 ..."
+            cd frontend && npx vite --port 3000 &
+            FRONTEND_PID=$!
+            cd ..
+
+            echo ""
+            echo "=============================================================================="
+            echo " UNIFIED SYSTEM ONLINE!"
+            echo " - Frontend Portal:  http://localhost:3000"
+            echo " - FastAPI Docs:     http://localhost:8000/docs"
+            echo "=============================================================================="
+            read -p "Press [ENTER] to stop servers and return to menu..."
+            kill $GATEWAY_PID $FRONTEND_PID 2>/dev/null
+            ;;
+        2)
+            echo "Starting Multi-Role Isolated Servers..."
+            python3 -m uvicorn backend.api.main:app --host 0.0.0.0 --port 8000 --reload &
+            python3 -m uvicorn backend.api.role_apps.student_app:app --host 0.0.0.0 --port 8001 --reload &
+            python3 -m uvicorn backend.api.role_apps.faculty_app:app --host 0.0.0.0 --port 8002 --reload &
+            python3 -m uvicorn backend.api.role_apps.parent_app:app --host 0.0.0.0 --port 8003 --reload &
+            python3 -m uvicorn backend.api.role_apps.institute_app:app --host 0.0.0.0 --port 8004 --reload &
+            python3 -m uvicorn backend.api.role_apps.admin_app:app --host 0.0.0.0 --port 8005 --reload &
+            cd frontend && npx vite --port 3000 &
+            cd ..
+            echo "All role servers launched!"
+            read -p "Press [ENTER] to stop all servers and return to menu..."
+            pkill -f uvicorn
+            pkill -f vite
+            ;;
+        3)
+            echo "Running automated pytest test suite..."
+            pytest backend/tests/
+            read -p "Press [ENTER] to continue..."
+            ;;
+        4)
+            echo "Exiting EduIdentityAI orchestrator. Goodbye!"
+            exit 0
+            ;;
+        *)
+            echo "Invalid choice. Please enter 1, 2, 3, or 4."
+            sleep 2
+            ;;
+    esac
+done

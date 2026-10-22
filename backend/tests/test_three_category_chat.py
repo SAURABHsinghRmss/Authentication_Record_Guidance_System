@@ -33,7 +33,7 @@ def test_global_chat_flow():
     student_headers = _get_auth_headers("amit", "amit123")
 
     # 1. Fetch global messages before send
-    res = client.get("/api/chat/category/GLOBAL?channel_id=campus_global", headers=student_headers)
+    res = client.get("/api/chat/category/GLOBAL?channel_id=campus_global&limit=1000", headers=student_headers)
     assert res.status_code == 200, res.text
     initial_messages = res.json()
     initial_count = len(initial_messages)
@@ -57,7 +57,7 @@ def test_global_chat_flow():
     assert sent_data["message"] == test_msg
 
     # 3. Student fetches global messages and verifies arrival
-    fetch_res = client.get("/api/chat/category/GLOBAL?channel_id=campus_global", headers=student_headers)
+    fetch_res = client.get("/api/chat/category/GLOBAL?channel_id=campus_global&limit=1000", headers=student_headers)
     assert fetch_res.status_code == 200, fetch_res.text
     updated_messages = fetch_res.json()
     assert len(updated_messages) == initial_count + 1
