@@ -41,7 +41,8 @@ def init_db_schema():
                     "virtual_institute_name": "VARCHAR",
                     "virtual_institute_focus": "VARCHAR",
                     "admin_clearance_level": "VARCHAR",
-                    "admin_master_token": "VARCHAR"
+                    "admin_master_token": "VARCHAR",
+                    "sarvam_api_key": "VARCHAR"
                 }
                 for col_name, col_def in new_user_cols.items():
                     if col_name not in existing_user_cols:

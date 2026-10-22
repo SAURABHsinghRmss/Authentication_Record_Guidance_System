@@ -1,25 +1,25 @@
 {
-  "session_id": "sess_5a76fa6dff90",
+  "session_id": "sess_ea7ab65d11cf",
   "user_id": "usr_inst_demo",
   "username": "institute_admin",
   "email": "director@glbitm.ac.in",
   "role": "institute",
   "storage_location": "D:\\git\\mini_project\\Authentication_Record_Guidance_System\\storage\\logs\\users\\director@glbitm.ac.in",
   "cloud_storage_uri": "gs://eduidentity-user-logs/users/director@glbitm.ac.in/last_work.json",
-  "login_timestamp": "2026-10-18T22:31:49.091694+00:00",
+  "login_timestamp": "2026-10-22T12:39:21.647384+00:00",
   "client_ip": "testclient",
   "user_agent": "testclient",
-  "previous_login": "2026-10-18T21:36:27.020773+00:00",
+  "previous_login": "2026-10-22T11:31:41.112017+00:00",
   "previous_work": {
     "status": "ACTIVE_SESSION",
-    "session_started_at": "2026-10-18T21:36:27.020773+00:00",
+    "session_started_at": "2026-10-22T11:31:41.112017+00:00",
     "summary": "Session initiated by institute_admin (institute)",
     "actions_count": 0,
     "recent_actions": []
   },
   "current_work": {
     "status": "ACTIVE_SESSION",
-    "session_started_at": "2026-10-18T22:31:49.091694+00:00",
+    "session_started_at": "2026-10-22T12:39:21.647384+00:00",
     "summary": "Session initiated by institute_admin (institute)",
     "actions_count": 0,
     "recent_actions": []

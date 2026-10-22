@@ -140,7 +140,16 @@ function portalApp() {
     careerProfile: null,
     lastLoginAt: null,
 
-    activeTab: 'guidance',
+    activeTab: 'student_dashboard',
+    showRoleLoginModal: false,
+    openRoleLogin(role) {
+      this.loginForm.role = role;
+      this.showRoleLoginModal = true;
+      this.authError = '';
+    },
+    resetLoginFlow() {
+      this.authError = '';
+    },
     students: [],
     selectedStudentId: '',
     currentStudent: {},
@@ -307,7 +316,7 @@ function portalApp() {
         } else if (this.currentUserRole === 'parent') {
           this.activeTab = 'parent_overview';
         } else {
-          this.activeTab = 'guidance';
+          this.activeTab = 'student_dashboard';
         }
         await this.fetchStudents();
         await this.fetchEnrolledInstitutions();
@@ -1668,6 +1677,41 @@ function portalApp() {
       } catch (e) {
         console.error('Failed to fetch enrolled institutions:', e);
         this.loadDefaultEnrolledInstitutions();
+      }
+    },
+
+    showAddInstitutionModal: false,
+    newInstitutionForm: {
+      name: '',
+      type: 'College',
+      program: '',
+      roll_no: '',
+      location: 'India'
+    },
+
+    async addEnrolledInstitution() {
+      try {
+        const studentId = this.selectedStudentId || (this.currentStudent && this.currentStudent.id) || 'stu_001';
+        const res = await fetch(`/api/students/${studentId}/enrolled-institutions/add`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.authToken}`
+          },
+          body: JSON.stringify(this.newInstitutionForm)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          alert(data.message || 'Successfully enrolled in new institution!');
+          this.showAddInstitutionModal = false;
+          this.newInstitutionForm = { name: '', type: 'College', program: '', roll_no: '', location: 'India' };
+          await this.fetchEnrolledInstitutions();
+        } else {
+          alert('Failed to enroll in new institution.');
+        }
+      } catch (e) {
+        console.error('Error adding institution:', e);
+        alert('Network error while adding institution.');
       }
     },
 

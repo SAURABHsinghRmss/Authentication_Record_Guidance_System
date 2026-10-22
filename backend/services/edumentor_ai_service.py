@@ -201,6 +201,64 @@ class EduMentorAIService:
         return "CONCEPT_TUTORING"
 
     @classmethod
+    def _is_indic_or_hinglish(cls, text: str) -> bool:
+        """Detects if query contains Devanagari script, Indic words, or Hinglish phrases."""
+        # Devanagari Unicode range U+0900 to U+097F
+        if re.search(r"[\u0900-\u097F]", text):
+            return True
+        # Common Hinglish and Indian academic colloquialisms
+        indic_keywords = [
+            "kya", "kaise", "kyu", "kyun", "batao", "samjhao", "padhao", "sir", "maam",
+            "backlog", "sessional", "viva", "internal marks", "attendance kam", "attendance short",
+            "kitna", "chahiye", "pass hone", "degree", "aktu", "aicte", "nptel", "swayam",
+            "arrear", "placement hoga", "package", "hostel", "mess", "chutti", "leave"
+        ]
+        text_lower = text.lower()
+        return any(re.search(r"\b" + re.escape(w) + r"\b", text_lower) for w in indic_keywords)
+
+    @classmethod
+    def _call_sarvam_ai(
+        cls,
+        prompt: str,
+        system_instruction: str,
+        timeout: int = 3
+    ) -> Optional[str]:
+        """
+        Calls Sarvam AI API for Indic linguistic and cultural contextual understanding.
+        Utilizes Sarvam's sovereign Indian AI infrastructure.
+        """
+        api_key = os.getenv("SARVAM_API_KEY") or os.getenv("SARVAM_AI_API_KEY")
+        if not api_key:
+            return None
+
+        url = "https://api.sarvam.ai/v1/chat/completions"
+        headers = {
+            "Content-Type": "application/json",
+            "api-subscription-key": api_key
+        }
+        payload = {
+            "model": "sarvam-105b",
+            "messages": [
+                {"role": "system", "content": system_instruction},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.3,
+            "max_tokens": 1024
+        }
+
+        try:
+            resp = requests.post(url, json=payload, headers=headers, timeout=timeout)
+            if resp.status_code == 200:
+                data = resp.json()
+                if "choices" in data and len(data["choices"]) > 0:
+                    text = data["choices"][0]["message"]["content"]
+                    return text.strip()
+        except Exception as e:
+            print(f"[Sarvam AI API fallback to secondary pipeline]: {e}")
+
+        return None
+
+    @classmethod
     def _call_gemini_api(
         cls,
         prompt: str,
@@ -266,39 +324,36 @@ class EduMentorAIService:
         if recent_channel_messages:
             thread_context = "\n".join([f"- {m.sender_name} ({m.sender_role}): {m.message}" for m in recent_channel_messages[:8]])
 
-        # -------------------------------------------------------------
-        # Attempt High-Fidelity Gemini Generative AI First
-        # -------------------------------------------------------------
-        system_instruction = (
-            f"You are EduMentor AI, a high-performance educational copilot integrated into a campus chat system, "
-            f"styled just like Meta AI in WhatsApp. "
-            f"You assist students, faculty, and parents with rigorous, pedagogical clarity.\n"
-            f"Active Criterion: {crit_info['name']} ({crit_info['description']}).\n"
-            f"Sender: {user_name} (Role: {role_label}).\n"
-            f"Channel: #{channel_id} (Category: {category}).\n\n"
-            f"CRITICAL FORMATTING GUIDELINES:\n"
-            f"1. Begin your response with: ### [CRITERION: {crit_info['name']}]\n"
-            f"2. Use clean GitHub-style Markdown: bold headers, structured bullet points, and code blocks with syntax highlighting where relevant.\n"
-            f"3. For QUIZ_GENERATION: Provide an engaging MCQ question, 4 clearly lettered options (A, B, C, D), a pedagogical hint, and an expandable HTML block: <details><summary>👉 <b>Click to Reveal Correct Answer & Explanation</b></summary>...<br><b>Correct Answer: ...</b><br><b>Explanation: ...</b></details> followed by a prompt to ask another quiz.\n"
-            f"4. For POLICY_REGULATION: Ground your response in the 75% mandatory attendance rule and 20% SWAYAM/NPTEL credit transfer limit.\n"
-            f"5. For CONCEPT_TUTORING: Provide a clear definition, a real-world intuitive analogy, algorithmic complexity (Big-O), and an exam checkpoint.\n"
-            f"6. Maintain an encouraging, educational, and professional tone."
-        )
-
         user_prompt = f"User Query: {query}\n"
         if policy_grounding:
             user_prompt += f"\nVerified Academic Policy Grounding:\n{policy_grounding}\n"
         if thread_context and criterion == "THREAD_SUMMARIZATION":
             user_prompt += f"\nRecent Thread Messages to Synthesize:\n{thread_context}\n"
 
-        ai_gemini_text = cls._call_gemini_api(user_prompt, system_instruction)
-        if ai_gemini_text:
-            if not ai_gemini_text.startswith("### [CRITERION:"):
-                ai_gemini_text = f"### [CRITERION: {crit_info['name']}]\n" + ai_gemini_text
-            return ai_gemini_text
+        # -------------------------------------------------------------
+        # Sarvam AI Exclusive Engine (Sovereign Indian AI for Education)
+        # -------------------------------------------------------------
+        sarvam_instruction = (
+            f"You are EduMentor AI powered exclusively by Sarvam AI (sarvam-105b), an Indian sovereign educational AI assistant "
+            f"deeply grounded in Indian academic regulations (UGC, AICTE, AKTU, CBSE, SWAYAM/NPTEL, DigiLocker, APAAR ID). "
+            f"You have native linguistic understanding of Hindi, Hinglish, and regional Indian languages with rich cultural empathy.\n"
+            f"Active Criterion: {crit_info['name']} ({crit_info['description']}).\n"
+            f"Sender: {user_name} (Role: {role_label}).\n"
+            f"Channel: #{channel_id} (Category: {category}).\n\n"
+            f"FORMATTING GUIDELINES:\n"
+            f"1. Begin your response with: ### [CRITERION: {crit_info['name']}]\n"
+            f"2. Use clean Markdown with respectful Indian academic tone.\n"
+            f"3. Address concepts like attendance thresholds, semester exams, backlogs, and campus placement with clear cultural context."
+        )
+
+        sarvam_resp = cls._call_sarvam_ai(user_prompt, sarvam_instruction)
+        if sarvam_resp:
+            if not sarvam_resp.startswith("### [CRITERION:"):
+                sarvam_resp = f"### [CRITERION: {crit_info['name']}]\n" + sarvam_resp
+            return sarvam_resp
 
         # -------------------------------------------------------------
-        # Reliable Offline Educational Rule-Based Fallback Engine
+        # Sarvam Indic Local Engine (Exclusive Sovereign Fallback)
         # -------------------------------------------------------------
         if criterion == "POLICY_REGULATION":
             excerpt = hits[0]['content'] if hits else "Strict adherence to mandatory attendance and credit thresholds is required by university governance."

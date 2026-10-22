@@ -1,0 +1,45 @@
+{
+  "session_id": "sess_57ed22d87df9",
+  "user_id": "usr_bd67360d",
+  "username": "dev_ad0a39",
+  "email": "dev_ad0a39@uni.edu",
+  "role": "student",
+  "storage_location": "D:\\git\\mini_project\\Authentication_Record_Guidance_System\\storage\\logs\\users\\dev_ad0a39@uni.edu",
+  "cloud_storage_uri": "gs://eduidentity-user-logs/users/dev_ad0a39@uni.edu/last_work.json",
+  "login_timestamp": "2026-10-22T05:58:28.288710+00:00",
+  "client_ip": "testclient",
+  "user_agent": "testclient",
+  "previous_login": "2026-10-22T05:58:28.059625+00:00",
+  "previous_work": {
+    "status": "ACTIVE_SESSION",
+    "session_started_at": "2026-10-22T05:58:28.059625+00:00",
+    "summary": "Tested API routes and student guidance recommendations",
+    "actions_count": 1,
+    "recent_actions": [
+      {
+        "timestamp": "2026-10-22T05:58:28.225500+00:00",
+        "action_type": "BUG_INVESTIGATION",
+        "description": "Tested API routes and student guidance recommendations",
+        "metadata": {
+          "test_case": "TC_042",
+          "module": "guidance"
+        }
+      }
+    ],
+    "last_action_at": "2026-10-22T05:58:28.225500+00:00"
+  },
+  "current_work": {
+    "status": "ACTIVE_SESSION",
+    "session_started_at": "2026-10-22T05:58:28.288710+00:00",
+    "summary": "Session initiated by dev_ad0a39 (student)",
+    "actions_count": 0,
+    "recent_actions": []
+  },
+  "cloud_storage_metadata": {
+    "provider": "google_cloud_storage",
+    "bucket": "eduidentity-user-logs",
+    "sync_ready": true,
+    "last_synced_at": null,
+    "sync_status": "LOCAL_STAGED"
+  }
+}

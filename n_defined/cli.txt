@@ -1,0 +1,10 @@
+1)payments of fee or any product : streamline of security deposite / FDR portal ; with many more different modes of payment with all roles interconnected possible.
+
+2)complaints(admin) : integrated dashboard for monitoring and tracking different institutional complaint cases types across different mater such as AICTE Bureaus/Cells , payments and many more . also add Integrated AICTE Approval Workflow Automation Compliance Monitoring and Alert Management System .
+
+3)(institution which are aicte-approved) : Development of an APAAR ID-Based Student Data Management and Verification Platform .
+
+[AI-POWERED APPLICATION VALIDATION , DOCUMENTATION AUTHENTICATION AND REGULATORY COMPLIANCE VERIFICATION]
+
+4)while sign-in or log-in , make sure user with any role logged with their mobile number and use email that is linked to same mobile number to to sign-in (if not logged in previously) to use their own sarvam api key
+

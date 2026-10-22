@@ -794,6 +794,48 @@ def _build_full_institution_portal(inst_id: str, student_name: str, roll_no: str
         "other_services": other_services
     }
 
+CUSTOM_INSTITUTIONS_STORE = []
+
+class CustomInstitutionAddRequest(BaseModel):
+    name: str
+    type: str = "College"
+    program: str
+    roll_no: str
+    location: str = "India"
+
+@router.post("/{student_id}/enrolled-institutions/add")
+def add_enrolled_institution(student_id: str, payload: CustomInstitutionAddRequest):
+    """Dynamically enrolls student in a new school, college, or company."""
+    inst_id = f"inst_custom_{uuid.uuid4().hex[:8]}"
+    new_inst = {
+        "id": inst_id,
+        "name": payload.name,
+        "type": payload.type,
+        "type_category": payload.type.upper(),
+        "badge": "Newly Enrolled • Active",
+        "affiliation": "Accredited Academic Depository",
+        "program": payload.program,
+        "department": "Department of General Studies",
+        "current_semester": "1st Semester",
+        "roll_no": payload.roll_no,
+        "enrollment_number": f"ENR-{random.randint(100000, 999999)}",
+        "batch": "2026 - Present",
+        "joined_year": "2026",
+        "status": "ACTIVE",
+        "location": payload.location,
+        "is_primary": False,
+        "attendance_percentage": "90.0%",
+        "cgpa": "8.50",
+        "icon": "fa-graduation-cap",
+        "accent_color": "blue"
+    }
+    CUSTOM_INSTITUTIONS_STORE.append(new_inst)
+    return {
+        "status": "SUCCESS",
+        "message": f"Successfully enrolled in {payload.name}.",
+        "institution": new_inst
+    }
+
 @router.get("/{student_id}/enrolled-institutions")
 def get_enrolled_institutions(student_id: str, db: Session = Depends(get_db)):
     """Returns all enrolled institutions for the student (e.g. school, college, virtual academy)."""

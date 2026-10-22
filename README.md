@@ -4,10 +4,9 @@
 [![Vite](https://img.shields.io/badge/Vite-5.4-646CFF?logo=vite&logoColor=white)](https://vitejs.dev)
 [![Python](https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white)](https://www.python.org)
 [![Alpine.js](https://img.shields.io/badge/Alpine.js-3.17-8BC0D0?logo=alpinedotjs&logoColor=white)](https://alpinejs.dev)
-[![Lit](https://img.shields.io/badge/Lit-3.3-324FFF?logo=lit&logoColor=white)](https://lit.dev)
 [![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.1-D71F00?logo=sqlalchemy&logoColor=white)](https://www.sqlalchemy.org)
 
-**EduIdentityAI** is a high-performance, modular academic identity management, record governance, and AI-driven student guidance platform. It integrates multi-factor biometric authentication, APAAR/DigiLocker verification, dense RAG academic advisement, real-time WebSocket telemetry, and partitioned user work logging ready for Cloud Storage lakes.
+**EduIdentityAI** is an advanced, AI-powered multi-database federated academic identity management, record governance, application validation, documentation authentication, and regulatory compliance verification platform tailored specifically for India's Digital Public Infrastructure (DPI) and educational standards.
 
 ---
 
@@ -15,54 +14,45 @@
 
 - [Key Features](#-key-features)
 - [System Architecture & Directory Layout](#-system-architecture--directory-layout)
-- [Universal Developer Account](#-universal-developer-account)
-- [User Work Logging & Cloud Storage](#-user-work-logging--cloud-storage)
+- [Exclusive Sarvam AI Integration](#-exclusive-sarvam-ai-integration)
+- [India Digital Public Infrastructure (DPI) Integrations](#-india-digital-public-infrastructure-dpi-integrations)
+- [Payments, Security Deposits & FDR Escrow Portal](#-payments-security-deposits--fdr-escrow-portal)
+- [Admin Complaints Dashboard & AICTE Workflow Automation](#-admin-complaints-dashboard--aicte-workflow-automation)
 - [Getting Started](#-getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Running on Windows](#running-on-windows)
-  - [Running on Linux / macOS](#running-on-linux--macos)
-- [API Reference & Key Endpoints](#-api-reference--key-endpoints)
 - [Automated Testing](#-automated-testing)
-- [Architecture & Roadmap Documentation](#-architecture--roadmap-documentation)
 
 ---
 
 ## 🌟 Key Features
 
-1. **Academic Identity & Institutional Verification**:
-   - Strict institutional sign-up verification with approval workflows for universities.
-   - Roll-based access control (RBAC): `student`, `faculty`, `admin`.
-   - 2FA one-time passcodes (OTP) and Math CAPTCHA bot mitigation.
+1. **Mobile-First Secure Authentication & Sign-In**:
+   - Mobile number primary sign-in with OTP verification and automatic linked email resolution.
+   - Per-user **Sarvam AI API Key** input for AI-powered validation and compliance features.
 
-2. **Multimodal Biometric & Credential Verification**:
-   - Simulated neural feature extraction and cosine similarity across **Face** (DeepFace), **Voice** (SpeechBrain), **OCR** (EasyOCR), and **Multimodal Fusion**.
-   - Automated sandbox verification for **APAAR ID** (National Academic Depository) and **DigiLocker** degree credentials.
+2. **Exclusive Sarvam AI Integration (`sarvam-105b`)**:
+   - Sovereign Indian AI powering application validation, documentation authentication, regulatory compliance verification, and EduMentor AI mentoring.
 
-3. **Academic Guidance & RAG Advisement**:
-   - AI-driven guidance generating personalized recommendations based on CGPA, attendance thresholds, and backlogs.
-   - Semantic Retrieval-Augmented Generation (RAG) answering academic policies (SWAYAM/NPTEL credit transfer, minimum attendance).
+3. **Student Dashboard & Notice Board**:
+   - Logged-in students are greeted by the official **Notice Board** (academic bulletins, ABC/APAAR ID synchronization, and scholarship disbursals).
+   - Positioned directly below is the prominent **"Enrolled Institutes"** hub button for one-click access to multi-institute academic histories.
 
-4. **Permanent Universal Developer User**:
-   - Master account `msrch` with credentials for developer testing and bug inspection.
-   - Immutable anti-deletion protection via SQLite database triggers and SQLAlchemy ORM lifecycle listeners.
+4. **Three-Category Chat System**:
+   - **Personal AI Mentor Chat**, **Private Study Groups**, and **Global Campus Announcements** (EduMentor Meta AI style with 8 educational criteria).
 
-5. **Gmail-Partitioned User Work Logging & Cloud Storage Readiness**:
-   - Isolated log storage directories partitioned by user Gmail/email in `storage/logs/users/{user_email}/`.
-   - Tracks previous session work snapshots at each login, continuous session activity streams, and cloud sync readiness for Google Cloud Storage (`gs://eduidentity-user-logs/...`).
+5. **Multi-Mode Payments, Security Deposits & FDR Escrow Portal**:
+   - Multi-mode payment support (**UPI**, **NetBanking**, **Credit/Debit Card**, **SBIePay**, **PFMS Treasury**).
+   - Fixed Deposit Receipt (FDR) escrow portal for AICTE statutory reserves and caution money management, fully interconnected across all roles (`student`, `faculty`, `parent`, `institute`, `admin`).
 
-6. **EduMentor Meta AI in WhatsApp-Style Chat (8 Educational Criteria)**:
-   - Iconic Meta AI glowing iridescent ring UI integrated into Personal, Private, and Global Agora chat categories.
-   - **8 Core Educational Criteria Grounding**:
-     1. `POLICY_REGULATION`: Institutional Regulations & Credit Policy (RAG grounded on 75% attendance rule and 20% SWAYAM/NPTEL credits).
-     2. `CONCEPT_TUTORING`: Pedagogical concept breakdowns with analogies, step-by-step algorithms, and Big-O complexity analysis.
-     3. `QUIZ_GENERATION`: Interactive 4-option MCQs with pedagogical hints and expandable `<details>` answer reveals.
-     4. `THREAD_SUMMARIZATION`: Intelligent study synthesis of channel discussions and lecture notes into bulleted takeaways.
-     5. `ACADEMIC_INTEGRITY`: IEEE / APA 7th edition citation generator and plagiarism avoidance standards.
-     6. `CAREER_PATHWAY`: Semester project milestones, placement preparation, and technical interview roadmaps.
-     7. `EXAM_REVISION`: High-yield exam cheat sheets, core formulas, and viva voce question preparation.
-     8. `CODE_LAB_ASSIST`: Line-by-line code explanation, debugging guidance, and time/space complexity optimization.
-   - Dual-engine intelligence: Powered by **Google Gemini 3.8 Flash** with zero-downtime deterministic local fallback for air-gapped/offline resilience.
-   - Available as a dedicated 1-on-1 contact (`@edumentor_ai`) and in-channel mentions (`@ai` or `@meta`) in any group or campus agora.
+6. **Admin Complaints Dashboard & AICTE Approval Workflow Automation**:
+   - Monitoring and tracking institutional complaint cases across AICTE Bureaus/Cells (Approval Bureau, Payment & Finance Cell, Anti-Ragging Cell, Quality Assurance Bureau).
+   - 5-stage approval lifecycle automation (Intake, EVC Inspection, Standing Hearing Committee, Executive Committee, LoA/EoA issuance) with real-time severity-tagged compliance alerts.
+
+7. **India Digital Public Infrastructure (DPI) & Cross-Role Pipelines**:
+   - Official Indian governance service integrations: **APAAR ID / Academic Bank of Credits (ABC)** via DigiLocker, **National Scholarship Portal (NSP)** DBT, **AICTE Portal SIF**, **UIDAI Aadhaar**, and **PFMS & SBIePay** reconciliation.
+   - **Cross-Role Pipelines** bridging Parent-Student ward monitoring, Faculty-Student Sarvam AI document verification, and Institute-Admin compliance escalations.
+
+8. **Official Redesigned Landing Presentation Page & Role Portals**:
+   - Stunning animated hero presentation with scrollable role exploration cards for all 5 roles (`Student`, `Faculty`, `Institute`, `Parent`, `Admin`), linking directly to role-specific secure sign-in gateways.
 
 ---
 
@@ -74,202 +64,34 @@ Authentication_Record_Guidance_System/
 │   ├── api/
 │   │   ├── main.py                 # Application factory, lifespan, CORS, rate limiter
 │   │   ├── dependencies.py         # JWT extraction, OAuth2 Bearer, RBAC guards
-│   │   ├── middleware/             # RateLimiterMiddleware with testclient bypass
-│   │   └── routes/
-│   │       ├── auth_routes.py      # Auth, user profile, work logs, biometrics, OTP
-│   │       ├── chat_routes.py      # Unified 3-Category Chat (Personal, Private, Global) & Meta AI
-│   │       ├── community_chat_routes.py # Campus clubs, study groups, and verified peer hives
-│   │       ├── db_admin_routes.py  # Polyglot 7-database federation administration
-│   │       ├── student_routes.py   # Student CRUD, academic records, guidance engine
-│   │       ├── rag_router.py       # Knowledge base RAG search endpoint
-│   │       └── ws_router.py        # Real-time WebSocket telemetry stream
+│   │   └── routes/                 # Auth, Mobile Auth, Complaints, DPI, Payments/FDR, Chat, RAG, WS
 │   ├── core/
 │   │   └── config.py               # Pydantic settings & polyglot domain DB paths
 │   ├── models/
-│   │   ├── student.py              # SQLAlchemy models & Pydantic schemas (Unified Chat & 3NF)
-│   │   └── sample_students.json    # Sample student data and RAG knowledge base
+│   │   └── student.py              # SQLAlchemy ORM models & Pydantic schemas
 │   ├── services/
 │   │   ├── db.py                   # Primary SQLAlchemy session and engine
 │   │   ├── db_federation.py        # Polyglot 7-Database domain federation manager
-│   │   ├── edumentor_ai_service.py # EduMentor Meta AI (Gemini 3.8 Flash & 8 Criteria)
-│   │   └── user_work_logger.py     # Partitioned user work logging & cloud sync adapter
-│   ├── tests/
-│   │   ├── test_api.py             # Unit & integration tests
-│   │   └── test_three_category_chat.py # 10 comprehensive tests for chat & Meta AI criteria
-│   └── requirements.txt            # Python dependencies with cross-platform markers
-├── databases/                      # Polyglot Domain-Isolated Database Storage
-│   ├── auth_iam.db                 # Domain 1: Authentication, IAM, & credentials
-│   ├── academic_sis.db             # Domain 2: Student information system & records
-│   ├── family_heritage.db          # Domain 3: Parent-ward linkages & socio-economic data
-│   ├── institutions_governance.db  # Domain 4: Organization accreditation & tenant oversight
-│   ├── security_audit.db           # Domain 5: Security audit stream & tamper detection
-│   ├── career_pathways.db          # Domain 6: Technical skill roadmaps & placements
-│   └── notifications_events.db     # Domain 7: Real-time alerts & notice broadcasts
-├── dependencies/                   # Offline wheel cache, AI model weights, & node cache
-│   ├── README.md                   # Offline air-gapped installation guide
-│   ├── python_wheels/              # Pre-downloaded Python wheel binaries
-│   ├── ai_weights/                 # Pre-trained neural model weights
-│   └── node_cache/                 # Offline npm package cache
+│   │   ├── sarvam_ai_service.py    # Exclusive Sarvam-105B AI integration service
+│   │   ├── india_dpi_integration_service.py # APAAR, ABC, NSP, AICTE SIF, Aadhaar, PFMS
+│   │   ├── payment_fdr_escrow_service.py    # Multi-mode payments & FDR escrow portal
+│   │   ├── admin_complaints_aicte_service.py # Admin complaints & AICTE workflow automation
+│   │   ├── cross_role_pipeline_service.py    # Cross-role function connectivity bridges
+│   │   └── edumentor_ai_service.py # EduMentor AI copilot service
+│   └── tests/                      # 63 automated unit & integration tests
+├── databases/                      # 7 Federated Domain-Isolated Databases
 ├── frontend/                       # Lit & Alpine.js Web Application
-│   ├── index.html                  # Cyber-glassmorphism portal UI, Meta AI ring & chat
-│   ├── js/app.js                   # Alpine.js state store & API communications
-│   ├── css/style.css               # Styling definitions, Meta AI animations & badges
-│   └── package.json                # Frontend dependencies (lit, alpinejs, vite)
-├── ai_engine/                      # Biometrics & Vector Store Engine
-│   └── pipelines/
-│       ├── biometric_worker.py     # Biometric verification pipeline simulations
-│       └── vector_store.py         # In-memory vector store & keyword overlap scoring
-├── storage/                        # Persistent & Staged Application Data
-│   └── logs/users/                 # Partitioned user log folders by Gmail/email
-│       ├── <user_email>/
-│       │   ├── last_work.json      # Latest work snapshot and previous session state
-│       │   ├── login_history.jsonl # Append-only chronological login stream
-│       │   └── activity_stream.jsonl # Real-time session action telemetry
-├── infrastructure/                 # Containerized Infrastructure Services
-│   └── docker-compose.yml          # PostgreSQL 15 & Valkey 7.2 container definitions
-├── n_defined/                      # System Specifications, Roadmaps & Role Definitions
-│   ├── current_definitions.md      # End-to-end connectivity trace matrix
-│   ├── database_development_plan.md # 7-database federation & unified chat schema
-│   ├── detailed_master_future_plan.md # Master future engineering execution roadmap
-│   ├── hierarchical_scaling_blueprint.md # Institution, state & country scaling
-│   ├── pending_definitions.md      # Implemented status vs future enterprise scope
-│   ├── project_improvements.md     # Security, RAG & cloud lake enhancement guide
-│   └── roles/                      # Fine-grained RBAC specifications (student, faculty, admin, etc.)
-├── eduidentity.db                  # Default SQLite database file
-├── start_system.bat                # Windows startup script (Backend + Frontend)
-└── start_system.sh                 # Linux/macOS startup script (Containers + App)
+│   ├── index.html                  # Redesigned landing presentation & role portals
+│   ├── js/app.js                   # Alpine.js reactive controller
+│   └── css/style.css               # Cyber-glassmorphic styling & themes
+└── storage/                        # Persistent & Staged Application Data
 ```
-
----
-
-## 👥 Role-Based Access Control (RBAC) Architecture
-
-As defined in `n_defined/roles/`, EduIdentityAI enforces strict role-based access control across five distinct user roles:
-
-| Role & Definition File | Core Privileges & Responsibilities |
-| :--- | :--- |
-| **`admin.txt`**<br>(Administrator / Master Developer) | Unrestricted system access, database CRUD, user management, institution request approvals, observability metrics, storage auditing, and cloud sync. Features permanent master account (`msrch`) with anti-deletion protection. |
-| **`institute.txt`**<br>(Institution / College Authority) | Institutional governance, verified student/faculty enrollments, institution registration status management, and compliance with national academic frameworks. |
-| **`mentor_teachers.txt`**<br>(Faculty & Mentor Teachers) | Student roster management, attendance tracking (75% mandatory threshold), CGPA & backlog monitoring, student record updates (`POST`/`PUT /api/students/`), and counseling notice dispatch. |
-| **`parent.txt`**<br>(Parent / Guardian) | Monitoring student academic progress, semester CGPA, attendance percentage, active backlogs, fee status, and receiving official institutional or scam/safety alerts. |
-| **`student.txt`**<br>(Student Portal) | AI guidance RAG advisor, multimodal biometrics (Face, OCR, Voice), 2FA OTP verification, APAAR ID / DigiLocker credentials, and opportunity scam shielding. |
-
----
-
-## 🛡️ Universal Developer Account
-
-For testing, auditing, and bug reproduction, a permanent universal master account is pre-configured:
-
-| Parameter | Value |
-| :--- | :--- |
-| **Username** | `msrch` |
-| **Password** | `msrch1410#` |
-| **Role** | `admin` |
-| **Permissions** | Full administrative and testing access |
-| **Immutability** | **Permanent (Anti-Deletion)**: Protected by SQLite trigger `prevent_delete_msrch` and SQLAlchemy `before_delete` hook. Cannot be deleted via API or ORM, but profile attributes (email, full name, password) can be altered as needed. |
-
----
-
-## 🗄️ User Work Logging & Cloud Storage
-
-Every time a user logs in, the platform captures their session in an isolated storage directory named after their Gmail/email:
-
-- **Directory Path**: `storage/logs/users/{user_email}/`
-- **Session Continuity**: When logging in, the system reads `last_work.json`, retrieves what the user was doing in their prior session (`previous_work`), and updates `current_work` with the new session ID and timestamps.
-- **Action Recording**: Users or background operations call `POST /api/auth/work-logs/me/record` to record actions into `activity_stream.jsonl` and keep `last_work.json` updated.
-- **Cloud Storage Readiness**: Each file is formatted and staged with a canonical Cloud Storage URI (`gs://eduidentity-user-logs/users/{user_email}/last_work.json`). Administrators can trigger staging verification via `POST /api/auth/work-logs/cloud-sync`.
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- **Python**: 3.10+ (tested through Python 3.13 on x86_64 and ARM64)
-- **Node.js**: 18+ & npm
-- *(Optional)* **Docker & Docker Compose**: For running PostgreSQL and Valkey
-
-### Running on Windows
-
-1. Double-click or run:
-   ```cmd
-   start_system.bat
-   ```
-2. The batch script will automatically:
-   - Launch the FastAPI Backend on `http://localhost:8000`
-   - Launch the Vite Frontend Portal on `http://localhost:3000`
-
-### Running on Linux / macOS
-
-1. Grant execution permissions:
-   ```bash
-   chmod +x start_system.sh
-   ```
-2. Execute the startup script:
-   ```bash
-   ./start_system.sh
-   ```
-
-### Manual Execution
-
-**Backend**:
-```bash
-python -m pip install -r backend/requirements.txt
-python -m uvicorn backend.api.main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-**Frontend**:
-```bash
-cd frontend
-npm install
-npm run dev -- --port 3000
-```
-
----
-
-## 🌐 API Reference & Key Endpoints
-
-| Category | Method | Endpoint | Description |
-| :--- | :--- | :--- | :--- |
-| **Auth** | `POST` | `/api/auth/login` | Authenticate user, log session in user Gmail directory, return JWT token and last work summary |
-| **Auth** | `POST` | `/api/auth/register` | Institutional user registration |
-| **Profile** | `GET` | `/api/auth/me` | Fetch authenticated user profile (`is_permanent` flag) |
-| **Profile** | `PUT` | `/api/auth/users/{username}` | Alter profile attributes (name, email, password) |
-| **Profile** | `DELETE`| `/api/auth/users/{username}` | Delete user (permanently rejects deletion of `msrch`) |
-| **Work Logs** | `GET` | `/api/auth/work-logs/me/last-work` | Retrieve last work snapshot from user's storage location |
-| **Work Logs** | `POST`| `/api/auth/work-logs/me/record` | Record work actions in active session |
-| **Work Logs** | `GET` | `/api/auth/work-logs/me/history`| Fetch chronological login history stream |
-| **Work Logs** | `GET` | `/api/auth/work-logs/locations` | *(Admin only)* List all user Gmail storage folders |
-| **Work Logs** | `POST`| `/api/auth/work-logs/cloud-sync`| *(Admin only)* Verify staging and trigger Cloud Storage sync |
-| **Students** | `GET` | `/api/students/` | List student records with filtering |
-| **Students** | `POST`| `/api/students/` | Create student record (Admin/Faculty) |
-| **Students** | `GET` | `/api/students/{id}/guidance` | Compute AI academic guidance & alerts |
-| **AI RAG** | `POST`| `/rag_query` | Query institutional knowledge base |
-| **Biometrics**| `POST`| `/api/auth/biometric-verify` | Verify face, voice, OCR, or fusion biometric match |
-| **System** | `GET` | `/health` | Health check & service connectivity status |
-| **Metrics** | `GET` | `/metrics` | Prometheus metrics scrape endpoint |
-| **Docs** | `GET` | `/docs` | Swagger / OpenAPI interactive documentation |
 
 ---
 
 ## 🧪 Automated Testing
 
-The backend includes a comprehensive automated test suite covering authentication, RBAC, CRUD, RAG, biometrics, developer account permanence, and user Gmail work logging:
-
+Run the full test suite (63 passing tests):
 ```bash
-python -m unittest backend/tests/test_api.py
+pytest backend/tests/
 ```
-
-All 10 test cases run in `< 0.5s` and execute against testclient with rate-limiting bypass.
-
----
-
-## 📖 Architecture & Roadmap Documentation
-
-Detailed architectural and deployment guides are available in the **[`n_defined/`](n_defined/)** folder:
-
-- **[`dependencies_and_cloud_computing_plan.md`](n_defined/dependencies_and_cloud_computing_plan.md)**: Master architecture blueprint for software dependencies, multi-cloud topologies (AWS, Azure, GCP, Render), FinOps, and disaster recovery.
-- **[`current_definitions.md`](n_defined/current_definitions.md)**: End-to-end trace from frontend UI to database persistence.
-- **[`internet_deployment_phases.md`](n_defined/internet_deployment_phases.md)**: Phased cloud deployment roadmap (Render.com, DNS, SSL, and Phase 6 Cloud Storage Lake migration).
-- **[`pending_definitions.md`](n_defined/pending_definitions.md)**: Enterprise scaling specifications for GPU neural inferencing, OIDC, and live GCS bucket streaming.
-- **[`project_improvements.md`](n_defined/project_improvements.md)**: Roadmap for multi-cloud storage backends, automated session restoration cards, and log compression.

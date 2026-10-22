@@ -62,6 +62,7 @@ class UserModel(Base):
     full_name = Column(String)
     institution_name = Column(String)
     institution_verified = Column(Boolean, default=False)
+    sarvam_api_key = Column(String, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     @property
@@ -141,8 +142,11 @@ class UserRegister(BaseModel):
     mobile_verified: bool = False
 
 class UserLogin(BaseModel):
-    username: str
+    username: Optional[str] = None
+    mobile_number: Optional[str] = None
+    email: Optional[str] = None
     password: str
+    sarvam_api_key: Optional[str] = None
     captcha_answer: Optional[int] = None
 
 class UserUpdate(BaseModel):
