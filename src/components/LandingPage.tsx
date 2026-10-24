@@ -90,38 +90,90 @@ export const LandingPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-blue-600 selection:text-white">
-      {/* Hero Header */}
-      <div className="relative min-h-[92vh] flex flex-col items-center justify-center px-4 py-16 text-center overflow-hidden">
-        <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
-        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-purple-600/15 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-blue-600 selection:text-white bg-grid-slate-800 relative">
+      {/* Top Floating Glass Brand Navigation */}
+      <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/80 px-6 py-3.5 flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/20 font-bold">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 14l9-5-9-5-9 5 9 5z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+            </svg>
+          </div>
+          <div>
+            <div className="text-base font-extrabold text-white tracking-tight flex items-center gap-2">
+              <span>EduIdentityAI</span>
+              <span className="text-[10px] bg-blue-500/10 border border-blue-500/30 text-blue-300 px-2 py-0.5 rounded-full font-mono font-bold">
+                DPI v4.2
+              </span>
+            </div>
+            <div className="text-[11px] text-slate-400 font-mono">
+              National Academic Identity & Regulatory Verification Platform
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-3">
+          <a
+            href="#role-matrix"
+            className="text-xs font-semibold text-slate-300 hover:text-white transition px-3 py-1.5 rounded-xl hover:bg-slate-900 hidden sm:inline"
+          >
+            Role Segregation Matrix
+          </a>
+          <button
+            onClick={() => openRoleLogin('student')}
+            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-600/30 transition flex items-center space-x-1.5"
+          >
+            <span>Sign In</span>
+            <i className="fa-solid fa-arrow-right text-[10px]"></i>
+          </button>
+        </div>
+      </header>
+
+      {/* Hero Header with Cinematic Campus Visual Backdrop */}
+      <div className="relative min-h-[85vh] flex flex-col items-center justify-center px-4 py-16 text-center overflow-hidden">
+        {/* Background Visual Banner with Measured Dark Scrim */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <img
+            src="/src/assets/images/hero_academic_campus_1792870358380.jpg"
+            alt="EduIdentityAI National Digital Campus"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-cover object-center opacity-25 scale-105 filter blur-[1px]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950/90 to-slate-950"></div>
+          <div className="absolute inset-0 bg-radial-at-c from-transparent via-slate-950/60 to-slate-950"></div>
+        </div>
+
+        {/* Floating Ambient Glowing Blobs */}
+        <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
+        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-cyan-600/20 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
 
         <div className="max-w-4xl mx-auto space-y-6 relative z-10">
-          <div className="inline-flex items-center space-x-2 bg-blue-500/10 border border-blue-500/30 px-4 py-1.5 rounded-full text-xs font-bold text-blue-300">
+          <div className="inline-flex items-center space-x-2 bg-slate-900/90 border border-blue-500/30 px-4 py-1.5 rounded-full text-xs font-bold text-blue-300 backdrop-blur-md shadow-lg shadow-blue-500/10">
             <i className="fa-solid fa-shield-halved text-emerald-400"></i>
-            <span>Official Digital Public Infrastructure (DPI) & AI Governance Platform for India</span>
+            <span>Official Digital Public Infrastructure (DPI) & Academic Governance Platform</span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-indigo-300 to-emerald-400 bg-clip-text text-transparent">
-            EduIdentityAI
+          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
+            Unified Academic Identity &amp; Regulatory Verification
           </h1>
 
-          <p className="text-base sm:text-xl text-slate-300 max-w-2xl mx-auto font-medium">
-            Unified Academic Identity, Record Governance, AI Application Validation, Documentation Authentication, and Regulatory Compliance Verification powered exclusively by <strong className="text-purple-400">Sarvam AI (sarvam-105b)</strong>.
+          <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto font-medium leading-relaxed">
+            Interconnected student records, automated 75% attendance compliance, multimodal biometric hall tickets, and AICTE regulatory escrow governance powered by <strong className="text-purple-400 font-bold">Sarvam AI (sarvam-105b)</strong>.
           </p>
 
           {/* Quick Feature Pills */}
-          <div className="flex flex-wrap justify-center gap-2 pt-2 text-xs font-mono">
-            <span className="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-blue-300">
+          <div className="flex flex-wrap justify-center gap-2 pt-1 text-xs font-mono">
+            <span className="bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded-xl text-blue-300 backdrop-blur-md">
               <i className="fa-solid fa-graduation-cap mr-1.5 text-blue-400"></i>APAAR / ABC ID
             </span>
-            <span className="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-emerald-300">
+            <span className="bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded-xl text-emerald-300 backdrop-blur-md">
               <i className="fa-solid fa-building-columns mr-1.5 text-emerald-400"></i>AICTE SIF & FDR Escrow
             </span>
-            <span className="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-purple-300">
+            <span className="bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded-xl text-purple-300 backdrop-blur-md">
               <i className="fa-solid fa-robot mr-1.5 text-purple-400"></i>Sarvam-105B AI
             </span>
-            <span className="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-amber-300">
+            <span className="bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded-xl text-amber-300 backdrop-blur-md">
               <i className="fa-solid fa-credit-card mr-1.5 text-amber-400"></i>SBIePay / PFMS
             </span>
           </div>
@@ -270,8 +322,158 @@ export const LandingPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Interactive Role Responsibility & Conflict Reduction Analysis Section */}
+      <div id="role-matrix" className="max-w-7xl mx-auto px-4 pt-12 pb-4 space-y-6 relative z-10 w-full">
+        <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 backdrop-blur-xl">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+            <div>
+              <div className="inline-flex items-center space-x-2 text-cyan-400 font-mono text-xs font-bold mb-1">
+                <i className="fa-solid fa-code-branch"></i>
+                <span>Strict Separation of Concerns & Role Invariants</span>
+              </div>
+              <h2 className="text-2xl font-extrabold text-white">
+                Role Responsibility & Zero-Conflict Architecture Matrix
+              </h2>
+              <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                To eliminate cross-role functional leakage and cognitive overload, each persona is backed by a purpose-built frontend with zero unauthorized or irrelevant actions.
+              </p>
+            </div>
+            <div className="px-4 py-2 rounded-2xl bg-slate-950 border border-slate-800 font-mono text-xs text-slate-300 shrink-0">
+              <span className="text-emerald-400 font-bold">5 Portals</span> · Zero Cross-Bleed
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+            {/* Student */}
+            <div className="p-4 rounded-2xl bg-slate-950 border border-blue-500/30 space-y-3 flex flex-col justify-between">
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2 text-blue-400 font-bold text-xs">
+                  <i className="fa-solid fa-graduation-cap"></i>
+                  <span>1. Student Portal</span>
+                </div>
+                <div className="text-[11px] text-slate-300">
+                  <strong className="text-white">Needed For:</strong> Personal transcripts, APAAR/ABC credits, 75% attendance ring, EduMentor AI tutor, multimodal biometrics, and scam shield.
+                </div>
+                <div className="text-[10px] text-slate-400 pt-1 border-t border-slate-900">
+                  <span className="text-rose-400 font-semibold">Removed:</span> 7-DB cluster federation, student database CRUD, SIF compliance, faculty grading rosters.
+                </div>
+                <div className="text-[10px] text-slate-400 font-mono pt-1">
+                  <strong className="text-blue-300 font-sans">Logical Reason:</strong> Exposing backend infrastructure or admin CRUD compromises data integrity and distracts learners from academic goals.
+                </div>
+              </div>
+              <button
+                onClick={() => instantLogin('student')}
+                className="w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md transition"
+              >
+                Launch Student
+              </button>
+            </div>
+
+            {/* Faculty */}
+            <div className="p-4 rounded-2xl bg-slate-950 border border-indigo-500/30 space-y-3 flex flex-col justify-between">
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2 text-indigo-400 font-bold text-xs">
+                  <i className="fa-solid fa-chalkboard-user"></i>
+                  <span>2. Faculty Portal</span>
+                </div>
+                <div className="text-[11px] text-slate-300">
+                  <strong className="text-white">Needed For:</strong> Mentee rosters, at-risk warnings (attendance &lt; 75%), longitudinal counseling notes, pedagogy AI assistant, and research CFP verifier.
+                </div>
+                <div className="text-[10px] text-slate-400 pt-1 border-t border-slate-900">
+                  <span className="text-rose-400 font-semibold">Removed:</span> Multi-university database cluster, student internship applications, institutional accreditation paperwork.
+                </div>
+                <div className="text-[10px] text-slate-400 font-mono pt-1">
+                  <strong className="text-indigo-300 font-sans">Logical Reason:</strong> Faculty require high-density teaching, grading, and counseling tools without server-level administrative burdens.
+                </div>
+              </div>
+              <button
+                onClick={() => instantLogin('faculty')}
+                className="w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md transition"
+              >
+                Launch Faculty
+              </button>
+            </div>
+
+            {/* Parent */}
+            <div className="p-4 rounded-2xl bg-slate-950 border border-amber-500/30 space-y-3 flex flex-col justify-between">
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2 text-amber-400 font-bold text-xs">
+                  <i className="fa-solid fa-user-group"></i>
+                  <span>3. Parent Portal</span>
+                </div>
+                <div className="text-[11px] text-slate-300">
+                  <strong className="text-white">Needed For:</strong> Ward attendance threshold tracking (&gt;75%), digital admit card clearance, direct mentor hotline, fee escrow receipts, and policy FAQs.
+                </div>
+                <div className="text-[10px] text-slate-400 pt-1 border-t border-slate-900">
+                  <span className="text-rose-400 font-semibold">Removed:</span> Campus peer chat feeds, other students&apos; records, developer studios, and ERP server settings.
+                </div>
+                <div className="text-[10px] text-slate-400 font-mono pt-1">
+                  <strong className="text-amber-300 font-sans">Logical Reason:</strong> Parents need empathetic, privacy-preserving oversight of their own ward with zero exposure to peer social feeds or ERP levers.
+                </div>
+              </div>
+              <button
+                onClick={() => instantLogin('parent')}
+                className="w-full py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-md transition"
+              >
+                Launch Parent
+              </button>
+            </div>
+
+            {/* Institute */}
+            <div className="p-4 rounded-2xl bg-slate-950 border border-teal-500/30 space-y-3 flex flex-col justify-between">
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2 text-teal-400 font-bold text-xs">
+                  <i className="fa-solid fa-building-columns"></i>
+                  <span>4. Institute Portal</span>
+                </div>
+                <div className="text-[11px] text-slate-300">
+                  <strong className="text-white">Needed For:</strong> AICTE SIF compliance, department capacities, faculty-student ratios (FSR &lt; 1:15), statutory bulletin broadcaster, and accreditation vault.
+                </div>
+                <div className="text-[10px] text-slate-400 pt-1 border-t border-slate-900">
+                  <span className="text-rose-400 font-semibold">Removed:</span> Student 1-on-1 private chats, root database cluster destruction controls, student resume reviewers.
+                </div>
+                <div className="text-[10px] text-slate-400 font-mono pt-1">
+                  <strong className="text-teal-300 font-sans">Logical Reason:</strong> College deans and directors require institutional governance, compliance reporting, and statutory broadcasting.
+                </div>
+              </div>
+              <button
+                onClick={() => instantLogin('institute')}
+                className="w-full py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md transition"
+              >
+                Launch Institute
+              </button>
+            </div>
+
+            {/* Admin */}
+            <div className="p-4 rounded-2xl bg-slate-950 border border-rose-500/30 space-y-3 flex flex-col justify-between">
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2 text-rose-400 font-bold text-xs">
+                  <i className="fa-solid fa-shield-halved"></i>
+                  <span>5. Admin Portal</span>
+                </div>
+                <div className="text-[11px] text-slate-300">
+                  <strong className="text-white">Needed For:</strong> AICTE grievance queue, 3NF student CRUD, polyglot 7-database federation, institution approvals, and biometric audit forensics.
+                </div>
+                <div className="text-[10px] text-slate-400 pt-1 border-t border-slate-900">
+                  <span className="text-rose-400 font-semibold">Removed:</span> Casual student chatter, student exam drills, daily classroom grading worksheets.
+                </div>
+                <div className="text-[10px] text-slate-400 font-mono pt-1">
+                  <strong className="text-rose-300 font-sans">Logical Reason:</strong> Administrators operate at the sovereign infrastructure tier, arbitrating inter-institutional compliance and security streams.
+                </div>
+              </div>
+              <button
+                onClick={() => instantLogin('admin')}
+                className="w-full py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-md transition"
+              >
+                Launch Admin
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Scrollable Role Exploration Section */}
-      <div id="role-exploration" className="max-w-7xl mx-auto px-4 py-20 space-y-16 relative z-10">
+      <div id="role-exploration" className="max-w-7xl mx-auto px-4 py-16 space-y-16 relative z-10">
         <div className="text-center space-y-3">
           <h2 className="text-3xl font-extrabold text-white">Select Your Operational Role</h2>
           <p className="text-sm text-slate-400 max-w-xl mx-auto">
