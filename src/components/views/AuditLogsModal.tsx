@@ -1,19 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { BiometricModality, BiometricStatus } from '../../types';
+import { BiometricModality, BiometricStatus, BiometricLogEntry } from '../../types';
 
 export const AuditLogsModal: React.FC<{ isOpen: boolean; onClose: () => void; onOpenBiometrics?: () => void }> = ({
   isOpen,
   onClose,
   onOpenBiometrics
 }) => {
-  const { auditLogs, biometricLogs, recordBiometricAttempt } = useAuth();
-  const [activeTab, setActiveTab] = useState<'biometrics' | 'system'>('biometrics');
+  const { auditLogs, biometricLogs, recordBiometricAttempt, toggleFlagBiometricLog, currentRole, currentUser, firebaseUser } = useAuth();
+  const isAdmin = currentRole === 'admin' || currentUser?.role === 'admin' || currentUser?.email === 'ssrmsr06@gmail.com' || firebaseUser?.email === 'ssrmsr06@gmail.com';
+
+  const [activeTab, setActiveTab] = useState<'biometrics' | 'flagged' | 'system'>('biometrics');
   const [modalityFilter, setModalityFilter] = useState<'ALL' | BiometricModality>('ALL');
   const [statusCategoryFilter, setStatusCategoryFilter] = useState<'ALL' | 'SUCCESS' | 'FAILURE' | 'PENDING'>('ALL');
   const [searchDateOrKeyword, setSearchDateOrKeyword] = useState('');
   const [simulatingScan, setSimulatingScan] = useState(false);
   const [downloadFeedback, setDownloadFeedback] = useState(false);
+
+  // Flagging Feature State
+  const [flagModalTarget, setFlagModalTarget] = useState<BiometricLogEntry | null>(null);
+  const [flagReasonInput, setFlagReasonInput] = useState('');
+  const [flagPresetSelected, setFlagPresetSelected] = useState<string>('');
+  const [flagFeedbackToast, setFlagFeedbackToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
+  const [flagSearchQuery, setFlagSearchQuery] = useState('');
+  const [flagModalityFilter, setFlagModalityFilter] = useState<'ALL' | BiometricModality>('ALL');
+  const [flaggedDownloadFeedback, setFlaggedDownloadFeedback] = useState(false);
 
   // High-Priority Alert Configuration State
   const [notifySystemAlerts, setNotifySystemAlerts] = useState<boolean>(() => {
@@ -102,6 +113,124 @@ export const AuditLogsModal: React.FC<{ isOpen: boolean; onClose: () => void; on
     setDownloadFeedback(true);
     setTimeout(() => setDownloadFeedback(false), 4000);
   };
+
+  const FLAG_PRESET_REASONS = [
+    'Critical Spoof Artifact (Non-liveness/IR signature failed)',
+    'Sub-Threshold Illumination & Optical Lux Discrepancy',
+    'Identity Verification Mismatch / Proxy Examination Attempt',
+    'Acoustic Spectrogram Harmonic Anomaly',
+    'Manual Administrative & Statutory Compliance Escalation'
+  ];
+
+  const handleOpenFlagModal = (entry: BiometricLogEntry) => {
+    setFlagModalTarget(entry);
+    setFlagPresetSelected('');
+    setFlagReasonInput(entry.flagReason || '');
+  };
+
+  const handleConfirmFlagModal = async () => {
+    if (!flagModalTarget) return;
+    const finalReason = flagReasonInput.trim() || flagPresetSelected || 'Administrative manual audit required.';
+    await toggleFlagBiometricLog(flagModalTarget.id, finalReason);
+    setFlagModalTarget(null);
+    setFlagReasonInput('');
+    setFlagPresetSelected('');
+    setFlagFeedbackToast({
+      message: `Verification entry [${flagModalTarget.id}] flagged for manual review.`,
+      type: 'success'
+    });
+    setTimeout(() => setFlagFeedbackToast(null), 3500);
+  };
+
+  const handleQuickUnflag = async (entry: BiometricLogEntry) => {
+    await toggleFlagBiometricLog(entry.id);
+    setFlagFeedbackToast({
+      message: `Flag on verification [${entry.id}] resolved and removed.`,
+      type: 'info'
+    });
+    setTimeout(() => setFlagFeedbackToast(null), 3500);
+  };
+
+  const downloadFlaggedReportCSV = () => {
+    const headers = [
+      'Event ID',
+      'Timestamp (UTC+5:30)',
+      'Modality Code',
+      'Modality Description',
+      'Subject Roll Number',
+      'Subject Full Name',
+      'Verification Status',
+      'Confidence Score',
+      'Flagged Status',
+      'Flagged Reason',
+      'Flagged By Reviewer',
+      'Flagged Timestamp',
+      'Audit SHA-256 Hash'
+    ];
+
+    const escapeCsvField = (field: string) => {
+      if (field.includes(',') || field.includes('"') || field.includes('\n') || field.includes('\r')) {
+        return `"${field.replace(/"/g, '""')}"`;
+      }
+      return field;
+    };
+
+    const flaggedList = biometricLogs.filter(b => b.isFlagged);
+    const rows = flaggedList.map(entry => [
+      entry.id,
+      entry.timestamp,
+      entry.modality,
+      entry.modalityLabel,
+      entry.subjectRollNo,
+      entry.subjectName,
+      entry.status,
+      entry.confidenceScore,
+      'FLAGGED_FOR_MANUAL_REVIEW',
+      entry.flagReason || 'N/A',
+      entry.flaggedBy || 'Sovereign Admin',
+      entry.flaggedAt || 'N/A',
+      entry.hash
+    ].map(val => escapeCsvField(String(val || ''))).join(','));
+
+    const csvContent = [
+      `# EduIdentityAI Flagged Biometrics Compliance Docket`,
+      `# Generated: ${new Date().toISOString()}`,
+      `# Authority: AICTE Grievance & Sovereign Security Bureau`,
+      `# Total Flagged Records: ${flaggedList.length}`,
+      headers.join(','),
+      ...rows
+    ].join('\r\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const dateStr = new Date().toISOString().slice(0, 10);
+    link.setAttribute('download', `EduIdentityAI_Flagged_Biometric_Incidents_${dateStr}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    setFlaggedDownloadFeedback(true);
+    setTimeout(() => setFlaggedDownloadFeedback(false), 4000);
+  };
+
+  const flaggedLogs = biometricLogs.filter(b => b.isFlagged);
+  const filteredFlaggedLogs = flaggedLogs.filter(entry => {
+    if (flagModalityFilter !== 'ALL' && entry.modality !== flagModalityFilter) return false;
+    if (flagSearchQuery.trim()) {
+      const q = flagSearchQuery.toLowerCase();
+      const matchSubject = entry.subjectName.toLowerCase().includes(q) || entry.subjectRollNo.toLowerCase().includes(q);
+      const matchReason = (entry.flagReason || '').toLowerCase().includes(q);
+      const matchFlagger = (entry.flaggedBy || '').toLowerCase().includes(q);
+      const matchModality = entry.modalityLabel.toLowerCase().includes(q);
+      const matchHash = entry.hash.toLowerCase().includes(q);
+      if (!matchSubject && !matchReason && !matchFlagger && !matchModality && !matchHash) return false;
+    }
+    return true;
+  });
+
 
   // Filtered biometric entries
   const filteredBiometrics = biometricLogs.filter(entry => {
@@ -277,6 +406,19 @@ export const AuditLogsModal: React.FC<{ isOpen: boolean; onClose: () => void; on
           </div>
         )}
 
+        {/* Flag Action Feedback Toast */}
+        {flagFeedbackToast && (
+          <div className="p-3 rounded-2xl bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 text-xs font-mono flex items-center justify-between shadow-lg shadow-emerald-950/30 animate-in fade-in">
+            <div className="flex items-center space-x-2">
+              <i className="fa-solid fa-circle-check text-emerald-400"></i>
+              <span>{flagFeedbackToast.message}</span>
+            </div>
+            <button onClick={() => setFlagFeedbackToast(null)} className="text-emerald-400 hover:text-white p-1">
+              <i className="fa-solid fa-xmark text-xs"></i>
+            </button>
+          </div>
+        )}
+
         {/* Tab & Notification Toggle Action Bar */}
         <div className="flex flex-wrap items-center justify-between gap-2.5">
           {/* Tab Switcher */}
@@ -295,6 +437,27 @@ export const AuditLogsModal: React.FC<{ isOpen: boolean; onClose: () => void; on
                 activeTab === 'biometrics' ? 'bg-white/20 text-white' : 'bg-slate-800 text-slate-300'
               }`}>
                 {biometricLogs.length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('flagged')}
+              className={`px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 ${
+                activeTab === 'flagged'
+                  ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/30'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <i className={`fa-solid fa-flag ${flaggedLogs.length > 0 ? 'text-amber-400 animate-pulse' : 'text-slate-400'}`}></i>
+              <span>Flagged Items</span>
+              <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold ${
+                activeTab === 'flagged'
+                  ? 'bg-white/20 text-white'
+                  : flaggedLogs.length > 0
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                  : 'bg-slate-800 text-slate-400'
+              }`}>
+                {flaggedLogs.length}
               </span>
             </button>
 
@@ -720,8 +883,10 @@ export const AuditLogsModal: React.FC<{ isOpen: boolean; onClose: () => void; on
                 filteredBiometrics.map(entry => (
                   <div
                     key={entry.id}
-                    className={`p-3.5 rounded-2xl bg-slate-900 border transition space-y-2 ${
-                      entry.status === 'REJECTED'
+                    className={`p-3.5 rounded-2xl bg-slate-900 border transition space-y-2.5 ${
+                      entry.isFlagged
+                        ? 'border-amber-500/70 bg-gradient-to-r from-amber-950/25 via-slate-900 to-slate-900 shadow-md shadow-amber-950/30'
+                        : entry.status === 'REJECTED'
                         ? 'border-rose-500/50 hover:border-rose-400'
                         : 'border-slate-800 hover:border-teal-500/40'
                     }`}
@@ -729,13 +894,21 @@ export const AuditLogsModal: React.FC<{ isOpen: boolean; onClose: () => void; on
                     {/* Header line: Modality, Status, Timestamp */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
                       <div className="flex items-center space-x-2.5">
-                        <div className="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-sm shrink-0">
+                        <div className={`w-8 h-8 rounded-xl bg-slate-950 border flex items-center justify-center text-sm shrink-0 ${
+                          entry.isFlagged ? 'border-amber-500/50 text-amber-400' : 'border-slate-800'
+                        }`}>
                           <i className={`fa-solid ${getModalityIcon(entry.modality)}`}></i>
                         </div>
                         <div>
                           <div className="font-bold text-white text-xs flex items-center gap-2">
                             <span>{entry.modalityLabel}</span>
                             <span className="text-[10px] font-mono text-slate-400">({entry.subjectRollNo})</span>
+                            {entry.isFlagged && (
+                              <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse">
+                                <i className="fa-solid fa-flag text-[8px]"></i>
+                                <span>FLAGGED</span>
+                              </span>
+                            )}
                           </div>
                           <div className="text-[10px] font-mono text-slate-400">
                             Subject: <strong className="text-slate-200">{entry.subjectName}</strong>
@@ -752,8 +925,60 @@ export const AuditLogsModal: React.FC<{ isOpen: boolean; onClose: () => void; on
                         }`}>
                           Score: {entry.confidenceScore}
                         </span>
+
+                        {/* Admin Flag Action Button */}
+                        {entry.isFlagged ? (
+                          <button
+                            type="button"
+                            onClick={() => handleQuickUnflag(entry)}
+                            disabled={!isAdmin}
+                            className={`px-2.5 py-1 rounded-xl text-[10px] font-mono font-bold transition flex items-center space-x-1 border ${
+                              isAdmin
+                                ? 'bg-amber-500/20 hover:bg-emerald-500/20 text-amber-300 hover:text-emerald-300 border-amber-500/40 hover:border-emerald-500/40 cursor-pointer shadow-sm'
+                                : 'bg-slate-900 text-slate-500 border-slate-800 cursor-not-allowed'
+                            }`}
+                            title={isAdmin ? "Resolve investigation and clear flag" : "Admin credentials required to clear flags"}
+                          >
+                            <i className="fa-solid fa-flag text-amber-400 text-[9px]"></i>
+                            <span>{isAdmin ? 'Resolve Flag' : 'Flagged'}</span>
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleOpenFlagModal(entry)}
+                            disabled={!isAdmin}
+                            className={`px-2 py-1 rounded-xl text-[10px] font-mono transition flex items-center space-x-1 border ${
+                              isAdmin
+                                ? 'bg-slate-950 hover:bg-amber-500/20 text-slate-400 hover:text-amber-300 border-slate-800 hover:border-amber-500/40 cursor-pointer'
+                                : 'bg-slate-950 text-slate-600 border-slate-800/60 cursor-not-allowed opacity-60'
+                            }`}
+                            title={isAdmin ? "Flag this biometric log for manual administrative review" : "Admin credentials required to flag records"}
+                          >
+                            <i className="fa-regular fa-flag text-[9px]"></i>
+                            <span>Flag</span>
+                          </button>
+                        )}
                       </div>
                     </div>
+
+                    {/* Flagged Visual Indicator Dossier Banner */}
+                    {entry.isFlagged && (
+                      <div className="p-2.5 rounded-xl bg-amber-950/40 border border-amber-500/30 text-amber-200 text-xs space-y-1">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[10px] font-mono text-amber-400 border-b border-amber-500/20 pb-1">
+                          <span className="flex items-center space-x-1 font-bold">
+                            <i className="fa-solid fa-triangle-exclamation text-amber-400"></i>
+                            <span>UNDER ADMINISTRATIVE AUDIT REVIEW</span>
+                          </span>
+                          <span className="text-slate-400">
+                            Flagged by: <strong className="text-amber-300">{entry.flaggedBy || 'Sovereign Admin'}</strong> {entry.flaggedAt ? `(${entry.flaggedAt})` : ''}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-200 font-sans leading-relaxed">
+                          <strong className="text-amber-300 font-mono text-[10px]">Review Note: </strong>
+                          {entry.flagReason || 'Requires physical sensor corroboration and registrar authorization.'}
+                        </p>
+                      </div>
+                    )}
 
                     {/* Notes line */}
                     <p className="text-xs text-slate-300 leading-relaxed font-sans pl-10">
@@ -775,6 +1000,275 @@ export const AuditLogsModal: React.FC<{ isOpen: boolean; onClose: () => void; on
                         <span className="text-cyan-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
                           {entry.hash}
                         </span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* TAB 2: FLAGGED ITEMS FOR MANUAL REVIEW (ADMIN WORKSPACE)   */}
+        {/* ========================================================= */}
+        {activeTab === 'flagged' && (
+          <div className="flex-1 flex flex-col space-y-3 min-h-0">
+            {/* Regulatory Queue Notice & Admin Access Info */}
+            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-950/60 via-slate-950 to-slate-950 border border-amber-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg shadow-amber-950/20">
+              <div className="flex items-start space-x-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
+                  <i className="fa-solid fa-flag text-base animate-pulse"></i>
+                </div>
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <h3 className="text-xs font-bold font-mono text-amber-300 uppercase tracking-wider">
+                      AICTE Sovereign Biometric Review Queue
+                    </h3>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                      Level-2 Human Audit
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 font-sans mt-0.5">
+                    Flagged attempts hold student attendance and credential issuance until an authorized admin audits physical sensor logs and clears or escalates the discrepancy.
+                  </p>
+                </div>
+              </div>
+
+              {/* Download Flagged CSV */}
+              <div className="flex items-center space-x-2 shrink-0">
+                <button
+                  onClick={downloadFlaggedReportCSV}
+                  disabled={flaggedLogs.length === 0}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition flex items-center space-x-1.5 shadow-md ${
+                    flaggedLogs.length > 0
+                      ? 'bg-amber-600 hover:bg-amber-500 text-white shadow-amber-600/20 cursor-pointer'
+                      : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                  }`}
+                  title="Export flagged incident records for regulatory AICTE compliance"
+                >
+                  <i className={`fa-solid ${flaggedDownloadFeedback ? 'fa-check text-white' : 'fa-file-csv'}`}></i>
+                  <span>{flaggedDownloadFeedback ? 'Docket Exported!' : 'Export Flagged Docket'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* KPI Summary for Flagged Items */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="p-3 rounded-2xl bg-slate-950 border border-amber-500/40">
+                <span className="text-[10px] text-amber-400 font-mono block">Active Review Queue</span>
+                <span className="text-xl font-extrabold text-amber-300 font-mono mt-0.5 block">{flaggedLogs.length}</span>
+                <span className="text-[10px] text-slate-400 font-mono">Requires decision</span>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800/80">
+                <span className="text-[10px] text-rose-400 font-mono block">Critical Spoofs</span>
+                <span className="text-xl font-extrabold text-rose-400 font-mono mt-0.5 block">
+                  {flaggedLogs.filter(f => f.status === 'REJECTED').length}
+                </span>
+                <span className="text-[10px] text-slate-500 font-mono">IR / Non-liveness failure</span>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800/80">
+                <span className="text-[10px] text-amber-400 font-mono block">2FA Challenges</span>
+                <span className="text-xl font-extrabold text-amber-400 font-mono mt-0.5 block">
+                  {flaggedLogs.filter(f => f.status === 'CHALLENGE_REQUIRED').length}
+                </span>
+                <span className="text-[10px] text-slate-500 font-mono">Lux/sensor discrepancy</span>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800/80">
+                <span className="text-[10px] text-sky-400 font-mono block">Pending Dual-Corroboration</span>
+                <span className="text-xl font-extrabold text-sky-400 font-mono mt-0.5 block">
+                  {flaggedLogs.filter(f => f.status === 'PENDING').length}
+                </span>
+                <span className="text-[10px] text-slate-500 font-mono">Awaiting second factor</span>
+              </div>
+            </div>
+
+            {/* Flagged Items Search & Modality Filter */}
+            <div className="bg-slate-950 p-2.5 rounded-2xl border border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 text-xs font-mono">
+              <div className="relative flex-1">
+                <i className="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+                <input
+                  type="text"
+                  value={flagSearchQuery}
+                  onChange={e => setFlagSearchQuery(e.target.value)}
+                  placeholder="Filter flagged queue by subject, roll no, reviewer, or reason..."
+                  className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-8 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 font-mono"
+                />
+                {flagSearchQuery && (
+                  <button
+                    onClick={() => setFlagSearchQuery('')}
+                    className="absolute right-3 top-2 text-slate-400 hover:text-white"
+                  >
+                    <i className="fa-solid fa-xmark text-xs"></i>
+                  </button>
+                )}
+              </div>
+
+              {/* Modality Chips */}
+              <div className="flex items-center space-x-1.5 shrink-0 overflow-x-auto">
+                <span className="text-slate-500 text-[10px]">Modality:</span>
+                {[
+                  { id: 'ALL', label: 'All' },
+                  { id: 'FACE_3D', label: 'Face' },
+                  { id: 'OCR_ID', label: 'OCR' },
+                  { id: 'VOICE_SPECTROGRAM', label: 'Voice' }
+                ].map(m => (
+                  <button
+                    key={m.id}
+                    onClick={() => setFlagModalityFilter(m.id as any)}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] transition ${
+                      flagModalityFilter === m.id
+                        ? 'bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40'
+                        : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                    }`}
+                  >
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Flagged Items Scrollable List */}
+            <div className="flex-1 bg-slate-950 border border-slate-800 rounded-2xl p-3 sm:p-4 overflow-y-auto space-y-3 min-h-0">
+              {filteredFlaggedLogs.length === 0 ? (
+                <div className="text-center py-12 space-y-3">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-xl">
+                    <i className="fa-solid fa-circle-check"></i>
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="text-white text-sm font-bold font-mono">Review Queue Clear</h4>
+                    <p className="text-slate-400 text-xs font-mono max-w-md mx-auto">
+                      {flagSearchQuery || flagModalityFilter !== 'ALL'
+                        ? 'No flagged records match your current search query or modality filter.'
+                        : 'No biometric verification logs are currently flagged for review. You can flag suspicious or challenged scans from the Biometric Scan History tab.'}
+                    </p>
+                  </div>
+                  {(flagSearchQuery || flagModalityFilter !== 'ALL') ? (
+                    <button
+                      onClick={() => { setFlagSearchQuery(''); setFlagModalityFilter('ALL'); }}
+                      className="text-amber-400 hover:underline text-xs font-mono font-bold"
+                    >
+                      Clear search filters
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setActiveTab('biometrics')}
+                      className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-teal-400 border border-slate-800 text-xs font-mono font-bold transition inline-flex items-center space-x-1.5"
+                    >
+                      <i className="fa-solid fa-fingerprint"></i>
+                      <span>Inspect Biometric Ledger</span>
+                    </button>
+                  )}
+                </div>
+              ) : (
+                filteredFlaggedLogs.map(entry => (
+                  <div
+                    key={entry.id}
+                    className="p-4 rounded-2xl bg-slate-900 border-2 border-amber-500/50 hover:border-amber-400/80 transition space-y-3 shadow-lg shadow-amber-950/20"
+                  >
+                    {/* Top Row: Modality, Status, RollNo, Confidence */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-9 h-9 rounded-xl bg-slate-950 border border-amber-500/40 flex items-center justify-center text-amber-400 text-sm shrink-0">
+                          <i className={`fa-solid ${getModalityIcon(entry.modality)}`}></i>
+                        </div>
+                        <div>
+                          <div className="font-bold text-white text-xs flex items-center gap-2">
+                            <span>{entry.modalityLabel}</span>
+                            <span className="text-[10px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                              {entry.subjectRollNo}
+                            </span>
+                          </div>
+                          <div className="text-[11px] font-mono text-slate-300">
+                            Student: <strong className="text-white">{entry.subjectName}</strong>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-2 self-start sm:self-center">
+                        {getStatusBadge(entry.status)}
+                        <span className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded border ${
+                          entry.status === 'REJECTED'
+                            ? 'text-rose-400 bg-rose-500/10 border-rose-500/30'
+                            : 'text-amber-400 bg-amber-500/10 border-amber-500/30'
+                        }`}>
+                          Score: {entry.confidenceScore}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Prominent Flag Review Callout Box */}
+                    <div className="p-3 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-200 text-xs space-y-1.5">
+                      <div className="flex items-center justify-between text-[11px] font-mono text-amber-400 font-bold border-b border-amber-500/20 pb-1">
+                        <span className="flex items-center space-x-1.5">
+                          <i className="fa-solid fa-triangle-exclamation text-amber-400"></i>
+                          <span>ADMINISTRATIVE REVIEW DOSSIER</span>
+                        </span>
+                        <span>Flagged: {entry.flaggedAt || 'Recently'}</span>
+                      </div>
+                      <p className="text-xs text-slate-100 font-sans leading-relaxed">
+                        <strong className="text-amber-300 font-mono text-[11px]">Reason: </strong>
+                        {entry.flagReason || 'Requires manual biometric sensor corroboration and registry sign-off.'}
+                      </p>
+                      <div className="text-[10px] font-mono text-slate-400 flex items-center justify-between pt-0.5">
+                        <span>Reviewer Authority: <strong className="text-amber-300">{entry.flaggedBy || 'System Administrator'}</strong></span>
+                        <span className="text-slate-500">Action: Holds Attendance &amp; ABC Credit Token</span>
+                      </div>
+                    </div>
+
+                    {/* Sensor / Raw Log Notes */}
+                    <div className="text-xs text-slate-400 font-mono bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 space-y-0.5">
+                      <div className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Original Device Telemetry Note:</div>
+                      <div className="text-slate-300 font-sans">{entry.notes}</div>
+                    </div>
+
+                    {/* Card Footer: Metadata and Action Buttons */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800/80 text-[10px] font-mono text-slate-400">
+                      <div className="flex items-center space-x-2">
+                        <i className="fa-solid fa-clock text-slate-500"></i>
+                        <span className="text-slate-300 font-bold">{entry.timestamp}</span>
+                        <span className="text-slate-600">·</span>
+                        <span>{entry.relativeTime}</span>
+                        <span className="text-slate-600">·</span>
+                        <span className="text-cyan-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
+                          {entry.hash}
+                        </span>
+                      </div>
+
+                      {/* Admin Resolution Buttons */}
+                      <div className="flex items-center space-x-2">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenFlagModal(entry)}
+                          disabled={!isAdmin}
+                          className={`px-2.5 py-1 rounded-xl text-xs font-mono font-bold transition flex items-center space-x-1 ${
+                            isAdmin
+                              ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 cursor-pointer'
+                              : 'bg-slate-950 text-slate-600 border border-slate-800 cursor-not-allowed'
+                          }`}
+                          title={isAdmin ? "Edit review reason note" : "Admin privileges required"}
+                        >
+                          <i className="fa-solid fa-pen-to-square text-[10px]"></i>
+                          <span>Edit Note</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleQuickUnflag(entry)}
+                          disabled={!isAdmin}
+                          className={`px-3 py-1 rounded-xl text-xs font-mono font-bold transition flex items-center space-x-1.5 shadow-md ${
+                            isAdmin
+                              ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20 cursor-pointer'
+                              : 'bg-slate-950 text-slate-600 border border-slate-800 cursor-not-allowed'
+                          }`}
+                          title={isAdmin ? "Mark manual review resolved and release token" : "Admin credentials required to clear flags"}
+                        >
+                          <i className="fa-solid fa-check text-[11px]"></i>
+                          <span>Resolve &amp; Clear Flag</span>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -846,6 +1340,112 @@ export const AuditLogsModal: React.FC<{ isOpen: boolean; onClose: () => void; on
           </div>
         </div>
       </div>
+
+      {/* ========================================================= */}
+      {/* ADMIN FLAG DIALOG MODAL (Reason & Category Picker)        */}
+      {/* ========================================================= */}
+      {flagModalTarget && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-slate-950/85 backdrop-blur-sm p-4 animate-in fade-in">
+          <div className="bg-slate-900 border-2 border-amber-500/50 rounded-3xl p-5 sm:p-6 max-w-lg w-full shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+                  <i className="fa-solid fa-flag text-sm"></i>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white font-mono">
+                    {flagModalTarget.isFlagged ? 'Update Biometric Review Dossier' : 'Flag Biometric Log for Manual Review'}
+                  </h3>
+                  <p className="text-[10px] text-slate-400 font-mono">
+                    Log ID: {flagModalTarget.id} · {flagModalTarget.subjectName} ({flagModalTarget.subjectRollNo})
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setFlagModalTarget(null)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg"
+              >
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            {/* Target Summary Snapshot */}
+            <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs font-mono">
+              <div className="flex items-center space-x-2">
+                <i className={`fa-solid ${getModalityIcon(flagModalTarget.modality)} text-sm`}></i>
+                <div>
+                  <div className="font-bold text-white">{flagModalTarget.modalityLabel}</div>
+                  <div className="text-[10px] text-slate-400">{flagModalTarget.timestamp}</div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="font-bold text-amber-400">{flagModalTarget.status}</div>
+                <div className="text-[10px] text-slate-400">Score: {flagModalTarget.confidenceScore}</div>
+              </div>
+            </div>
+
+            {/* Preset Reason Selector */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-mono font-bold text-amber-400 block">
+                Select Quick Compliance Finding:
+              </label>
+              <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                {FLAG_PRESET_REASONS.map((preset, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      setFlagPresetSelected(preset);
+                      setFlagReasonInput(preset);
+                    }}
+                    className={`w-full text-left p-2 rounded-xl text-xs font-sans transition flex items-center space-x-2 border ${
+                      flagReasonInput === preset || flagPresetSelected === preset
+                        ? 'bg-amber-500/20 text-amber-200 border-amber-500/50 font-medium'
+                        : 'bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-700'
+                    }`}
+                  >
+                    <i className={`fa-solid ${flagReasonInput === preset ? 'fa-circle-check text-amber-400' : 'fa-circle text-slate-600'} text-[10px]`}></i>
+                    <span className="truncate">{preset}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom Reason Input */}
+            <div className="space-y-1">
+              <label className="text-[11px] font-mono text-slate-400 block">
+                Administrative Review Note &amp; Audit Instructions:
+              </label>
+              <textarea
+                value={flagReasonInput}
+                onChange={e => setFlagReasonInput(e.target.value)}
+                placeholder="Specify forensic observations, sensor calibration flags, or student interview directives..."
+                rows={3}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 font-sans"
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center justify-end space-x-2.5 pt-2 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setFlagModalTarget(null)}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono font-bold transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmFlagModal}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white text-xs font-mono font-bold shadow-lg shadow-amber-600/30 transition flex items-center space-x-1.5"
+              >
+                <i className="fa-solid fa-flag"></i>
+                <span>{flagModalTarget.isFlagged ? 'Update Flag Dossier' : 'Confirm & Flag Record'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

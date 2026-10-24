@@ -151,5 +151,10 @@ export interface BiometricLogEntry {
   confidenceScore: string;
   hash: string;
   notes: string;
+  // Administrative Review Flagging Fields
+  isFlagged?: boolean;
+  flagReason?: string;
+  flaggedAt?: string;
+  flaggedBy?: string;
 }
 

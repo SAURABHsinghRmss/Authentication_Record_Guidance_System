@@ -3,10 +3,11 @@ import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types';
 
 export const LandingPage: React.FC = () => {
-  const { instantLogin, login } = useAuth();
+  const { instantLogin, login, loginWithGoogle } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [modalRole, setModalRole] = useState<UserRole>('student');
   const [authMode, setAuthMode] = useState<'mobile' | 'password' | 'register'>('mobile');
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   // Login form state
   const [mobileNumber, setMobileNumber] = useState('9876543210');
@@ -75,6 +76,19 @@ export const LandingPage: React.FC = () => {
     login(modalRole, username);
   };
 
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    setErrorMsg('');
+    try {
+      await loginWithGoogle();
+      setShowModal(false);
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Google authentication failed');
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-blue-600 selection:text-white">
       {/* Hero Header */}
@@ -128,6 +142,33 @@ export const LandingPage: React.FC = () => {
             <p className="text-xs text-slate-300 leading-relaxed">
               Select any interconnected persona below to launch the system immediately. You can switch between roles in real-time from the top navigation bar to observe live cross-role data synchronization!
             </p>
+
+            {/* Google Firebase Authentication SSO */}
+            <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                  <i className="fa-solid fa-database text-sm"></i>
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span>Cloud Firestore & Firebase Auth Connected</span>
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  </div>
+                  <div className="text-[10px] text-slate-400 font-mono">
+                    Zero-Trust RBAC · Audit Logs & Biometric Ledger Cloud Synced
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={isGoogleLoading}
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs flex items-center justify-center space-x-2 transition shadow-md shrink-0"
+              >
+                <i className="fa-brands fa-google text-red-500 text-sm"></i>
+                <span>{isGoogleLoading ? 'Authenticating...' : 'Sign in with Google SSO'}</span>
+              </button>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-1">
               {/* Student */}
@@ -468,6 +509,24 @@ export const LandingPage: React.FC = () => {
               <p className="text-xs text-slate-400 font-mono">
                 Sovereign IAM Partition · Encrypted Session
               </p>
+            </div>
+
+            {/* Google Fast Sign-In */}
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              disabled={isGoogleLoading}
+              className="w-full py-3 rounded-2xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs flex items-center justify-center space-x-2 transition shadow-lg"
+            >
+              <i className="fa-brands fa-google text-red-500 text-sm"></i>
+              <span>{isGoogleLoading ? 'Connecting to Google...' : `Sign in with Google (${modalRole.toUpperCase()})`}</span>
+            </button>
+
+            <div className="relative flex items-center justify-center">
+              <div className="border-t border-slate-800 w-full"></div>
+              <span className="bg-slate-900 px-3 text-[10px] text-slate-500 uppercase tracking-widest font-mono shrink-0">
+                Or Traditional Sovereign IAM
+              </span>
             </div>
 
             {/* Auth Mode switcher */}

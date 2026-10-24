@@ -3,8 +3,9 @@ import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types';
 
 export const Header: React.FC<{ onOpenLogs: () => void; onOpenBiometrics: () => void }> = ({ onOpenLogs, onOpenBiometrics }) => {
-  const { currentUser, currentRole, switchRole, logout } = useAuth();
+  const { currentUser, currentRole, switchRole, logout, firebaseUser, isFirebaseConnected, loginWithGoogle } = useAuth();
   const [showRoleMenu, setShowRoleMenu] = useState(false);
+  const [isSigningIn, setIsSigningIn] = useState(false);
 
   const rolesConfig: { id: UserRole; label: string; name: string; color: string; badgeColor: string; icon: string }[] = [
     { id: 'student', label: 'Student Portal', name: 'Amit Sharma', color: 'from-blue-600 to-cyan-500', badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40', icon: 'fa-user-graduate' },
@@ -15,6 +16,17 @@ export const Header: React.FC<{ onOpenLogs: () => void; onOpenBiometrics: () => 
   ];
 
   const currentRoleObj = rolesConfig.find(r => r.id === currentRole) || rolesConfig[0];
+
+  const handleGoogleLogin = async () => {
+    setIsSigningIn(true);
+    try {
+      await loginWithGoogle();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
 
   return (
     <header className="h-16 bg-slate-900/90 border-b border-slate-800/80 backdrop-blur-xl px-4 sm:px-6 flex items-center justify-between sticky top-0 z-40">
@@ -31,6 +43,18 @@ export const Header: React.FC<{ onOpenLogs: () => void; onOpenBiometrics: () => 
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                 DPI India Live
               </span>
+              {/* Firestore Connected Badge */}
+              <span
+                className={`text-[10px] font-mono px-2 py-0.5 rounded-full border hidden lg:inline-flex items-center gap-1 ${
+                  isFirebaseConnected
+                    ? 'bg-amber-500/10 text-amber-300 border-amber-500/30'
+                    : 'bg-slate-800 text-slate-400 border-slate-700'
+                }`}
+                title="Connected to Cloud Firestore & Firebase Auth"
+              >
+                <i className="fa-solid fa-fire text-amber-400"></i>
+                Firestore Live
+              </span>
             </div>
             <div className="text-[11px] text-slate-400 font-mono hidden sm:block">
               {currentUser.institution}
@@ -41,6 +65,29 @@ export const Header: React.FC<{ onOpenLogs: () => void; onOpenBiometrics: () => 
 
       {/* Center/Right Action Bar */}
       <div className="flex items-center space-x-2 sm:space-x-3">
+        {/* Google Sign-in / Firebase Status button */}
+        {!firebaseUser ? (
+          <button
+            onClick={handleGoogleLogin}
+            disabled={isSigningIn}
+            className="px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-blue-500/40 text-xs text-blue-300 flex items-center space-x-1.5 transition shadow-sm hover:border-blue-400"
+            title="Authenticate with Google & sync with Firestore"
+          >
+            <i className="fa-brands fa-google text-red-400"></i>
+            <span className="hidden md:inline font-semibold">
+              {isSigningIn ? 'Connecting...' : 'Sign in with Google'}
+            </span>
+          </button>
+        ) : (
+          <div
+            className="px-2.5 py-1 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs flex items-center space-x-1.5"
+            title={`Connected via Google Auth: ${firebaseUser.email}`}
+          >
+            <i className="fa-brands fa-google text-emerald-400"></i>
+            <span className="hidden md:inline font-mono text-[11px]">Synced</span>
+          </div>
+        )}
+
         {/* Biometrics Scan Quick Access */}
         <button
           onClick={onOpenBiometrics}
@@ -112,6 +159,13 @@ export const Header: React.FC<{ onOpenLogs: () => void; onOpenBiometrics: () => 
         {/* User Profile & Logout */}
         <div className="flex items-center pl-2 border-l border-slate-800">
           <div className="flex items-center space-x-2 mr-2 hidden lg:flex text-right">
+            {firebaseUser?.photoURL ? (
+              <img
+                src={firebaseUser.photoURL}
+                alt={currentUser.name}
+                className="w-8 h-8 rounded-full border border-blue-500/40"
+              />
+            ) : null}
             <div>
               <div className="text-xs font-bold text-white">{currentUser.name}</div>
               <div className="text-[10px] font-mono text-slate-400">{currentUser.email}</div>

@@ -1,0 +1,97 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with sovereign credentials and access role",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 256 },
+        "displayName": { "type": "string", "maxLength": 128 },
+        "role": { "type": "string", "enum": ["student", "faculty", "parent", "institute", "admin"] },
+        "institution": { "type": "string", "maxLength": 256 },
+        "mobile": { "type": "string", "maxLength": 32 },
+        "rollNo": { "type": "string", "maxLength": 64 },
+        "apaarId": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "BiometricLog": {
+      "title": "BiometricLog",
+      "description": "Biometric verification events and security ledger records",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "modality": { "type": "string", "enum": ["FACE_3D", "OCR_ID", "VOICE_SPECTROGRAM"] },
+        "modalityLabel": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "enum": ["VERIFIED_SUCCESS", "CHALLENGE_REQUIRED", "REJECTED", "PENDING"] },
+        "timestamp": { "type": "string", "maxLength": 64 },
+        "relativeTime": { "type": "string", "maxLength": 64 },
+        "subjectRollNo": { "type": "string", "maxLength": 64 },
+        "subjectName": { "type": "string", "maxLength": 128 },
+        "confidenceScore": { "type": "string", "maxLength": 32 },
+        "hash": { "type": "string", "maxLength": 128 },
+        "notes": { "type": "string", "maxLength": 512 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "isFlagged": { "type": "boolean" },
+        "flagReason": { "type": "string", "maxLength": 512 },
+        "flaggedAt": { "type": "string", "maxLength": 64 },
+        "flaggedBy": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["id", "userId", "modality", "status", "hash", "timestamp"]
+    },
+    "ComplaintTicket": {
+      "title": "ComplaintTicket",
+      "description": "AICTE grievance tickets and institutional compliance issues",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "ticket_no": { "type": "string", "maxLength": 64 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "complainant": { "type": "string", "maxLength": 128 },
+        "complainant_role": { "type": "string", "maxLength": 64 },
+        "institution": { "type": "string", "maxLength": 256 },
+        "category": { "type": "string", "maxLength": 128 },
+        "subject": { "type": "string", "maxLength": 256 },
+        "description": { "type": "string", "maxLength": 2048 },
+        "severity": { "type": "string", "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"] },
+        "status": { "type": "string", "enum": ["UNDER_INVESTIGATION", "PENDING", "RESOLVED", "ESCALATED"] },
+        "assigned_bureau": { "type": "string", "maxLength": 128 },
+        "created_at": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "ticket_no", "userId", "category", "subject", "description", "status"]
+    },
+    "AdminRef": {
+      "title": "AdminRef",
+      "description": "Administrator authority marker document",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "maxLength": 256 },
+        "role": { "type": "string", "enum": ["admin"] },
+        "addedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["email", "role"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile with sovereign credentials and access role"
+    },
+    "/biometric_logs/{logId}": {
+      "schema": "BiometricLog",
+      "description": "Biometric verification history and security audit ledger"
+    },
+    "/complaints/{complaintId}": {
+      "schema": "ComplaintTicket",
+      "description": "Grievance and compliance complaints"
+    },
+    "/admins/{userId}": {
+      "schema": "AdminRef",
+      "description": "Designated administrator role registry"
+    }
+  }
+}

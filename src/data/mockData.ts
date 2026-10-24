@@ -399,7 +399,11 @@ export const INITIAL_BIOMETRIC_LOGS: BiometricLogEntry[] = [
     subjectName: 'Amit Sharma',
     confidenceScore: '84.10%',
     hash: 'SHA256-3d77aa19c802',
-    notes: 'Low ambient lux illumination detected; secondary 2FA token issued.'
+    notes: 'Low ambient lux illumination detected; secondary 2FA token issued.',
+    isFlagged: true,
+    flagReason: 'Low ambient lux reading triggering anomaly threshold - requires manual lighting audit.',
+    flaggedAt: '2026-10-23 17:05:00',
+    flaggedBy: 'Dr. M. S. Rao (AICTE Sovereign Admin)'
   },
   {
     id: 'bio-005',
@@ -438,7 +442,11 @@ export const INITIAL_BIOMETRIC_LOGS: BiometricLogEntry[] = [
     subjectName: 'Amit Sharma',
     confidenceScore: '41.20%',
     hash: 'SHA256-f002cb76d881',
-    notes: 'Static photo spoof detected by passive IR sensor. Verification rejected.'
+    notes: 'Static photo spoof detected by passive IR sensor. Verification rejected.',
+    isFlagged: true,
+    flagReason: 'Static photo spoof attempt detected on passive IR sensor - marked for urgent disciplinary verification.',
+    flaggedAt: '2026-10-21 14:30:10',
+    flaggedBy: 'Campus Security Bureau'
   }
 ];
 

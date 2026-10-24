@@ -1,0 +1,156 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Global Default-Deny Catch-All
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        (request.auth.token.email == 'ssrmsr06@gmail.com' && request.auth.token.email_verified == true) ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role']) &&
+             data.keys().hasOnly(['uid', 'email', 'displayName', 'role', 'institution', 'mobile', 'rollNo', 'apaarId', 'createdAt', 'updatedAt']) &&
+             data.uid is string && isValidId(data.uid) &&
+             data.email is string && data.email.size() <= 256 &&
+             data.role in ['student', 'faculty', 'parent', 'institute', 'admin'] &&
+             (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 128)) &&
+             (!('institution' in data) || (data.institution is string && data.institution.size() <= 256)) &&
+             (!('mobile' in data) || (data.mobile is string && data.mobile.size() <= 32)) &&
+             (!('rollNo' in data) || (data.rollNo is string && data.rollNo.size() <= 64)) &&
+             (!('apaarId' in data) || (data.apaarId is string && data.apaarId.size() <= 64)) &&
+             (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 64)) &&
+             (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 64));
+    }
+
+    function isValidBiometricLog(data) {
+      return data.keys().hasAll(['id', 'userId', 'modality', 'status', 'hash', 'timestamp']) &&
+             data.keys().hasOnly(['id', 'userId', 'modality', 'modalityLabel', 'status', 'timestamp', 'relativeTime', 'subjectRollNo', 'subjectName', 'confidenceScore', 'hash', 'notes', 'createdAt', 'isFlagged', 'flagReason', 'flaggedAt', 'flaggedBy']) &&
+             data.id is string && isValidId(data.id) &&
+             data.userId is string && isValidId(data.userId) &&
+             data.modality in ['FACE_3D', 'OCR_ID', 'VOICE_SPECTROGRAM'] &&
+             data.status in ['VERIFIED_SUCCESS', 'CHALLENGE_REQUIRED', 'REJECTED', 'PENDING'] &&
+             data.hash is string && data.hash.size() <= 128 &&
+             data.timestamp is string && data.timestamp.size() <= 64 &&
+             (!('modalityLabel' in data) || (data.modalityLabel is string && data.modalityLabel.size() <= 128)) &&
+             (!('relativeTime' in data) || (data.relativeTime is string && data.relativeTime.size() <= 64)) &&
+             (!('subjectRollNo' in data) || (data.subjectRollNo is string && data.subjectRollNo.size() <= 64)) &&
+             (!('subjectName' in data) || (data.subjectName is string && data.subjectName.size() <= 128)) &&
+             (!('confidenceScore' in data) || (data.confidenceScore is string && data.confidenceScore.size() <= 32)) &&
+             (!('notes' in data) || (data.notes is string && data.notes.size() <= 512)) &&
+             (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 64)) &&
+             (!('isFlagged' in data) || data.isFlagged is bool) &&
+             (!('flagReason' in data) || (data.flagReason is string && data.flagReason.size() <= 512)) &&
+             (!('flaggedAt' in data) || (data.flaggedAt is string && data.flaggedAt.size() <= 64)) &&
+             (!('flaggedBy' in data) || (data.flaggedBy is string && data.flaggedBy.size() <= 128));
+    }
+
+    function isValidComplaint(data) {
+      return data.keys().hasAll(['id', 'ticket_no', 'userId', 'category', 'subject', 'description', 'status']) &&
+             data.keys().hasOnly(['id', 'ticket_no', 'userId', 'complainant', 'complainant_role', 'institution', 'category', 'subject', 'description', 'severity', 'status', 'assigned_bureau', 'created_at']) &&
+             data.id is string && isValidId(data.id) &&
+             data.ticket_no is string && data.ticket_no.size() <= 64 &&
+             data.userId is string && isValidId(data.userId) &&
+             data.category is string && data.category.size() <= 128 &&
+             data.subject is string && data.subject.size() <= 256 &&
+             data.description is string && data.description.size() <= 2048 &&
+             data.status in ['UNDER_INVESTIGATION', 'PENDING', 'RESOLVED', 'ESCALATED'] &&
+             (!('severity' in data) || (data.severity in ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'])) &&
+             (!('complainant' in data) || (data.complainant is string && data.complainant.size() <= 128)) &&
+             (!('complainant_role' in data) || (data.complainant_role is string && data.complainant_role.size() <= 64)) &&
+             (!('institution' in data) || (data.institution is string && data.institution.size() <= 256)) &&
+             (!('assigned_bureau' in data) || (data.assigned_bureau is string && data.assigned_bureau.size() <= 128)) &&
+             (!('created_at' in data) || (data.created_at is string && data.created_at.size() <= 64));
+    }
+
+    function isValidAdminRef(data) {
+      return data.keys().hasAll(['email', 'role']) &&
+             data.keys().hasOnly(['email', 'role', 'addedAt']) &&
+             data.email is string && data.email.size() <= 256 &&
+             data.role == 'admin' &&
+             (!('addedAt' in data) || (data.addedAt is string && data.addedAt.size() <= 64));
+    }
+
+    match /users/{userId} {
+      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow list: if isSignedIn() && isAdmin();
+      allow create: if isSignedIn() && isValidId(userId) && request.auth.uid == userId && isValidUser(incoming()) && (
+        incoming().role != 'admin' || (request.auth.token.email == 'ssrmsr06@gmail.com' && request.auth.token.email_verified == true)
+      );
+      allow update: if isSignedIn() && isValidId(userId) && isValidUser(incoming()) && (
+        isAdmin() ||
+        (
+          request.auth.uid == userId &&
+          incoming().uid == existing().uid &&
+          incoming().role == existing().role &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'mobile', 'institution', 'rollNo', 'apaarId', 'updatedAt'])
+        )
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /biometric_logs/{logId} {
+      allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (
+        isAdmin() ||
+        resource.data.userId == request.auth.uid
+      );
+      allow create: if isSignedIn() && isValidId(logId) && isValidBiometricLog(incoming()) && (
+        incoming().userId == request.auth.uid || isAdmin()
+      );
+      allow update: if isSignedIn() && isValidId(logId) && isValidBiometricLog(incoming()) && (
+        isAdmin() &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['isFlagged', 'flagReason', 'flaggedAt', 'flaggedBy'])
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /complaints/{complaintId} {
+      allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (
+        isAdmin() ||
+        resource.data.userId == request.auth.uid
+      );
+      allow create: if isSignedIn() && isValidId(complaintId) && isValidComplaint(incoming()) && (
+        incoming().userId == request.auth.uid || isAdmin()
+      );
+      allow update: if isSignedIn() && isValidId(complaintId) && isValidComplaint(incoming()) && (
+        isAdmin() ||
+        (
+          resource.data.userId == request.auth.uid &&
+          incoming().userId == existing().userId &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['description', 'subject', 'category'])
+        )
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /admins/{adminId} {
+      allow get: if isSignedIn();
+      allow list: if isAdmin();
+      allow create, update: if isAdmin() && isValidId(adminId) && isValidAdminRef(incoming());
+      allow delete: if isAdmin() && isValidId(adminId);
+    }
+  }
+}
