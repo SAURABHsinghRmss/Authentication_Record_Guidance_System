@@ -1,97 +1,38 @@
-# EduIdentityAI — Student Authentication, Record & Guidance System
+# EduIdentityAI — Academic Identity & Guidance Portal
 
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.141.1-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![Vite](https://img.shields.io/badge/Vite-5.4-646CFF?logo=vite&logoColor=white)](https://vitejs.dev)
-[![Python](https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white)](https://www.python.org)
-[![Alpine.js](https://img.shields.io/badge/Alpine.js-3.17-8BC0D0?logo=alpinedotjs&logoColor=white)](https://alpinejs.dev)
-[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.1-D71F00?logo=sqlalchemy&logoColor=white)](https://www.sqlalchemy.org)
+Official Digital Public Infrastructure (DPI) & AI Governance Platform for India, rewritten as a modern, high-performance React application with Vite, TypeScript, and Tailwind CSS.
 
-**EduIdentityAI** is an advanced, AI-powered multi-database federated academic identity management, record governance, application validation, documentation authentication, and regulatory compliance verification platform tailored specifically for India's Digital Public Infrastructure (DPI) and educational standards.
+## Architecture & Features
 
----
+### 1. 5 Interconnected Operational Roles
+- **🎓 Student Portal**: APAAR / ABC ID, enrolled multi-institution hub, 7-module ERP, attendance register, fee ledgers, DigiLocker verification, and scholarship DBT tracking.
+- **👩‍🏫 Faculty Desk**: Capstone project evaluation, AI document authentication suite (Sarvam-105B simulation), mentor-mentee counseling notes, and student roster.
+- **👨‍👦 Parent & Guardian Portal**: Real-time ward monitoring, live attendance tracking with low-attendance alerts, and direct fee settlement via UPI / SBIePay.
+- **🏛️ Institute Governance**: AICTE Statutory Reserve FDR Escrow verification (₹1.75 Cr locked), SIF (Standard Inspection Form) checklist, and annual intake expansion submission.
+- **🛡️ Root Admin Control Center**: Master administrator oversight (`msrch`), AICTE grievance triage queue, 7-database federation console, and India DPI integration testing.
 
-## 📑 Table of Contents
+### 2. 7 Comprehensive Institutional ERP Modules
+1. **Academic**: Weekly timetables by day, subject-wise attendance, digital leave & outpass applications, assignments, and mentor counseling.
+2. **Examination**: Semester-wise SGPA & CGPA ledger, exam datesheets, and registration status.
+3. **Fees & Accounts**: Transaction ledgers, receipt verification, and instant UPI / NetBanking / PFMS payment with receipt generation.
+4. **Hostel & Mess**: Room allotment (CS-B304), maintenance logs, outpass requests, and daily mess menu ratings.
+5. **Administration**: Official document requests (Bonafide, Transcripts), DigiLocker sync, and AICTE Grievance Cell.
+6. **Library & Learning**: RFID card status, currently issued books, return due dates, and fine calculations.
+7. **Campus Services**: Real-time transport routes & GPS tracking, and Training & Placement (T&P) campus drive schedules.
 
-- [Key Features](#-key-features)
-- [System Architecture & Directory Layout](#-system-architecture--directory-layout)
-- [Exclusive Sarvam AI Integration](#-exclusive-sarvam-ai-integration)
-- [India Digital Public Infrastructure (DPI) Integrations](#-india-digital-public-infrastructure-dpi-integrations)
-- [Payments, Security Deposits & FDR Escrow Portal](#-payments-security-deposits--fdr-escrow-portal)
-- [Admin Complaints Dashboard & AICTE Workflow Automation](#-admin-complaints-dashboard--aicte-workflow-automation)
-- [Getting Started](#-getting-started)
-- [Automated Testing](#-automated-testing)
+### 3. Integrated AI & Security Tools
+- **EduMentor AI & 3-Category Chat**: Campus Agora, Direct Mentorship, and AI Academic Advisor with regulatory citations.
+- **Academic Guidance & Policy RAG**: Query AICTE Approval Process Handbooks, NEP 2020 statutes, and credit mobility guidelines.
+- **Multimodal Biometrics Terminal**: Zero-knowledge facial depth scan, OCR student ID card reader, and acoustic voiceprint liveness verification.
+- **Opportunity Scam Shield**: Phishing and unaccredited recruiter detection against AICTE blacklist databases.
+- **Career Pathways**: Milestone trajectory roadmap and sovereign Trust Tier certification.
+- **Institution Developer Studio**: Template schema customizer for Schools, Colleges, Universities, Companies, and Start-ups.
 
----
+## Development
 
-## 🌟 Key Features
-
-1. **Mobile-First Secure Authentication & Sign-In**:
-   - Mobile number primary sign-in with OTP verification and automatic linked email resolution.
-   - Per-user **Sarvam AI API Key** input for AI-powered validation and compliance features.
-
-2. **Exclusive Sarvam AI Integration (`sarvam-105b`)**:
-   - Sovereign Indian AI powering application validation, documentation authentication, regulatory compliance verification, and EduMentor AI mentoring.
-
-3. **Student Dashboard & Notice Board**:
-   - Logged-in students are greeted by the official **Notice Board** (academic bulletins, ABC/APAAR ID synchronization, and scholarship disbursals).
-   - Positioned directly below is the prominent **"Enrolled Institutes"** hub button for one-click access to multi-institute academic histories.
-
-4. **Three-Category Chat System**:
-   - **Personal AI Mentor Chat**, **Private Study Groups**, and **Global Campus Announcements** (EduMentor Meta AI style with 8 educational criteria).
-
-5. **Multi-Mode Payments, Security Deposits & FDR Escrow Portal**:
-   - Multi-mode payment support (**UPI**, **NetBanking**, **Credit/Debit Card**, **SBIePay**, **PFMS Treasury**).
-   - Fixed Deposit Receipt (FDR) escrow portal for AICTE statutory reserves and caution money management, fully interconnected across all roles (`student`, `faculty`, `parent`, `institute`, `admin`).
-
-6. **Admin Complaints Dashboard & AICTE Approval Workflow Automation**:
-   - Monitoring and tracking institutional complaint cases across AICTE Bureaus/Cells (Approval Bureau, Payment & Finance Cell, Anti-Ragging Cell, Quality Assurance Bureau).
-   - 5-stage approval lifecycle automation (Intake, EVC Inspection, Standing Hearing Committee, Executive Committee, LoA/EoA issuance) with real-time severity-tagged compliance alerts.
-
-7. **India Digital Public Infrastructure (DPI) & Cross-Role Pipelines**:
-   - Official Indian governance service integrations: **APAAR ID / Academic Bank of Credits (ABC)** via DigiLocker, **National Scholarship Portal (NSP)** DBT, **AICTE Portal SIF**, **UIDAI Aadhaar**, and **PFMS & SBIePay** reconciliation.
-   - **Cross-Role Pipelines** bridging Parent-Student ward monitoring, Faculty-Student Sarvam AI document verification, and Institute-Admin compliance escalations.
-
-8. **Official Redesigned Landing Presentation Page & Role Portals**:
-   - Stunning animated hero presentation with scrollable role exploration cards for all 5 roles (`Student`, `Faculty`, `Institute`, `Parent`, `Admin`), linking directly to role-specific secure sign-in gateways.
-
----
-
-## 📂 System Architecture & Directory Layout
-
-```text
-Authentication_Record_Guidance_System/
-├── backend/                        # FastAPI REST Application & Core Logic
-│   ├── api/
-│   │   ├── main.py                 # Application factory, lifespan, CORS, rate limiter
-│   │   ├── dependencies.py         # JWT extraction, OAuth2 Bearer, RBAC guards
-│   │   └── routes/                 # Auth, Mobile Auth, Complaints, DPI, Payments/FDR, Chat, RAG, WS
-│   ├── core/
-│   │   └── config.py               # Pydantic settings & polyglot domain DB paths
-│   ├── models/
-│   │   └── student.py              # SQLAlchemy ORM models & Pydantic schemas
-│   ├── services/
-│   │   ├── db.py                   # Primary SQLAlchemy session and engine
-│   │   ├── db_federation.py        # Polyglot 7-Database domain federation manager
-│   │   ├── sarvam_ai_service.py    # Exclusive Sarvam-105B AI integration service
-│   │   ├── india_dpi_integration_service.py # APAAR, ABC, NSP, AICTE SIF, Aadhaar, PFMS
-│   │   ├── payment_fdr_escrow_service.py    # Multi-mode payments & FDR escrow portal
-│   │   ├── admin_complaints_aicte_service.py # Admin complaints & AICTE workflow automation
-│   │   ├── cross_role_pipeline_service.py    # Cross-role function connectivity bridges
-│   │   └── edumentor_ai_service.py # EduMentor AI copilot service
-│   └── tests/                      # 63 automated unit & integration tests
-├── databases/                      # 7 Federated Domain-Isolated Databases
-├── frontend/                       # Lit & Alpine.js Web Application
-│   ├── index.html                  # Redesigned landing presentation & role portals
-│   ├── js/app.js                   # Alpine.js reactive controller
-│   └── css/style.css               # Cyber-glassmorphic styling & themes
-└── storage/                        # Persistent & Staged Application Data
-```
-
----
-
-## 🧪 Automated Testing
-
-Run the full test suite (63 passing tests):
 ```bash
-pytest backend/tests/
+npm install
+npm run dev
 ```
+
+Starts the Vite development server on `http://0.0.0.0:3000`.
