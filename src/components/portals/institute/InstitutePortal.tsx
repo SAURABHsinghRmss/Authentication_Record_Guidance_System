@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { InstituteGovernance } from '../../views/InstituteGovernance';
 import { GuidedTour } from '../../common/GuidedTour';
+import { PasskeyManagementView } from '../../common/PasskeyManagementView';
 
 export const InstitutePortal: React.FC = () => {
   const { currentUser, logout, fdrEscrow, addChatMessage } = useAuth();
-  const [activeTab, setActiveTab] = useState<'sif_governance' | 'departments' | 'broadcaster' | 'accreditation' | 'escrow'>('sif_governance');
+  const [activeTab, setActiveTab] = useState<'sif_governance' | 'departments' | 'broadcaster' | 'accreditation' | 'escrow' | 'webauthn_passkeys'>('sif_governance');
   const [showTour, setShowTour] = useState<boolean>(() => {
     return localStorage.getItem('edu_tour_seen_institute') !== 'true';
   });
@@ -78,7 +79,7 @@ export const InstitutePortal: React.FC = () => {
   };
 
   interface NavItem {
-    id: 'sif_governance' | 'departments' | 'broadcaster' | 'accreditation' | 'escrow';
+    id: 'sif_governance' | 'departments' | 'broadcaster' | 'accreditation' | 'escrow' | 'webauthn_passkeys';
     label: string;
     icon: string;
     description: string;
@@ -118,6 +119,13 @@ export const InstitutePortal: React.FC = () => {
       icon: 'fa-vault',
       badge: '₹1.85 Cr',
       description: 'AICTE mandatory joint security deposit balances'
+    },
+    {
+      id: 'webauthn_passkeys',
+      label: 'FIDO2 & WebAuthn Passkeys',
+      icon: 'fa-fingerprint',
+      badge: 'Tier-1 Security',
+      description: 'Enroll biometric sensors & manage sovereign hardware keys'
     }
   ];
 
@@ -497,6 +505,10 @@ export const InstitutePortal: React.FC = () => {
                 </div>
               </div>
             </div>
+          )}
+
+          {activeTab === 'webauthn_passkeys' && (
+            <PasskeyManagementView role="institute" accentColor="teal" />
           )}
         </main>
       </div>

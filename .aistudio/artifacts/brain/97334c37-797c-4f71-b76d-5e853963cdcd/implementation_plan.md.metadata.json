@@ -1,6 +1,6 @@
 {
-  "summary":  "Implementation plan for architecting and building zero-conflict, completely independent frontend portals from scratch for each of the 5 roles (Student, Faculty, Parent, Institute, Administrator) with detailed functional separation rationales, dedicated layouts, strict feature scoping, and formal role authentication.",
-  "updatedAt":  "2026-10-24T18:56:43.127352639Z",
+  "summary":  "Implementation plan for integrating a mandatory WebAuthn (FIDO2 / Passkey) biometric authentication layer for high-security roles (Institute and Admin), including browser-level platform authenticator checks, strict hardware gating, manual passkey management tabs inside high-security portals, and basic security audit logging.",
+  "updatedAt":  "2026-10-24T19:53:03.028128741Z",
   "requestFeedback":  true,
   "userFacing":  true
 }

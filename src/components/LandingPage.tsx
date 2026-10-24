@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types';
+import { WebAuthnModal } from './common/WebAuthnModal';
 
 export const LandingPage: React.FC = () => {
   const { instantLogin, login, loginWithGoogle } = useAuth();
@@ -8,6 +9,14 @@ export const LandingPage: React.FC = () => {
   const [modalRole, setModalRole] = useState<UserRole>('student');
   const [authMode, setAuthMode] = useState<'mobile' | 'password' | 'register'>('mobile');
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
+  // WebAuthn Biometric Verification State for high security roles
+  const [webAuthnChallenge, setWebAuthnChallenge] = useState<{
+    isOpen: boolean;
+    role: UserRole;
+    username: string;
+    onSuccessAction: () => void;
+  } | null>(null);
 
   // Login form state
   const [mobileNumber, setMobileNumber] = useState('9876543210');
@@ -49,6 +58,36 @@ export const LandingPage: React.FC = () => {
     setShowModal(true);
   };
 
+  const handleRoleLogin = (role: UserRole, customUser?: string, isInstant: boolean = true) => {
+    const finalUser = customUser || (role === 'admin' ? 'msrch' : role === 'institute' ? 'institute_admin' : role === 'faculty' ? 'faculty' : role === 'parent' ? 'parent_alex' : 'amit');
+    
+    // Strict WebAuthn mandatory requirement for high-security roles: Admin and Institute
+    if (role === 'admin' || role === 'institute') {
+      setWebAuthnChallenge({
+        isOpen: true,
+        role,
+        username: finalUser,
+        onSuccessAction: () => {
+          if (isInstant) {
+            instantLogin(role);
+          } else {
+            login(role, finalUser);
+          }
+          setShowModal(false);
+          setWebAuthnChallenge(null);
+        }
+      });
+      return;
+    }
+
+    if (isInstant) {
+      instantLogin(role);
+    } else {
+      login(role, finalUser);
+    }
+    setShowModal(false);
+  };
+
   const handleMobileSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!otpSent) {
@@ -63,7 +102,7 @@ export const LandingPage: React.FC = () => {
         setErrorMsg('Invalid OTP. Use demo OTP 123456');
         return;
       }
-      instantLogin(modalRole);
+      handleRoleLogin(modalRole, mobileNumber, true);
     }
   };
 
@@ -73,7 +112,7 @@ export const LandingPage: React.FC = () => {
       setErrorMsg(`Incorrect security captcha. ${captchaChallenge.prompt} = ?`);
       return;
     }
-    login(modalRole, username);
+    handleRoleLogin(modalRole, username, false);
   };
 
   const handleGoogleSignIn = async () => {
@@ -226,7 +265,7 @@ export const LandingPage: React.FC = () => {
               {/* Student */}
               <button
                 type="button"
-                onClick={() => instantLogin('student')}
+                onClick={() => handleRoleLogin('student')}
                 className="p-3.5 rounded-2xl bg-slate-950 border border-blue-500/40 hover:border-blue-400 hover:bg-blue-950/40 transition flex flex-col justify-between text-left group"
               >
                 <div>
@@ -243,7 +282,7 @@ export const LandingPage: React.FC = () => {
               {/* Faculty */}
               <button
                 type="button"
-                onClick={() => instantLogin('faculty')}
+                onClick={() => handleRoleLogin('faculty')}
                 className="p-3.5 rounded-2xl bg-slate-950 border border-indigo-500/40 hover:border-indigo-400 hover:bg-indigo-950/40 transition flex flex-col justify-between text-left group"
               >
                 <div>
@@ -260,7 +299,7 @@ export const LandingPage: React.FC = () => {
               {/* Parent */}
               <button
                 type="button"
-                onClick={() => instantLogin('parent')}
+                onClick={() => handleRoleLogin('parent')}
                 className="p-3.5 rounded-2xl bg-slate-950 border border-amber-500/40 hover:border-amber-400 hover:bg-amber-950/40 transition flex flex-col justify-between text-left group"
               >
                 <div>
@@ -277,7 +316,7 @@ export const LandingPage: React.FC = () => {
               {/* Institute */}
               <button
                 type="button"
-                onClick={() => instantLogin('institute')}
+                onClick={() => handleRoleLogin('institute')}
                 className="p-3.5 rounded-2xl bg-slate-950 border border-teal-500/40 hover:border-teal-400 hover:bg-teal-950/40 transition flex flex-col justify-between text-left group"
               >
                 <div>
@@ -294,7 +333,7 @@ export const LandingPage: React.FC = () => {
               {/* Admin */}
               <button
                 type="button"
-                onClick={() => instantLogin('admin')}
+                onClick={() => handleRoleLogin('admin')}
                 className="p-3.5 rounded-2xl bg-slate-950 border border-rose-500/40 hover:border-rose-400 hover:bg-rose-950/40 transition flex flex-col justify-between text-left group"
               >
                 <div>
@@ -362,7 +401,7 @@ export const LandingPage: React.FC = () => {
                 </div>
               </div>
               <button
-                onClick={() => instantLogin('student')}
+                onClick={() => handleRoleLogin('student')}
                 className="w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md transition"
               >
                 Launch Student
@@ -387,7 +426,7 @@ export const LandingPage: React.FC = () => {
                 </div>
               </div>
               <button
-                onClick={() => instantLogin('faculty')}
+                onClick={() => handleRoleLogin('faculty')}
                 className="w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md transition"
               >
                 Launch Faculty
@@ -412,7 +451,7 @@ export const LandingPage: React.FC = () => {
                 </div>
               </div>
               <button
-                onClick={() => instantLogin('parent')}
+                onClick={() => handleRoleLogin('parent')}
                 className="w-full py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-md transition"
               >
                 Launch Parent
@@ -437,7 +476,7 @@ export const LandingPage: React.FC = () => {
                 </div>
               </div>
               <button
-                onClick={() => instantLogin('institute')}
+                onClick={() => handleRoleLogin('institute')}
                 className="w-full py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md transition"
               >
                 Launch Institute
@@ -462,7 +501,7 @@ export const LandingPage: React.FC = () => {
                 </div>
               </div>
               <button
-                onClick={() => instantLogin('admin')}
+                onClick={() => handleRoleLogin('admin')}
                 className="w-full py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-md transition"
               >
                 Launch Admin
@@ -508,7 +547,7 @@ export const LandingPage: React.FC = () => {
             </div>
             <div className="space-y-2">
               <button
-                onClick={() => instantLogin('student')}
+                onClick={() => handleRoleLogin('student')}
                 className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-extrabold text-xs shadow-lg shadow-blue-600/30 transition flex items-center justify-center space-x-2"
               >
                 <i className="fa-solid fa-bolt"></i>
@@ -549,7 +588,7 @@ export const LandingPage: React.FC = () => {
             </div>
             <div className="space-y-2">
               <button
-                onClick={() => instantLogin('faculty')}
+                onClick={() => handleRoleLogin('faculty')}
                 className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-500 hover:from-indigo-500 hover:to-purple-400 text-white font-extrabold text-xs shadow-lg shadow-indigo-600/30 transition flex items-center justify-center space-x-2"
               >
                 <i className="fa-solid fa-bolt"></i>
@@ -590,7 +629,7 @@ export const LandingPage: React.FC = () => {
             </div>
             <div className="space-y-2">
               <button
-                onClick={() => instantLogin('parent')}
+                onClick={() => handleRoleLogin('parent')}
                 className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 text-white font-extrabold text-xs shadow-lg shadow-amber-600/30 transition flex items-center justify-center space-x-2"
               >
                 <i className="fa-solid fa-bolt"></i>
@@ -631,7 +670,7 @@ export const LandingPage: React.FC = () => {
             </div>
             <div className="space-y-2">
               <button
-                onClick={() => instantLogin('institute')}
+                onClick={() => handleRoleLogin('institute')}
                 className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-500 hover:from-teal-500 hover:to-emerald-400 text-white font-extrabold text-xs shadow-lg shadow-teal-600/30 transition flex items-center justify-center space-x-2"
               >
                 <i className="fa-solid fa-bolt"></i>
@@ -672,7 +711,7 @@ export const LandingPage: React.FC = () => {
             </div>
             <div className="space-y-2">
               <button
-                onClick={() => instantLogin('admin')}
+                onClick={() => handleRoleLogin('admin')}
                 className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-rose-600 to-pink-500 hover:from-rose-500 hover:to-pink-400 text-white font-extrabold text-xs shadow-lg shadow-rose-600/30 transition flex items-center justify-center space-x-2"
               >
                 <i className="fa-solid fa-bolt"></i>
@@ -866,7 +905,7 @@ export const LandingPage: React.FC = () => {
             <div className="text-center pt-2 border-t border-slate-800">
               <button
                 type="button"
-                onClick={() => instantLogin(modalRole)}
+                onClick={() => handleRoleLogin(modalRole, undefined, true)}
                 className="text-xs text-cyan-400 hover:underline font-mono"
               >
                 ⚡ Bypass & Use 1-Click Instant Demo Login
@@ -874,6 +913,17 @@ export const LandingPage: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Mandatory WebAuthn Biometric Modal for Institute & Admin */}
+      {webAuthnChallenge && (
+        <WebAuthnModal
+          isOpen={webAuthnChallenge.isOpen}
+          role={webAuthnChallenge.role}
+          username={webAuthnChallenge.username}
+          onSuccess={webAuthnChallenge.onSuccessAction}
+          onCancel={() => setWebAuthnChallenge(null)}
+        />
       )}
     </div>
   );

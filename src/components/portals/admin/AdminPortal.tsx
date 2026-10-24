@@ -4,10 +4,11 @@ import { AdminWorkflow } from '../../views/AdminWorkflow';
 import { FederationView } from '../../views/FederationView';
 import { StudentRecord } from '../../../types';
 import { GuidedTour } from '../../common/GuidedTour';
+import { PasskeyManagementView } from '../../common/PasskeyManagementView';
 
 export const AdminPortal: React.FC = () => {
   const { currentUser, logout, students, auditLogs, biometricLogs, toggleFlagBiometricLog } = useAuth();
-  const [activeTab, setActiveTab] = useState<'grievances' | 'student_crud' | 'federation' | 'institutions_approval' | 'audit_forensics'>('grievances');
+  const [activeTab, setActiveTab] = useState<'grievances' | 'student_crud' | 'federation' | 'institutions_approval' | 'audit_forensics' | 'fido2_passkeys'>('grievances');
   const [showTour, setShowTour] = useState<boolean>(() => {
     return localStorage.getItem('edu_tour_seen_admin') !== 'true';
   });
@@ -105,7 +106,7 @@ export const AdminPortal: React.FC = () => {
   };
 
   interface NavItem {
-    id: 'grievances' | 'student_crud' | 'federation' | 'institutions_approval' | 'audit_forensics';
+    id: 'grievances' | 'student_crud' | 'federation' | 'institutions_approval' | 'audit_forensics' | 'fido2_passkeys';
     label: string;
     icon: string;
     description: string;
@@ -145,6 +146,13 @@ export const AdminPortal: React.FC = () => {
       label: 'Audit & Biometric Forensics',
       icon: 'fa-fingerprint',
       description: 'Immutable activity streams & forensic review flags'
+    },
+    {
+      id: 'fido2_passkeys',
+      label: 'FIDO2 Hardware Passkeys',
+      icon: 'fa-key',
+      badge: 'Zero Trust',
+      description: 'Register biometric authenticators & manage hardware tokens'
     }
   ];
 
@@ -556,6 +564,10 @@ export const AdminPortal: React.FC = () => {
                 </div>
               </div>
             </div>
+          )}
+
+          {activeTab === 'fido2_passkeys' && (
+            <PasskeyManagementView role="admin" accentColor="rose" />
           )}
         </main>
       </div>

@@ -3,6 +3,7 @@ import { UserRole, UserProfile, StudentRecord, EnrolledInstitution, ComplaintTic
 import { DEMO_PROFILES, INITIAL_STUDENTS, ENROLLED_INSTITUTIONS, INITIAL_COMPLAINTS, INITIAL_FDR_ESCROW, INITIAL_CHAT_MESSAGES, INITIAL_BIOMETRIC_LOGS } from '../data/mockData';
 import { auth, db, googleProvider, signInWithPopup, fbSignOut, onAuthStateChanged, FirebaseUser, handleFirestoreError, OperationType } from '../lib/firebase';
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, limit, onSnapshot } from 'firebase/firestore';
+import { seedDefaultDemoPasskeys } from '../lib/webauthn';
 
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -30,6 +31,7 @@ interface AuthContextType {
   addComplaint: (c: Omit<ComplaintTicket, 'id' | 'ticket_no' | 'created_at'>) => Promise<void>;
   payFee: (amount: number, remarks: string) => void;
   auditLogs: string[];
+  addAuditLog: (msg: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -72,6 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Listen to Firebase Auth state
   useEffect(() => {
+    seedDefaultDemoPasskeys();
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       setFirebaseUser(fbUser);
       if (fbUser) {
@@ -540,6 +543,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addComplaint,
         payFee,
         auditLogs,
+        addAuditLog,
         biometricLogs,
         recordBiometricAttempt,
         toggleFlagBiometricLog
