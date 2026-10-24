@@ -135,3 +135,21 @@ export interface FdrEscrowRecord {
   status: 'ACTIVE_LOCKED' | 'PENDING_AUDIT' | 'RELEASED';
   compliance_tier: string;
 }
+
+export type BiometricModality = 'FACE_3D' | 'OCR_ID' | 'VOICE_SPECTROGRAM';
+export type BiometricStatus = 'VERIFIED_SUCCESS' | 'CHALLENGE_REQUIRED' | 'REJECTED' | 'PENDING';
+
+export interface BiometricLogEntry {
+  id: string;
+  modality: BiometricModality;
+  modalityLabel: string;
+  status: BiometricStatus;
+  timestamp: string;
+  relativeTime: string;
+  subjectRollNo: string;
+  subjectName: string;
+  confidenceScore: string;
+  hash: string;
+  notes: string;
+}
+

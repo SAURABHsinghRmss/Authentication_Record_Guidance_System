@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 export const BiometricsModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+  const { recordBiometricAttempt } = useAuth();
   const [faceStatus, setFaceStatus] = useState<'idle' | 'scanning' | 'success'>('idle');
   const [ocrStatus, setOcrStatus] = useState<'idle' | 'scanning' | 'success'>('idle');
   const [voiceStatus, setVoiceStatus] = useState<'idle' | 'scanning' | 'success'>('idle');
@@ -9,17 +11,26 @@ export const BiometricsModal: React.FC<{ isOpen: boolean; onClose: () => void }>
 
   const triggerFaceScan = () => {
     setFaceStatus('scanning');
-    setTimeout(() => setFaceStatus('success'), 1200);
+    setTimeout(() => {
+      setFaceStatus('success');
+      recordBiometricAttempt('FACE_3D', 'VERIFIED_SUCCESS', '99.85%', 'Live 3D depth mesh and blink response authenticated.');
+    }, 1200);
   };
 
   const triggerOcrScan = () => {
     setOcrStatus('scanning');
-    setTimeout(() => setOcrStatus('success'), 1200);
+    setTimeout(() => {
+      setOcrStatus('success');
+      recordBiometricAttempt('OCR_ID', 'VERIFIED_SUCCESS', '99.20%', 'Digital capture of physical Student ID Card matches Roll CS-2022-04.');
+    }, 1200);
   };
 
   const triggerVoiceScan = () => {
     setVoiceStatus('scanning');
-    setTimeout(() => setVoiceStatus('success'), 1200);
+    setTimeout(() => {
+      setVoiceStatus('success');
+      recordBiometricAttempt('VOICE_SPECTROGRAM', 'VERIFIED_SUCCESS', '97.80%', 'Acoustic formant resonance matches enrollment voice profile.');
+    }, 1200);
   };
 
   return (

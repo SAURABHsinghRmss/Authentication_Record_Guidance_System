@@ -4,7 +4,8 @@ import {
   EnrolledInstitution,
   ComplaintTicket,
   FdrEscrowRecord,
-  ChatMessage
+  ChatMessage,
+  BiometricLogEntry
 } from '../types';
 
 export const DEMO_PROFILES: Record<string, UserProfile> = {
@@ -346,3 +347,98 @@ export const INITIAL_CHAT_MESSAGES: ChatMessage[] = [
     recipient: 'parent_alex'
   }
 ];
+
+export const INITIAL_BIOMETRIC_LOGS: BiometricLogEntry[] = [
+  {
+    id: 'bio-001',
+    modality: 'FACE_3D',
+    modalityLabel: '3D Facial Liveness & Depth Mesh',
+    status: 'VERIFIED_SUCCESS',
+    timestamp: '2026-10-24 09:14:22',
+    relativeTime: '1 hr ago',
+    subjectRollNo: 'CS-2022-04',
+    subjectName: 'Amit Sharma',
+    confidenceScore: '99.85%',
+    hash: 'SHA256-a9f82d1c7e90',
+    notes: 'Blink rate & depth geometry authenticated against sovereign APAAR bio-template.'
+  },
+  {
+    id: 'bio-002',
+    modality: 'OCR_ID',
+    modalityLabel: 'Physical Student ID Card OCR',
+    status: 'VERIFIED_SUCCESS',
+    timestamp: '2026-10-24 09:14:48',
+    relativeTime: '1 hr ago',
+    subjectRollNo: 'CS-2022-04',
+    subjectName: 'Amit Sharma',
+    confidenceScore: '98.90%',
+    hash: 'SHA256-4b89fa01ef43',
+    notes: 'Optical MRZ checksum and barcode validated against GLBITM Registrar SIS.'
+  },
+  {
+    id: 'bio-003',
+    modality: 'VOICE_SPECTROGRAM',
+    modalityLabel: 'Acoustic Voiceprint Spectrogram',
+    status: 'VERIFIED_SUCCESS',
+    timestamp: '2026-10-24 09:15:10',
+    relativeTime: '1 hr ago',
+    subjectRollNo: 'CS-2022-04',
+    subjectName: 'Amit Sharma',
+    confidenceScore: '97.20%',
+    hash: 'SHA256-8c11de34bc98',
+    notes: 'Harmonic formant ratio validated for phrase "EduIdentityAI 2026".'
+  },
+  {
+    id: 'bio-004',
+    modality: 'FACE_3D',
+    modalityLabel: '3D Facial Liveness & Depth Mesh',
+    status: 'CHALLENGE_REQUIRED',
+    timestamp: '2026-10-23 16:42:05',
+    relativeTime: 'Yesterday',
+    subjectRollNo: 'CS-2022-04',
+    subjectName: 'Amit Sharma',
+    confidenceScore: '84.10%',
+    hash: 'SHA256-3d77aa19c802',
+    notes: 'Low ambient lux illumination detected; secondary 2FA token issued.'
+  },
+  {
+    id: 'bio-005',
+    modality: 'OCR_ID',
+    modalityLabel: 'Physical Student ID Card OCR',
+    status: 'VERIFIED_SUCCESS',
+    timestamp: '2026-10-22 11:30:15',
+    relativeTime: '2 days ago',
+    subjectRollNo: 'CS-2022-04',
+    subjectName: 'Amit Sharma',
+    confidenceScore: '99.10%',
+    hash: 'SHA256-91fa87ee2300',
+    notes: 'Campus Gate access terminal verification passed.'
+  },
+  {
+    id: 'bio-006',
+    modality: 'VOICE_SPECTROGRAM',
+    modalityLabel: 'Acoustic Voiceprint Spectrogram',
+    status: 'PENDING',
+    timestamp: '2026-10-24 10:20:00',
+    relativeTime: '20 mins ago',
+    subjectRollNo: 'CS-2022-04',
+    subjectName: 'Amit Sharma',
+    confidenceScore: 'Queued (In-Progress)',
+    hash: 'SHA256-pending-audit-77b',
+    notes: 'Audio segment submitted for dual-channel noise cancellation and registrar corroboration.'
+  },
+  {
+    id: 'bio-007',
+    modality: 'FACE_3D',
+    modalityLabel: '3D Facial Liveness & Depth Mesh',
+    status: 'REJECTED',
+    timestamp: '2026-10-21 14:12:33',
+    relativeTime: '3 days ago',
+    subjectRollNo: 'CS-2022-04',
+    subjectName: 'Amit Sharma',
+    confidenceScore: '41.20%',
+    hash: 'SHA256-f002cb76d881',
+    notes: 'Static photo spoof detected by passive IR sensor. Verification rejected.'
+  }
+];
+

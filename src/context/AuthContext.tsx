@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { UserRole, UserProfile, StudentRecord, EnrolledInstitution, ComplaintTicket, FdrEscrowRecord, ChatMessage } from '../types';
-import { DEMO_PROFILES, INITIAL_STUDENTS, ENROLLED_INSTITUTIONS, INITIAL_COMPLAINTS, INITIAL_FDR_ESCROW, INITIAL_CHAT_MESSAGES } from '../data/mockData';
+import { UserRole, UserProfile, StudentRecord, EnrolledInstitution, ComplaintTicket, FdrEscrowRecord, ChatMessage, BiometricLogEntry, BiometricModality, BiometricStatus } from '../types';
+import { DEMO_PROFILES, INITIAL_STUDENTS, ENROLLED_INSTITUTIONS, INITIAL_COMPLAINTS, INITIAL_FDR_ESCROW, INITIAL_CHAT_MESSAGES, INITIAL_BIOMETRIC_LOGS } from '../data/mockData';
 
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -14,6 +14,8 @@ interface AuthContextType {
   complaints: ComplaintTicket[];
   fdrEscrow: FdrEscrowRecord[];
   chatMessages: ChatMessage[];
+  biometricLogs: BiometricLogEntry[];
+  recordBiometricAttempt: (modality: BiometricModality, status: BiometricStatus, confidence: string, notes: string) => void;
   login: (role: UserRole, username: string) => void;
   instantLogin: (role: UserRole) => void;
   switchRole: (role: UserRole) => void;
@@ -46,6 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [complaints, setComplaints] = useState<ComplaintTicket[]>(INITIAL_COMPLAINTS);
   const [fdrEscrow, setFdrEscrow] = useState<FdrEscrowRecord[]>(INITIAL_FDR_ESCROW);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(INITIAL_CHAT_MESSAGES);
+  const [biometricLogs, setBiometricLogs] = useState<BiometricLogEntry[]>(INITIAL_BIOMETRIC_LOGS);
 
   const [auditLogs, setAuditLogs] = useState<string[]>([
     `[${new Date().toISOString().slice(0, 19)}] SYSTEM ONLINE: Sovereign React Core mounted with DPI Integration.`,
@@ -56,6 +59,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addAuditLog = (msg: string) => {
     const time = new Date().toISOString().slice(0, 19).replace('T', ' ');
     setAuditLogs(prev => [`[${time}] ${msg}`, ...prev.slice(0, 49)]);
+  };
+
+  const recordBiometricAttempt = (modality: BiometricModality, status: BiometricStatus, confidence: string, notes: string) => {
+    const labelMap: Record<BiometricModality, string> = {
+      FACE_3D: '3D Facial Liveness & Depth Mesh',
+      OCR_ID: 'Physical Student ID Card OCR',
+      VOICE_SPECTROGRAM: 'Acoustic Voiceprint Spectrogram'
+    };
+    const now = new Date();
+    const formattedTimestamp = now.toISOString().slice(0, 19).replace('T', ' ');
+    const randomHex = Math.random().toString(16).substring(2, 14);
+
+    const newEntry: BiometricLogEntry = {
+      id: `bio-${Date.now()}`,
+      modality,
+      modalityLabel: labelMap[modality],
+      status,
+      timestamp: formattedTimestamp,
+      relativeTime: 'Just now',
+      subjectRollNo: currentUser.rollNo || 'CS-2022-04',
+      subjectName: currentUser.name || 'Amit Sharma',
+      confidenceScore: confidence,
+      hash: `SHA256-${randomHex}`,
+      notes
+    };
+
+    setBiometricLogs(prev => [newEntry, ...prev]);
+    addAuditLog(`BIOMETRICS: ${labelMap[modality]} verification [${status}] recorded for ${newEntry.subjectName} (${newEntry.subjectRollNo}) with score ${confidence}. Hash: ${newEntry.hash}`);
+
+    if (status === 'REJECTED') {
+      const emailEnabled = localStorage.getItem('edu_notify_email_failed_scans') !== 'false';
+      const systemEnabled = localStorage.getItem('edu_notify_system_failed_scans') !== 'false';
+      const targetEmail = localStorage.getItem('edu_notify_alert_email') || 'ssrmsr06@gmail.com';
+      if (emailEnabled || systemEnabled) {
+        addAuditLog(`SECURITY ALERT [HIGH-PRIORITY]: High-priority failed biometric scan for ${newEntry.subjectName}. Dispatched incident notice via ${[emailEnabled ? `Email (${targetEmail})` : '', systemEnabled ? 'System Notification Engine' : ''].filter(Boolean).join(' & ')}.`);
+      }
+    }
   };
 
   const instantLogin = (role: UserRole) => {
@@ -180,7 +220,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addChatMessage,
         addComplaint,
         payFee,
-        auditLogs
+        auditLogs,
+        biometricLogs,
+        recordBiometricAttempt
       }}
     >
       {children}

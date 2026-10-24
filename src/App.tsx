@@ -102,6 +102,7 @@ const AppContent: React.FC = () => {
       <AuditLogsModal
         isOpen={showLogs}
         onClose={() => setShowLogs(false)}
+        onOpenBiometrics={() => setShowBiometrics(true)}
       />
     </div>
   );
