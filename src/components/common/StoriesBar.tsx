@@ -42,6 +42,7 @@ export const StoriesBar: React.FC = () => {
     {
       id: 's-3',
       name: 'Director GLBITM',
+      avatar: 'fa-building-columns',
       role: 'Institute Governance',
       title: 'Accreditation SIF Walkthrough Notice',
       time: '6h ago',
@@ -50,6 +51,7 @@ export const StoriesBar: React.FC = () => {
     {
       id: 's-4',
       name: 'Placement Cell',
+      avatar: 'fa-briefcase',
       role: 'Career Services',
       title: 'Tier-1 Tech Drive Registration Open',
       time: '12h ago',
