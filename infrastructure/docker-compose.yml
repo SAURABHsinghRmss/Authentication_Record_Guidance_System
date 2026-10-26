@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eduidentity_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./databases:/app/databases
+      - ./storage:/app/storage
+    environment:
+      - SECRET_KEY=eduidentity-secure-production-key-2026
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

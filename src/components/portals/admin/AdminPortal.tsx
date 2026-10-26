@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { AdminWorkflow } from '../../views/AdminWorkflow';
 import { FederationView } from '../../views/FederationView';
+import { UnifiedChat } from '../../views/UnifiedChat';
+import { VideoEditStudio } from '../../views/VideoEditStudio';
 import { StudentRecord } from '../../../types';
 import { GuidedTour } from '../../common/GuidedTour';
 import { PasskeyManagementView } from '../../common/PasskeyManagementView';
 
 export const AdminPortal: React.FC = () => {
   const { currentUser, logout, students, auditLogs, biometricLogs, toggleFlagBiometricLog } = useAuth();
-  const [activeTab, setActiveTab] = useState<'grievances' | 'student_crud' | 'federation' | 'institutions_approval' | 'audit_forensics' | 'fido2_passkeys'>('grievances');
+  const [activeTab, setActiveTab] = useState<'grievances' | 'student_crud' | 'federation' | 'institutions_approval' | 'audit_forensics' | 'fido2_passkeys' | 'unified_chat' | 'video_edit'>('grievances');
   const [showTour, setShowTour] = useState<boolean>(() => {
     return localStorage.getItem('edu_tour_seen_admin') !== 'true';
   });
@@ -106,7 +108,7 @@ export const AdminPortal: React.FC = () => {
   };
 
   interface NavItem {
-    id: 'grievances' | 'student_crud' | 'federation' | 'institutions_approval' | 'audit_forensics' | 'fido2_passkeys';
+    id: 'grievances' | 'student_crud' | 'federation' | 'institutions_approval' | 'audit_forensics' | 'fido2_passkeys' | 'unified_chat' | 'video_edit';
     label: string;
     icon: string;
     description: string;
@@ -153,6 +155,18 @@ export const AdminPortal: React.FC = () => {
       icon: 'fa-key',
       badge: 'Zero Trust',
       description: 'Register biometric authenticators & manage hardware tokens'
+    },
+    {
+      id: 'unified_chat',
+      label: 'Unified Agora & Chat',
+      icon: 'fa-comments',
+      description: 'Sovereign campus agora, AI mentor & direct messaging'
+    },
+    {
+      id: 'video_edit',
+      label: 'Sovereign Video Edit Studio',
+      icon: 'fa-video',
+      description: 'AI lecture cutting, subtitles & 4K media rendering'
     }
   ];
 
@@ -569,6 +583,9 @@ export const AdminPortal: React.FC = () => {
           {activeTab === 'fido2_passkeys' && (
             <PasskeyManagementView role="admin" accentColor="rose" />
           )}
+
+          {activeTab === 'unified_chat' && <UnifiedChat />}
+          {activeTab === 'video_edit' && <VideoEditStudio />}
         </main>
       </div>
 

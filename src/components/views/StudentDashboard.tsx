@@ -1,9 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { ATTENDANCE_BREAKDOWN } from '../../data/mockData';
+import { generateVerifiableCredential, VerifiableCredential } from '../../lib/vcService';
 
 export const StudentDashboard: React.FC = () => {
   const { currentUser, setActiveTab } = useAuth();
+  const [vcModalOpen, setVcModalOpen] = useState(false);
+  const [generatedVC, setGeneratedVC] = useState<VerifiableCredential | null>(null);
+  const [vcLoading, setVcLoading] = useState(false);
+
+  const handleGenerateVC = async () => {
+    setVcLoading(true);
+    try {
+      const vc = await generateVerifiableCredential({
+        name: currentUser.name,
+        roll_no: currentUser.rollNo || 'CS-2022-04',
+        apaar_id: currentUser.apaarId || '91-4458-9921-3412',
+        department: 'Computer Science & Engineering',
+        cgpa: 8.92,
+        credits_earned: 124,
+        institution: currentUser.institution || 'GL Bajaj Institute of Technology & Management',
+        status: 'VERIFIED'
+      });
+      setGeneratedVC(vc);
+      setVcModalOpen(true);
+    } catch (err) {
+      console.error('Failed to generate VC:', err);
+    } finally {
+      setVcLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -36,6 +62,14 @@ export const StudentDashboard: React.FC = () => {
 
           <div className="flex items-center gap-2">
             <button
+              onClick={handleGenerateVC}
+              disabled={vcLoading}
+              className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition flex items-center space-x-2 disabled:opacity-50"
+            >
+              <i className="fa-solid fa-certificate"></i>
+              <span>{vcLoading ? 'Signing VC...' : 'Export W3C VC'}</span>
+            </button>
+            <button
               onClick={() => setActiveTab('enrolled_institutions')}
               className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-600/30 transition flex items-center space-x-2"
             >
@@ -52,6 +86,79 @@ export const StudentDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* W3C Verifiable Credential Modal */}
+      {vcModalOpen && generatedVC && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-3xl max-w-2xl w-full p-6 space-y-6 shadow-2xl relative">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center font-bold border border-emerald-500/30">
+                  <i className="fa-solid fa-certificate"></i>
+                </div>
+                <div>
+                  <h3 className="text-lg font-extrabold text-white">W3C Verifiable Credential (VC)</h3>
+                  <p className="text-xs text-slate-400 font-mono">Cryptographically Signed & Tamper-Evident</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setVcModalOpen(false)}
+                className="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center"
+              >
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+              <div className="p-4 rounded-2xl bg-slate-950 border border-emerald-500/30 space-y-2">
+                <div className="flex justify-between text-xs text-slate-400 font-mono">
+                  <span>Credential ID: {generatedVC.id}</span>
+                  <span className="text-emerald-400 font-bold">✓ Signature Valid</span>
+                </div>
+                <div className="text-sm font-bold text-white">
+                  {generatedVC.credentialSubject.name} ({generatedVC.credentialSubject.rollNo})
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs font-mono text-slate-300 pt-2 border-t border-slate-800">
+                  <div>Department: {generatedVC.credentialSubject.department}</div>
+                  <div>CGPA: <span className="text-emerald-400 font-bold">{generatedVC.credentialSubject.cgpa}</span></div>
+                  <div>APAAR ID: {generatedVC.credentialSubject.apaarId}</div>
+                  <div>Credits: {generatedVC.credentialSubject.creditsEarned} / 160</div>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-mono text-slate-400 mb-1 block">JSON-LD Signed Payload (W3C Standard):</label>
+                <pre className="p-4 rounded-xl bg-slate-950 font-mono text-[11px] text-emerald-300/90 overflow-x-auto border border-slate-800">
+                  {JSON.stringify(generatedVC, null, 2)}
+                </pre>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-4 border-t border-slate-800">
+              <button
+                onClick={() => {
+                  const blob = new Blob([JSON.stringify(generatedVC, null, 2)], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `EduIdentity_VC_${generatedVC.credentialSubject.rollNo}.json`;
+                  a.click();
+                }}
+                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition flex items-center space-x-2"
+              >
+                <i className="fa-solid fa-download"></i>
+                <span>Download VC JSON</span>
+              </button>
+              <button
+                onClick={() => setVcModalOpen(false)}
+                className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* KPI Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

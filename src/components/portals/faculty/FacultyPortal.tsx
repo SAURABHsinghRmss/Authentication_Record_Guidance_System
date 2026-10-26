@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { FacultyDesk } from '../../views/FacultyDesk';
+import { UnifiedChat } from '../../views/UnifiedChat';
+import { VideoEditStudio } from '../../views/VideoEditStudio';
 import { GuidedTour } from '../../common/GuidedTour';
 
 export const FacultyPortal: React.FC = () => {
   const { currentUser, logout, students, addChatMessage } = useAuth();
-  const [activeTab, setActiveTab] = useState<'roster' | 'at_risk' | 'counseling' | 'pedagogy_ai' | 'research_verifier'>('roster');
+  const [activeTab, setActiveTab] = useState<'roster' | 'at_risk' | 'counseling' | 'pedagogy_ai' | 'research_verifier' | 'unified_chat' | 'video_edit'>('roster');
   const [showTour, setShowTour] = useState<boolean>(() => {
     return localStorage.getItem('edu_tour_seen_faculty') !== 'true';
   });
@@ -104,7 +106,7 @@ export const FacultyPortal: React.FC = () => {
   };
 
   interface NavItem {
-    id: 'roster' | 'at_risk' | 'counseling' | 'pedagogy_ai' | 'research_verifier';
+    id: 'roster' | 'at_risk' | 'counseling' | 'pedagogy_ai' | 'research_verifier' | 'unified_chat' | 'video_edit';
     label: string;
     icon: string;
     description: string;
@@ -145,6 +147,18 @@ export const FacultyPortal: React.FC = () => {
       label: 'Research & Journal Verifier',
       icon: 'fa-newspaper',
       description: 'Check CFP legitimacy & UGC-CARE journal indexing'
+    },
+    {
+      id: 'unified_chat',
+      label: 'Unified Agora & Chat',
+      icon: 'fa-comments',
+      description: 'Sovereign campus agora, AI mentor & direct messaging'
+    },
+    {
+      id: 'video_edit',
+      label: 'Sovereign Video Edit Studio',
+      icon: 'fa-video',
+      description: 'AI lecture cutting, subtitles & 4K media rendering'
     }
   ];
 
@@ -633,6 +647,9 @@ export const FacultyPortal: React.FC = () => {
               </div>
             </div>
           )}
+
+          {activeTab === 'unified_chat' && <UnifiedChat />}
+          {activeTab === 'video_edit' && <VideoEditStudio />}
         </main>
       </div>
 

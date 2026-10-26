@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { InstituteGovernance } from '../../views/InstituteGovernance';
+import { UnifiedChat } from '../../views/UnifiedChat';
+import { VideoEditStudio } from '../../views/VideoEditStudio';
 import { GuidedTour } from '../../common/GuidedTour';
 import { PasskeyManagementView } from '../../common/PasskeyManagementView';
 
 export const InstitutePortal: React.FC = () => {
   const { currentUser, logout, fdrEscrow, addChatMessage } = useAuth();
-  const [activeTab, setActiveTab] = useState<'sif_governance' | 'departments' | 'broadcaster' | 'accreditation' | 'escrow' | 'webauthn_passkeys'>('sif_governance');
+  const [activeTab, setActiveTab] = useState<'sif_governance' | 'departments' | 'broadcaster' | 'accreditation' | 'escrow' | 'webauthn_passkeys' | 'unified_chat' | 'video_edit'>('sif_governance');
   const [showTour, setShowTour] = useState<boolean>(() => {
     return localStorage.getItem('edu_tour_seen_institute') !== 'true';
   });
@@ -79,7 +81,7 @@ export const InstitutePortal: React.FC = () => {
   };
 
   interface NavItem {
-    id: 'sif_governance' | 'departments' | 'broadcaster' | 'accreditation' | 'escrow' | 'webauthn_passkeys';
+    id: 'sif_governance' | 'departments' | 'broadcaster' | 'accreditation' | 'escrow' | 'webauthn_passkeys' | 'unified_chat' | 'video_edit';
     label: string;
     icon: string;
     description: string;
@@ -126,6 +128,18 @@ export const InstitutePortal: React.FC = () => {
       icon: 'fa-fingerprint',
       badge: 'Tier-1 Security',
       description: 'Enroll biometric sensors & manage sovereign hardware keys'
+    },
+    {
+      id: 'unified_chat',
+      label: 'Unified Agora & Chat',
+      icon: 'fa-comments',
+      description: 'Sovereign campus agora, AI mentor & direct messaging'
+    },
+    {
+      id: 'video_edit',
+      label: 'Sovereign Video Edit Studio',
+      icon: 'fa-video',
+      description: 'AI lecture cutting, subtitles & 4K media rendering'
     }
   ];
 
@@ -510,6 +524,9 @@ export const InstitutePortal: React.FC = () => {
           {activeTab === 'webauthn_passkeys' && (
             <PasskeyManagementView role="institute" accentColor="teal" />
           )}
+
+          {activeTab === 'unified_chat' && <UnifiedChat />}
+          {activeTab === 'video_edit' && <VideoEditStudio />}
         </main>
       </div>
 

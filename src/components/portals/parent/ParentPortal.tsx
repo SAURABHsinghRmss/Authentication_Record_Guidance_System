@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { ParentMonitor } from '../../views/ParentMonitor';
+import { UnifiedChat } from '../../views/UnifiedChat';
+import { VideoEditStudio } from '../../views/VideoEditStudio';
 import { GuidedTour } from '../../common/GuidedTour';
 
 export const ParentPortal: React.FC = () => {
   const { currentUser, logout, students, addChatMessage, chatMessages, payFee } = useAuth();
-  const [activeTab, setActiveTab] = useState<'ward_overview' | 'admit_clearance' | 'mentor_hotline' | 'fee_receipts' | 'policy_faq'>('ward_overview');
+  const [activeTab, setActiveTab] = useState<'ward_overview' | 'admit_clearance' | 'mentor_hotline' | 'fee_receipts' | 'policy_faq' | 'unified_chat' | 'video_edit'>('ward_overview');
   const [showTour, setShowTour] = useState<boolean>(() => {
     return localStorage.getItem('edu_tour_seen_parent') !== 'true';
   });
@@ -53,7 +55,7 @@ export const ParentPortal: React.FC = () => {
   };
 
   interface NavItem {
-    id: 'ward_overview' | 'admit_clearance' | 'mentor_hotline' | 'fee_receipts' | 'policy_faq';
+    id: 'ward_overview' | 'admit_clearance' | 'mentor_hotline' | 'fee_receipts' | 'policy_faq' | 'unified_chat' | 'video_edit';
     label: string;
     icon: string;
     description: string;
@@ -91,6 +93,18 @@ export const ParentPortal: React.FC = () => {
       label: 'Academic Policies in Plain English',
       icon: 'fa-circle-question',
       description: 'Jargon-free AI explanations of university rules'
+    },
+    {
+      id: 'unified_chat',
+      label: 'Unified Agora & Chat',
+      icon: 'fa-comments',
+      description: 'Sovereign campus agora, AI mentor & direct messaging'
+    },
+    {
+      id: 'video_edit',
+      label: 'Sovereign Video Edit Studio',
+      icon: 'fa-video',
+      description: 'AI lecture cutting, subtitles & 4K media rendering'
     }
   ];
 
@@ -482,6 +496,9 @@ export const ParentPortal: React.FC = () => {
               </div>
             </div>
           )}
+
+          {activeTab === 'unified_chat' && <UnifiedChat />}
+          {activeTab === 'video_edit' && <VideoEditStudio />}
         </main>
       </div>
 

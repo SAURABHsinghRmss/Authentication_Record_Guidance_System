@@ -6,11 +6,13 @@ import { ScamShield } from '../../views/ScamShield';
 import { CareerPathways } from '../../views/CareerPathways';
 import { BiometricsModal } from '../../views/BiometricsModal';
 import { EnrolledInstitutionsHub } from '../../views/EnrolledInstitutionsHub';
+import { UnifiedChat } from '../../views/UnifiedChat';
+import { VideoEditStudio } from '../../views/VideoEditStudio';
 import { GuidedTour } from '../../common/GuidedTour';
 
 export const StudentPortal: React.FC = () => {
   const { currentUser, logout, biometricLogs, students } = useAuth();
-  const [activeTab, setActiveTab] = useState<'overview' | 'erp' | 'guidance' | 'biometrics' | 'scam_shield' | 'career'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'erp' | 'guidance' | 'biometrics' | 'scam_shield' | 'career' | 'unified_chat' | 'video_edit'>('overview');
   const [showBiometricsModal, setShowBiometricsModal] = useState(false);
   const [showTour, setShowTour] = useState<boolean>(() => {
     return localStorage.getItem('edu_tour_seen_student') !== 'true';
@@ -68,6 +70,18 @@ export const StudentPortal: React.FC = () => {
       label: 'Career Pathways',
       icon: 'fa-briefcase',
       description: 'Placement drives, tech roadmap & skill milestones'
+    },
+    {
+      id: 'unified_chat',
+      label: 'Unified Agora & Chat',
+      icon: 'fa-comments',
+      description: 'Sovereign campus agora, AI mentor & direct messaging'
+    },
+    {
+      id: 'video_edit',
+      label: 'Sovereign Video Edit Studio',
+      icon: 'fa-video',
+      description: 'AI lecture cutting, subtitles & 4K media rendering'
     }
   ] as const;
 
