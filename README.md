@@ -98,15 +98,15 @@ EduIdentityAI provides tailored, role-specific workspaces designed for every sta
 
 EduIdentityAI bridges administrative rigor with modern, intuitive user engagement through Instagram-style immersive modules:
 
-- **Instagram Direct Messages (DM) Chat (`UnifiedChat.tsx`)**:
+- **Direct Messages (DM) Chat (`UnifiedChat.tsx`)**:
   - 2-column split layout with categorized conversation threads (EduMentor AI, Campus Global Agora, Faculty Mentors).
   - Online presence indicators, typing status, and styled message bubbles supporting rich media and file attachments.
   - Interactive audio and video call simulation modals.
-- **Instagram Reels & Video Feed (`VideoEditStudio.tsx`)**:
+- **Education , valuable experience centric Reels & Video Feed (`VideoEditStudio.tsx`)**:
   - Vertical immersive video cards showcasing campus events, research breakthroughs, and tutorials.
   - Overlay action buttons for likes, comments, shares, and bookmarking.
   - Audio track indicators and reel publishing studio.
-- **Instagram Stories Tray (`StoriesBar.tsx`)**:
+- ** Stories Tray (`StoriesBar.tsx`)**:
   - Horizontal stories component featuring gradient rings for unread institutional notices and student startup spotlights.
   - Interactive story popup viewer with progress bars and quick reply inputs.
 
